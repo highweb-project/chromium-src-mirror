@@ -41,6 +41,12 @@ class WebMediaRecorderHandler;
 class WebMediaStream;
 class WebSecurityOrigin;
 class WebServiceWorkerCacheStorage;
+class WebDeviceCpuListener;
+class WebDeviceGalleryListener;
+class WebDeviceSoundListener;
+class WebDeviceStorageListener;
+struct WebDeviceGalleryMediaObject;
+struct WebDeviceGalleryFindOptions;
 }
 
 namespace scheduler {
@@ -63,6 +69,12 @@ class ThreadSafeSender;
 class WebClipboardImpl;
 class WebDatabaseObserverImpl;
 class WebFileSystemImpl;
+class DeviceApiContactManager;
+class DeviceApiMessagingManager;
+class DeviceCpuDispatcher;
+class DeviceGalleryDispatcher;
+class DeviceSoundDispatcher;
+class DeviceStorageDispatcher;
 
 class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
  public:
@@ -197,6 +209,21 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   void queryStorageUsageAndQuota(const blink::WebURL& storage_partition,
                                  blink::WebStorageQuotaType,
                                  blink::WebStorageQuotaCallbacks) override;
+  void outputDeviceType(blink::WebDeviceSoundListener* callback) override;
+  void deviceVolume(blink::WebDeviceSoundListener* callback) override;
+  void resetDeviceSoundDispatcher() override;
+
+  void getDeviceStorage(blink::WebDeviceStorageListener* callback) override;
+  void resetDeviceStorageDispatcher() override;
+
+  void getDeviceCpuLoad(blink::WebDeviceCpuListener* callback) override;
+  void resetDeviceCpuDispatcher() override;
+
+  void findMedia(blink::WebDeviceGalleryFindOptions* findOptions, blink::WebDeviceGalleryListener* callback) override;
+  void getMedia(blink::WebDeviceGalleryMediaObject* media, blink::WebDeviceGalleryListener* callback) override;
+  void deleteMedia(blink::WebDeviceGalleryMediaObject* media, blink::WebDeviceGalleryListener* callback) override;
+  void resetDeviceGalleryDispatcher() override;
+
   blink::WebThread* currentThread() override;
   blink::BlameContext* topLevelBlameContext() override;
   void recordRappor(const char* metric,
@@ -238,6 +265,20 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   }
 
   blink::WebURLLoader* createURLLoader() override;
+
+  void findContact(blink::WebDeviceContactParameter* parameter) override;
+  void addContact(blink::WebDeviceContactParameter* parameter) override;
+  void deleteContact(blink::WebDeviceContactParameter* parameter) override;
+  void updateContact(blink::WebDeviceContactParameter* parameter) override;
+
+  void sendMessage(blink::WebDeviceMessageObject* message) override;
+  void findMessage(blink::WebDeviceMessagingParameter* parameter) override;
+  void addMessagingListener(blink::WebDeviceMessagingParameter* parameter) override;
+  void removeMessagingListener(blink::WebDeviceMessagingParameter* parameter) override;
+
+  #if defined(OS_LINUX)
+  base::SharedMemory* getSharedMemoryForWebCL(int size) override;
+  #endif
 
  private:
   bool CheckPreparsedJsCachingEnabled() const;
@@ -298,6 +339,10 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
 
   std::unique_ptr<blink::WebScrollbarBehavior> web_scrollbar_behavior_;
 
+  std::unique_ptr<DeviceSoundDispatcher> devicesound_dispatcher_;
+  std::unique_ptr<DeviceStorageDispatcher> devicestorage_dispatcher_;
+  std::unique_ptr<DeviceCpuDispatcher> devicecpu_dispatcher_;
+  std::unique_ptr<DeviceGalleryDispatcher> devicegallery_dispatcher_;
   IDMap<PlatformEventObserverBase, IDMapOwnPointer> platform_event_observers_;
 
   scheduler::RendererScheduler* renderer_scheduler_;  // NOT OWNED
@@ -308,6 +353,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   std::unique_ptr<LocalStorageCachedAreas> local_storage_cached_areas_;
 
   std::unique_ptr<BlinkServiceRegistryImpl> blink_service_registry_;
+
+  std::unique_ptr<DeviceApiContactManager> device_contact_manager_;
+  std::unique_ptr<DeviceApiMessagingManager> device_messaging_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(RendererBlinkPlatformImpl);
 };

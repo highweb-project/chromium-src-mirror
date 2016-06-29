@@ -1,0 +1,3 @@
+callback interface MessagingErrorCallback {
+	void handleResult(unsigned long error);
+};

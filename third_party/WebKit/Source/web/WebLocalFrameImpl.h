@@ -328,6 +328,10 @@ public:
     void setContextMenuNode(Node* node) { m_contextMenuNode = node; }
     void clearContextMenuNode() { m_contextMenuNode.clear(); }
 
+    #if defined(OS_ANDROID)
+    void sendAndroidBroadcastResponse(const WebString&) override;
+    #endif
+
     DECLARE_TRACE();
 
 private:

@@ -618,6 +618,10 @@ IPC_MESSAGE_ROUTED2(FrameMsg_CustomContextMenuAction,
                     content::CustomContextMenuContext /* custom_context */,
                     unsigned /* action */)
 
+// sendAndroidBroadcast
+IPC_MESSAGE_ROUTED1(FrameMsg_SendAndroidBroadcastResponse,
+                    std::string /* action */)
+					
 // Requests that the RenderFrame or RenderFrameProxy updates its opener to the
 // specified frame.  The routing ID may be MSG_ROUTING_NONE if the opener was
 // disowned.
@@ -928,6 +932,10 @@ IPC_MESSAGE_ROUTED4(FrameHostMsg_AddMessageToConsole,
                     base::string16, /* msg */
                     int32_t,        /* line number */
                     base::string16 /* source id */)
+
+// sendAndroidBroadcast
+IPC_MESSAGE_ROUTED1(FrameHostMsg_SendAndroidBroadcast,
+                    base::string16 /* action */)
 
 // Sent by the renderer when a child frame is created in the renderer.
 //

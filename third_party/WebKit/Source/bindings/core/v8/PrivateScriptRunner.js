@@ -66,6 +66,9 @@ function PrivateScriptController()
 
         // Pointer Events
         "InvalidPointerId",
+
+        // WebCL
+        "WebCLError",	
     ];
 
     // This list must be in sync with the enum in ExceptionCode.h. The order matters.

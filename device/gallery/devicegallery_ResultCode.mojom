@@ -1,0 +1,55 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+enum device_gallery_ErrorCodeList{
+	// Exception code
+	SUCCESS = -1,
+	NOT_ENABLED_PERMISSION = -2,
+	UNKNOWN_ERROR = 0,
+	INVALID_ARGUMENT_ERROR = 1,
+	TIMEOUT_ERROR = 3,
+	PENDING_OPERATION_ERROR = 4,
+	IO_ERROR = 5,
+	NOT_SUPPORTED_ERROR = 6,
+	MEDIA_SIZE_EXCEEDED = 20,
+};
+
+enum device_gallery_function {
+	FUNC_FIND_MEDIA = 1,
+	FUNC_GET_MEDIA,
+	FUNC_DELETE_MEDIA,
+};
+
+struct MojoDeviceGalleryMediaContent {
+ 	string mUri;
+ 	int32 mBlobSize;
+ 	array<uint8> mBlob;
+};
+
+struct MojoDeviceGalleryMediaObject {
+ 	string mType;
+ 	string mDescription;
+ 	string mId;
+ 	string mTitle;
+ 	string mFileName;
+ 	int64 mFileSize;
+ 	double mCreatedDate;
+ 	MojoDeviceGalleryMediaContent mContent;
+};
+
+struct MojoDeviceGalleryFindOptions {
+	string mOperation;
+ 	int32 mMaxItem;
+ 	MojoDeviceGalleryMediaObject mObject;
+};
+
+struct DeviceGallery_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	int32 mediaListSize;
+	array<MojoDeviceGalleryMediaObject>? mediaList;
+};

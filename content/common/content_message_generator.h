@@ -60,6 +60,8 @@
 #include "content/common/view_messages.h"
 #include "content/common/websocket_messages.h"
 #include "content/common/worker_messages.h"
+#include "content/common/device_api/device_api_permission_check_messages.h"
+#include "content/common/device_sensors/device_proximity_messages.h"
 
 #if defined(ENABLE_WEBRTC)
 #include "content/common/p2p_messages.h"

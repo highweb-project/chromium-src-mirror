@@ -147,6 +147,8 @@ public:
     CustomElementsRegistry* customElements(ScriptState*) const override;
     CustomElementsRegistry* customElements() const;
 
+    void sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*) override;
+    void sendAndroidBroadcastResponse(const String& action) override;
     void registerProperty(DOMWindowProperty*);
     void unregisterProperty(DOMWindowProperty*);
 
@@ -254,6 +256,9 @@ private:
     RefPtr<SerializedScriptValue> m_pendingStateObject;
 
     HeapHashSet<Member<PostMessageTimer>> m_postMessageTimers;
+    #if defined(OS_ANDROID)
+    SendAndroidBroadcastCallback* m_sendAndroidBroadcastCallback = nullptr;
+    #endif
 };
 
 DEFINE_TYPE_CASTS(LocalDOMWindow, DOMWindow, x, x->isLocalDOMWindow(), x.isLocalDOMWindow());

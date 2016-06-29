@@ -143,6 +143,8 @@ public:
     virtual bool shouldReportDetailedMessageForSource(LocalFrame&, const String& source) = 0;
     virtual void addMessageToConsole(LocalFrame*, MessageSource, MessageLevel, const String& message, unsigned lineNumber, const String& sourceID, const String& stackTrace) = 0;
 
+    virtual void sendAndroidBroadcast(LocalFrame*, const String& action) = 0;
+
     virtual bool canOpenBeforeUnloadConfirmPanel() = 0;
     bool openBeforeUnloadConfirmPanel(const String& message, LocalFrame*, bool isReload);
 

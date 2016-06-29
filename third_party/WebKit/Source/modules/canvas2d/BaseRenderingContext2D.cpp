@@ -1255,8 +1255,8 @@ ImageData* BaseRenderingContext2D::createImageData(double sw, double sh, Excepti
         size.setHeight(1);
 
     ImageData* result = ImageData::create(size);
-    if (!result)
-        exceptionState.throwRangeError("Out of memory at ImageData creation");
+    // if (!result)
+    //     exceptionState.throwRangeError("Out of memory at ImageData creation");
     return result;
 }
 

@@ -1121,4 +1121,12 @@ double ChromeClientImpl::lastFrameTimeMonotonic() const
     return m_webView->lastFrameTimeMonotonic();
 }
 
+void ChromeClientImpl::sendAndroidBroadcast(LocalFrame* localFrame, const String& action)
+{
+    WebLocalFrameImpl* frame = WebLocalFrameImpl::fromFrame(localFrame);
+    if (frame && frame->client()) {
+        frame->client()->didSendAndroidBroadcast(action);
+    }
+}
+
 } // namespace blink

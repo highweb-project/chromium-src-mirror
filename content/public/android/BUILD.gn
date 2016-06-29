@@ -51,6 +51,23 @@ android_library("content_java") {
     "//ui/accessibility:ui_accessibility_java",
     "//ui/android:ui_java",
 
+    "//device/applauncher:mojo_bindings_java",
+    "//device/applauncher/android:applauncher_manager_android",
+    "//device/calendar:mojo_bindings_java",
+    "//device/calendar/android:calendar_manager_android",
+    "//device/contact:mojo_bindings_java",
+    "//device/contact/android:contact_manager_android",
+    "//device/cpu:mojo_bindings_java",
+    "//device/cpu/android:devicecpu_manager_android",
+    "//device/gallery:mojo_bindings_java",
+    "//device/gallery/android:devicegallery_manager_android",
+    "//device/messaging:mojo_bindings_java",
+    "//device/messaging/android:messaging_manager_android",
+    "//device/sound:mojo_bindings_java",
+    "//device/sound/android:devicesound_manager_android",
+    "//device/storage:mojo_bindings_java",
+    "//device/storage/android:devicestorage_manager_android",
+
     #"//content:content_common",
   ]
 

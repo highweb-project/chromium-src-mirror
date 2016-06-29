@@ -54,6 +54,7 @@ SensorManagerAndroid::SensorManagerAndroid()
       device_light_buffer_(nullptr),
       device_motion_buffer_(nullptr),
       device_orientation_buffer_(nullptr),
+	  device_proximity_buffer_(nullptr),
       motion_buffer_initialized_(false),
       orientation_buffer_initialized_(false),
       is_shutdown_(false) {
@@ -203,6 +204,19 @@ void SensorManagerAndroid::GotLight(JNIEnv*,
   device_light_buffer_->seqlock.WriteBegin();
   device_light_buffer_->data.value = value;
   device_light_buffer_->seqlock.WriteEnd();
+}
+
+void SensorManagerAndroid::GotProximity(JNIEnv*, jobject, double value) {
+  base::AutoLock autolock(proximity_buffer_lock_);
+
+  DLOG(INFO) << "GotProximity, value=" << value;
+
+  if (!device_proximity_buffer_)
+	return;
+
+  device_proximity_buffer_->seqlock.WriteBegin();
+  device_proximity_buffer_->data.value = value;
+  device_proximity_buffer_->seqlock.WriteEnd();
 }
 
 bool SensorManagerAndroid::Start(ConsumerType consumer_type) {
@@ -541,6 +555,73 @@ void SensorManagerAndroid::StopFetchingOrientationAbsoluteDataOnUI() {
       device_orientation_absolute_buffer_ = nullptr;
     }
   }
+}
+
+bool SensorManagerAndroid::StartFetchingDeviceProximityData(DeviceProximityHardwareBuffer* buffer) {
+	DLOG(INFO) << "SensorManagerAndroid::StartFetchingDeviceProximityData";
+
+  if (BrowserThread::CurrentlyOn(BrowserThread::UI)) {
+    StartFetchingProximityDataOnUI(buffer);
+  } else {
+    BrowserThread::PostTask(
+        BrowserThread::UI, FROM_HERE,
+        base::Bind(&SensorManagerAndroid::StartFetchingProximityDataOnUI,
+                   base::Unretained(this),
+                   buffer));
+  }
+  return true;
+}
+
+void SensorManagerAndroid::StartFetchingProximityDataOnUI(DeviceProximityHardwareBuffer* buffer) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  DCHECK(buffer);
+  if (is_shutdown_)
+    return;
+
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    device_proximity_buffer_ = buffer;
+    SetProximityBufferValue(-1);
+  }
+  bool success = Start(CONSUMER_TYPE_PROXIMITY);
+  if (!success) {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    SetProximityBufferValue(std::numeric_limits<double>::infinity());
+  }
+}
+
+void SensorManagerAndroid::StopFetchingDeviceProximityData() {
+  if (BrowserThread::CurrentlyOn(BrowserThread::UI)) {
+    StopFetchingProximityDataOnUI();
+    return;
+  }
+
+  BrowserThread::PostTask(
+      BrowserThread::UI, FROM_HERE,
+      base::Bind(&SensorManagerAndroid::StopFetchingProximityDataOnUI,
+                 base::Unretained(this)));
+}
+
+void SensorManagerAndroid::StopFetchingProximityDataOnUI() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  if (is_shutdown_)
+    return;
+
+  Stop(CONSUMER_TYPE_PROXIMITY);
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    if (device_proximity_buffer_) {
+    	SetProximityBufferValue(-1);
+    	device_proximity_buffer_ = nullptr;
+    }
+  }
+}
+
+void SensorManagerAndroid::SetProximityBufferValue(double value)
+{
+	  device_proximity_buffer_->seqlock.WriteBegin();
+	  device_proximity_buffer_->data.value = value;
+	  device_proximity_buffer_->seqlock.WriteEnd();
 }
 
 void SensorManagerAndroid::Shutdown() {

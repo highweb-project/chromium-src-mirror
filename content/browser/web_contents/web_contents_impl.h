@@ -524,6 +524,7 @@ class CONTENT_EXPORT WebContentsImpl
   void RequestMediaAccessPermission(
       const MediaStreamRequest& request,
       const MediaResponseCallback& callback) override;
+  void RequestDeviceApiPermission(const DeviceApiPermissionRequest& request) override;
   bool CheckMediaAccessPermission(const GURL& security_origin,
                                   MediaStreamType type) override;
   SessionStorageNamespace* GetSessionStorageNamespace(

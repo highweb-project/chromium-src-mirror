@@ -108,6 +108,8 @@
 #include "wtf/text/WTFString.h"
 #include <v8.h>
 
+#include "modules/device_proximity/DeviceProximityController.h"
+
 namespace blink {
 
 namespace {
@@ -167,6 +169,7 @@ void FrameLoaderClientImpl::dispatchDidClearWindowObjectInMainWorld()
             DOMWindowStorageController::from(*document);
             if (RuntimeEnabledFeatures::webVREnabled())
                 NavigatorVR::from(*document);
+            DeviceProximityController::from(*document);
         }
     }
     // FIXME: when extensions go out of process, this whole concept stops working.

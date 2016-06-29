@@ -474,6 +474,8 @@ class CONTENT_EXPORT RenderFrameImpl
                               const blink::WebString& source_name,
                               unsigned source_line,
                               const blink::WebString& stack_trace) override;
+  // sendAndroidBroadcast
+  void didSendAndroidBroadcast(const blink::WebString& action) override;
   void loadURLExternally(const blink::WebURLRequest& request,
                          blink::WebNavigationPolicy policy,
                          const blink::WebString& suggested_name,
@@ -616,6 +618,8 @@ class CONTENT_EXPORT RenderFrameImpl
       blink::WebSetSinkIdCallbacks* web_callbacks) override;
   blink::ServiceRegistry* serviceRegistry() override;
 
+  blink::WebDeviceApiPermissionCheckClient* deviceApiPermissionClient() override;
+
   // WebFrameSerializerClient implementation:
   void didSerializeDataForFrame(
       const blink::WebCString& data,
@@ -748,6 +752,8 @@ class CONTENT_EXPORT RenderFrameImpl
   void OnContextMenuClosed(const CustomContextMenuContext& custom_context);
   void OnCustomContextMenuAction(const CustomContextMenuContext& custom_context,
                                  unsigned action);
+  // sendAndroidBroadcast
+  void OnSendAndroidBroadcastResponse(const std::string& action);
   void OnUndo();
   void OnRedo();
   void OnCut();
@@ -1209,6 +1215,7 @@ class CONTENT_EXPORT RenderFrameImpl
   // Whether or not this RenderFrame is currently pasting.
   bool is_pasting_;
 
+  blink::WebDeviceApiPermissionCheckClient* device_api_client_;
   // Whether we must stop creating nested message loops for modal dialogs. This
   // is necessary because modal dialogs have a ScopedPageLoadDeferrer on the
   // stack that interferes with swapping out.

@@ -16,6 +16,7 @@ DeviceInertialSensorService::DeviceInertialSensorService()
       num_motion_readers_(0),
       num_orientation_readers_(0),
       num_orientation_absolute_readers_(0),
+	  num_proximity_readers_(0),
       is_shutdown_(false) {
 }
 
@@ -70,6 +71,10 @@ bool DeviceInertialSensorService::ChangeNumberConsumers(
       num_light_readers_ += delta;
       DCHECK_GE(num_light_readers_, 0);
       return true;
+    case CONSUMER_TYPE_PROXIMITY:
+      num_proximity_readers_ += delta;
+      DCHECK_GE(num_proximity_readers_, 0);
+      return true;
     default:
       NOTREACHED();
   }
@@ -87,6 +92,8 @@ int DeviceInertialSensorService::GetNumberConsumers(
       return num_orientation_absolute_readers_;
     case CONSUMER_TYPE_LIGHT:
       return num_light_readers_;
+    case CONSUMER_TYPE_PROXIMITY:
+      return num_proximity_readers_;
     default:
       NOTREACHED();
   }

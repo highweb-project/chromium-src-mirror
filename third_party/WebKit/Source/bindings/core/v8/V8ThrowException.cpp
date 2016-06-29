@@ -28,6 +28,7 @@
 #include "bindings/core/v8/V8Binding.h"
 #include "bindings/core/v8/V8DOMException.h"
 #include "core/dom/DOMException.h"
+#include "modules/webcl/WebCLException.h"
 #include "core/dom/ExceptionCode.h"
 
 namespace blink {
@@ -75,9 +76,20 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     }
 
     v8::TryCatch tryCatch(isolate);
-
-    DOMException* domException = DOMException::create(ec, sanitizedMessage, unsanitizedMessage);
-    v8::Local<v8::Value> exception = toV8(domException, sanitizedCreationContext, isolate);
+	
+    //check is WebCLException!
+    v8::Local<v8::Value> exception;
+    DOMException* domException = nullptr;
+    WebCLException* webclException = nullptr;
+	
+    if(WebCLException::isWebCLException(ec)) {
+    	webclException = WebCLException::create(ec, sanitizedMessage, unsanitizedMessage);
+    	exception = toV8(webclException, sanitizedCreationContext, isolate);
+    }
+    else {
+	    domException = DOMException::create(ec, sanitizedMessage, unsanitizedMessage);
+	    exception = toV8(domException, sanitizedCreationContext, isolate);
+    }
 
     if (tryCatch.HasCaught()) {
         ASSERT(exception.IsEmpty());
@@ -86,7 +98,14 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     ASSERT(!exception.IsEmpty());
 
     // Attach an Error object to the DOMException. This is then lazily used to get the stack value.
-    v8::Local<v8::Value> error = v8::Exception::Error(v8String(isolate, domException->message()));
+    v8::Local<v8::Value> error;
+    if(WebCLException::isWebCLException(ec)) {
+    	error = v8::Exception::Error(v8String(isolate, webclException->message()));
+    }
+    else {
+    	error = v8::Exception::Error(v8String(isolate, domException->message()));
+    }
+	
     ASSERT(!error.IsEmpty());
     v8::Local<v8::Object> exceptionObject = exception.As<v8::Object>();
     v8::Maybe<bool> result = exceptionObject->SetAccessor(isolate->GetCurrentContext(), v8AtomicString(isolate, "stack"), domExceptionStackGetter, domExceptionStackSetter, v8::MaybeLocal<v8::Value>(error));

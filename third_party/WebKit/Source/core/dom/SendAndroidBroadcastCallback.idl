@@ -1,0 +1,4 @@
+[
+] callback interface SendAndroidBroadcastCallback {
+    void onResult(DOMString result);
+};

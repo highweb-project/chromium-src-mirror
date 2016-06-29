@@ -1,0 +1,4 @@
+[
+] partial interface Navigator {
+    readonly attribute Messaging messaging;
+};

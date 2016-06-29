@@ -16,7 +16,7 @@ class DeviceLightDispatcher final : public GarbageCollectedFinalized<DeviceLight
     USING_GARBAGE_COLLECTED_MIXIN(DeviceLightDispatcher);
 public:
     static DeviceLightDispatcher& instance();
-    ~DeviceLightDispatcher() override;
+    virtual ~DeviceLightDispatcher() override;
 
     double latestDeviceLightData() const;
 

@@ -94,22 +94,10 @@ std::string BuildOSCpuInfo() {
 
   std::string android_info_str;
 
-  // Send information about the device.
-  bool semicolon_inserted = false;
-  std::string android_build_codename = base::SysInfo::GetAndroidBuildCodename();
-  std::string android_device_name = base::SysInfo::HardwareModelName();
-  if ("REL" == android_build_codename && android_device_name.size() > 0) {
-    android_info_str += "; " + android_device_name;
-    semicolon_inserted = true;
-  }
-
   // Append the build ID.
   std::string android_build_id = base::SysInfo::GetAndroidBuildID();
   if (android_build_id.size() > 0) {
-    if (!semicolon_inserted) {
-      android_info_str += ";";
-    }
-    android_info_str += " Build/" + android_build_id;
+    android_info_str += "Build/" + android_build_id;
   }
 #endif
 
@@ -133,8 +121,7 @@ std::string BuildOSCpuInfo() {
       os_minor_version,
       os_bugfix_version
 #elif defined(OS_ANDROID)
-      "Android %s%s",
-      android_version_str.c_str(),
+      "%s",
       android_info_str.c_str()
 #else
       "%s %s",

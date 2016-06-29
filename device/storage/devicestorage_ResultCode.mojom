@@ -1,0 +1,42 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+enum device_storage_ErrorCodeList{
+	// Exception code
+	SUCCESS = 0,
+	FAILURE = -1,
+	NOT_ENABLED_PERMISSION = -2,
+};
+
+enum device_storage_function {
+	FUNC_GET_DEVICE_STORAGE = 1,
+};
+
+enum device_storage_type {
+	DEVICE_UNKNOWN = 1,
+	DEVICE_HARDDISK,
+	DEVICE_FLOPPYDISK,
+	DEVICE_OPTICAL,
+	//android storage type
+	DEVICE_INTERNAL,
+	DEVICE_EXTERNAL, 
+	DEVICE_SDCARD,
+	DEVICE_USB,
+};
+
+struct DeviceStorage_StorageInfo {
+	uint64 type = 0;
+	uint64 capacity = 0;
+	uint64 availableCapacity = 0;
+	bool isRemovable = false;
+};
+
+struct DeviceStorage_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	array<DeviceStorage_StorageInfo>? storageList;
+};

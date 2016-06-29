@@ -80,6 +80,12 @@
 #include "public/platform/WebScreenInfo.h"
 #include "wtf/PassOwnPtr.h"
 
+#if defined(OS_ANDROID)
+#include "chrome/browser/android/intent_helper.h"
+#endif
+#include "core/dom/SendAndroidBroadcastCallback.h"
+
+
 namespace blink {
 
 // Rather than simply inheriting LocalFrameLifecycleObserver like most other
@@ -1312,6 +1318,34 @@ void LocalDOMWindow::cancelAnimationFrame(int id)
 {
     if (Document* document = this->document())
         document->cancelAnimationFrame(id);
+}
+
+
+void LocalDOMWindow::sendAndroidBroadcastResponse(const String& action)
+{
+#if defined(OS_ANDROID)
+    if(m_sendAndroidBroadcastCallback) {
+        m_sendAndroidBroadcastCallback->onResult(action);
+        // m_sendAndroidBroadcastCallback->deref();
+        m_sendAndroidBroadcastCallback = nullptr;
+    }
+#endif
+}
+
+void LocalDOMWindow::sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback* callback)
+{
+    #if defined(OS_ANDROID)
+    if (frame() && frame()->host()) {
+        frame()->host()->chromeClient().sendAndroidBroadcast(frame(), action);
+
+        if(m_sendAndroidBroadcastCallback) {
+          // m_sendAndroidBroadcastCallback->deref();
+          m_sendAndroidBroadcastCallback = nullptr;
+        }
+
+        m_sendAndroidBroadcastCallback = callback;
+    }
+    #endif
 }
 
 int LocalDOMWindow::requestIdleCallback(IdleRequestCallback* callback, const IdleRequestOptions& options)

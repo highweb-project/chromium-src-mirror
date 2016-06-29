@@ -26,6 +26,8 @@
 #include "ui/gl/gl_surface.h"
 #include "url/gurl.h"
 
+// gl/cl sharing
+#include "ui/opencl/opencl_include.h"
 namespace base {
 class WaitableEvent;
 }
@@ -109,6 +111,12 @@ class GPU_EXPORT GpuChannelManager {
   GpuMemoryManager* gpu_memory_manager() { return &gpu_memory_manager_; }
 
   GpuChannel* LookupChannel(int32_t client_id) const;
+
+  unsigned int LookupGLServiceId(unsigned int resource_id, GLResourceType glResourceType);
+
+  gpu::SyncPointManager* sync_point_manager() {
+    return sync_point_manager_;
+  }
 
   gl::GLSurface* GetDefaultOffscreenSurface();
 

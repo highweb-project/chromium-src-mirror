@@ -546,6 +546,12 @@
       'common/websocket_messages.h',
       'common/worker_messages.h',
       'common/zygote_commands_linux.h',
+      'public/common/device_api_permission_request.cc',
+      'public/common/device_api_permission_request.h',
+      'common/device_api/device_api_permission_check_messages.h',
+      'common/device_sensors/device_proximity_data.h',
+      'common/device_sensors/device_proximity_hardware_buffer.h',
+      'common/device_sensors/device_proximity_messages.h',
     ],
   },
   'sources': [

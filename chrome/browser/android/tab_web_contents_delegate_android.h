@@ -65,6 +65,7 @@ class TabWebContentsDelegateAndroid
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) override;
+  void RequestDeviceApiPermission(content::WebContents* web_contents, const content::DeviceApiPermissionRequest& request) override;
   bool CheckMediaAccessPermission(content::WebContents* web_contents,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;

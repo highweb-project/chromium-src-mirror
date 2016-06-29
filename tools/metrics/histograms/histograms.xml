@@ -74122,6 +74122,8 @@ http://cs/file:chrome/histograms.xml - but prefer this file for new entries.
   <int value="1387" label="DocumentCreateEventSensorErrorEvent"/>
   <int value="1388" label="DocumentCreateEventSensorReadingEvent"/>
   <int value="1389" label="MediaStreamConstraintsOldAndNew"/>
+  <int value="1390" label="DocumentCreateEventMessagingEvent"/>
+  <int value="1391" label="DocumentCreateEventDeviceProximityEvent"/>
 </enum>
 
 <enum name="FetchRequestMode" type="int">

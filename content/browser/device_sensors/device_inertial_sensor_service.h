@@ -61,6 +61,7 @@ class CONTENT_EXPORT DeviceInertialSensorService {
   int num_motion_readers_;
   int num_orientation_readers_;
   int num_orientation_absolute_readers_;
+  int num_proximity_readers_;
   bool is_shutdown_;
   std::unique_ptr<DataFetcherSharedMemory> data_fetcher_;
   base::ThreadChecker thread_checker_;

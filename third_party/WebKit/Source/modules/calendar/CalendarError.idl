@@ -1,0 +1,13 @@
+[
+] interface CalendarError {
+  const unsigned short UNKNOWN_ERROR = 0;
+  const unsigned short INVALID_ARGUMENT_ERROR = 1;
+  const unsigned short TIMEOUT_ERROR = 2;
+  const unsigned short PENDING_OPERATION_ERROR = 3;
+  const unsigned short IO_ERROR = 4;
+  const unsigned short NOT_SUPPORTED_ERROR = 5;
+  const unsigned short PERMISSION_DENIED_ERROR = 20;
+  const unsigned short SUCCESS = 99;
+
+  readonly attribute unsigned short code;
+};

@@ -12,8 +12,24 @@
 #include "base/android/scoped_java_ref.h"
 #include "jni/IntentHelper_jni.h"
 
+// sendAndroidBroadcast
+#include "base/logging.h"
+#include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/common/frame_messages.h"
+
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF16ToJavaString;
+
+// sendAndroidBroadcast
+static void OnReceiveAndroidBroadcast(JNIEnv* env, const JavaParamRef<jclass>& jcaller, const JavaParamRef<jstring>& j_action, jint process_id_, jint routing_id_) {
+  std::string action(base::android::ConvertJavaStringToUTF8(env, j_action));
+  content::RenderFrameHost* host = content::RenderFrameHost::FromID(process_id_, routing_id_);
+
+  if(!host) {
+  } else {
+    host->Send(new FrameMsg_SendAndroidBroadcastResponse(routing_id_, action));
+  }
+}
 
 namespace chrome {
 namespace android {
@@ -45,6 +61,15 @@ void OpenDateAndTimeSettings() {
   JNIEnv* env = AttachCurrentThread();
   Java_IntentHelper_openDateAndTimeSettings(env,
       base::android::GetApplicationContext());
+}
+
+// sendAndroidBroadcast
+void SendAndroidBroadcastJNI(const base::string16& d_action, int process_id_, int routing_id_) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jstring> j_action = ConvertUTF16ToJavaString(env, d_action);
+  Java_IntentHelper_sendAndroidBroadcast(env,
+                              base::android::GetApplicationContext(),
+                              j_action.obj(), process_id_, routing_id_);
 }
 
 bool RegisterIntentHelper(JNIEnv* env) {

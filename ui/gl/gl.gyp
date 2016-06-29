@@ -129,6 +129,9 @@
         'sync_control_vsync_provider.h',
         'trace_util.cc',
         'trace_util.h',
+        '../opencl/opencl_implementation.cc',
+        '../opencl/opencl_implementation.h',
+        '../opencl/opencl_include.h'
       ],
       'conditions': [
         ['OS in ("win", "android", "linux")', {

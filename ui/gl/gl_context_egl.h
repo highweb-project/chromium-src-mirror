@@ -31,6 +31,7 @@ class GLContextEGL : public GLContextReal {
   void ReleaseCurrent(GLSurface* surface) override;
   bool IsCurrent(GLSurface* surface) override;
   void* GetHandle() override;
+  void* GetDisplayHandle() { return display_; }
   void OnSetSwapInterval(int interval) override;
   std::string GetExtensions() override;
   bool WasAllocatedUsingRobustnessExtension() override;

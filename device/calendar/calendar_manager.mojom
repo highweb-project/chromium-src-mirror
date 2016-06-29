@@ -1,0 +1,14 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+import "device/calendar/calendar_ResultCode.mojom";
+
+interface CalendarManager {
+	CalendarDeviceApiFindEvent(string startBefore, string startAfter, string endBefore, string endAfter, bool mutiple) => (Calendar_ResultCode data);
+	CalendarDeviceApiAddEvent(Calendar_CalendarInfo event) => (Calendar_ResultCode data);
+	CalendarDeviceApiUpdateEvent(Calendar_CalendarInfo event) => (Calendar_ResultCode data);
+	CalendarDeviceApiDeleteEvent(string id) => (Calendar_ResultCode data);
+};

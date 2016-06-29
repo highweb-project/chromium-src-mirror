@@ -41,6 +41,7 @@ class ScrollToOptions;
 class SerializedScriptValue;
 class Storage;
 class StyleMedia;
+class SendAndroidBroadcastCallback;
 
 class CORE_EXPORT DOMWindow : public EventTargetWithInlineData, public DOMWindowBase64 {
     DEFINE_WRAPPERTYPEINFO();
@@ -175,6 +176,9 @@ public:
 
     // Custom elements
     virtual CustomElementsRegistry* customElements(ScriptState*) const = 0;
+
+    virtual void sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*) = 0;
+    virtual void sendAndroidBroadcastResponse(const String& action) = 0;
 
     void captureEvents() { }
     void releaseEvents() { }

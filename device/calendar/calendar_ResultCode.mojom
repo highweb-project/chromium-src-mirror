@@ -1,0 +1,23 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+struct Calendar_CalendarInfo {
+	string id = "";
+	string description = "";
+	string location = "";
+	string summary = "";
+	string start = "";
+	string end = "";
+	string status = "";
+	string transparency = "";
+	string reminder = "";
+};
+
+struct Calendar_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	array<Calendar_CalendarInfo>? calendarlist;
+};

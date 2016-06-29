@@ -68,3 +68,13 @@ void LaunchShell(JNIEnv* env,
 }
 
 }  // namespace content
+
+namespace chrome {
+namespace android {
+
+// sendAndroidBroadcast
+void SendAndroidBroadcastJNI(const base::string16& d_action, int process_id_, int routing_id_) {
+}
+
+}  // namespace android
+}  // namespace chrome

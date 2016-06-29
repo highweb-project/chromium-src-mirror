@@ -74,6 +74,7 @@ class WebContentDecryptionModule;
 class WebCookieJar;
 class WebCString;
 class WebDataSource;
+class WebDeviceApiPermissionCheckClient;
 class WebEncryptedMediaClient;
 class WebExternalPopupMenu;
 class WebExternalPopupMenuClient;
@@ -221,6 +222,7 @@ public:
     // A new message was added to the console.
     virtual void didAddMessageToConsole(const WebConsoleMessage&, const WebString& sourceName, unsigned sourceLine, const WebString& stackTrace) { }
 
+    virtual void didSendAndroidBroadcast(const WebString& action) { }
 
     // Load commands -------------------------------------------------------
 
@@ -709,6 +711,9 @@ public:
 
     // Mojo ----------------------------------------------------------------
     virtual ServiceRegistry* serviceRegistry() { return nullptr; }
+
+    // DeviceAPI ------------------------------------------------------------
+    virtual WebDeviceApiPermissionCheckClient* deviceApiPermissionClient() { return nullptr; }
 
 protected:
     virtual ~WebFrameClient() { }

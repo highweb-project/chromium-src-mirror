@@ -1,0 +1,42 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+enum devicesound_ErrorCodeList{
+	// Exception code
+	SUCCESS = 0,
+	FAILURE = -1,
+	NOT_ENABLED_PERMISSION = -2,
+};
+
+enum devicesound_function {
+	FUNC_OUTPUT_DEVICE_TYPE = 1,
+	FUNC_DEVICE_VOLUME,
+};
+
+enum device_type {
+	DEVICE_SPEAKER_PHONE = 1,
+	DEVICE_WIRED_HEADSET,
+	DEVICE_BLUETOOTH,
+	DEVICE_DEFAULT,
+};
+
+struct DeviceSound_Volume {
+	float MediaVolume = 0;
+	float NotificationVolume = 0;
+	float AlarmVolume = 0;
+	float BellVolume = 0;
+	float CallVolume = 0;
+	float SystemVolume = 0;
+	float DTMFVolume = 0;
+};
+
+struct DeviceSound_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	int32 outputType;
+	DeviceSound_Volume volume;
+};

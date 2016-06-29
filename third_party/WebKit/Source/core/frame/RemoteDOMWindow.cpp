@@ -329,6 +329,16 @@ void RemoteDOMWindow::cancelIdleCallback(int id)
     ASSERT_NOT_REACHED();
 }
 
+void RemoteDOMWindow::sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*)
+{
+    ASSERT_NOT_REACHED();
+}
+
+void RemoteDOMWindow::sendAndroidBroadcastResponse(const String& action)
+{
+    ASSERT_NOT_REACHED();
+}
+
 CustomElementsRegistry* RemoteDOMWindow::customElements(ScriptState*) const
 {
     ASSERT_NOT_REACHED();

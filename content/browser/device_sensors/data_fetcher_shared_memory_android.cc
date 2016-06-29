@@ -9,6 +9,7 @@
 #include "content/common/device_sensors/device_light_hardware_buffer.h"
 #include "content/common/device_sensors/device_motion_hardware_buffer.h"
 #include "content/common/device_sensors/device_orientation_hardware_buffer.h"
+#include "content/common/device_sensors/device_proximity_hardware_buffer.h"
 
 namespace content {
 
@@ -39,6 +40,10 @@ bool DataFetcherSharedMemory::Start(ConsumerType consumer_type, void* buffer) {
       SensorManagerAndroid::GetInstance()->StartFetchingDeviceLightData(
           static_cast<DeviceLightHardwareBuffer*>(buffer));
       return true;
+    case CONSUMER_TYPE_PROXIMITY:
+      SensorManagerAndroid::GetInstance()->StartFetchingDeviceProximityData(
+          static_cast<DeviceProximityHardwareBuffer*>(buffer));
+      return true;
     default:
       NOTREACHED();
   }
@@ -59,6 +64,9 @@ bool DataFetcherSharedMemory::Stop(ConsumerType consumer_type) {
       return true;
     case CONSUMER_TYPE_LIGHT:
       SensorManagerAndroid::GetInstance()->StopFetchingDeviceLightData();
+      return true;
+    case CONSUMER_TYPE_PROXIMITY:
+      SensorManagerAndroid::GetInstance()->StopFetchingDeviceProximityData();
       return true;
     default:
       NOTREACHED();

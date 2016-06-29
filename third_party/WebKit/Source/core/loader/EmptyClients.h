@@ -112,6 +112,7 @@ public:
 
     bool shouldReportDetailedMessageForSource(LocalFrame&, const String&) override { return false; }
     void addMessageToConsole(LocalFrame*, MessageSource, MessageLevel, const String&, unsigned, const String&, const String&) override {}
+    void sendAndroidBroadcast(LocalFrame*, const String& action) override {}
 
     bool canOpenBeforeUnloadConfirmPanel() override { return false; }
     bool openBeforeUnloadConfirmPanelDelegate(LocalFrame*, bool) override { return true; }

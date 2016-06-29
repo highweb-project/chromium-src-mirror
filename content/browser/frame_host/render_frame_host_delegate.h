@@ -16,6 +16,7 @@
 #include "content/common/frame_message_enums.h"
 #include "content/public/browser/site_instance.h"
 #include "content/public/common/javascript_message_type.h"
+#include "content/public/common/device_api_permission_request.h"
 #include "content/public/common/media_stream_request.h"
 #include "net/http/http_response_headers.h"
 
@@ -123,6 +124,8 @@ class CONTENT_EXPORT RenderFrameHostDelegate {
   virtual void RequestMediaAccessPermission(
       const MediaStreamRequest& request,
       const MediaResponseCallback& callback);
+
+  virtual void RequestDeviceApiPermission(const DeviceApiPermissionRequest& request);
 
   // Checks if we have permission to access the microphone or camera. Note that
   // this does not query the user. |type| must be MEDIA_DEVICE_AUDIO_CAPTURE

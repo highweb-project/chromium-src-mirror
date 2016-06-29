@@ -55,6 +55,9 @@
 #include "WebVector.h"
 #include "base/metrics/user_metrics_action.h"
 
+#if defined(OS_LINUX)
+#include "base/memory/shared_memory.h"
+#endif
 class GrContext;
 
 namespace v8 {
@@ -121,6 +124,16 @@ class WebURLLoaderMockFactory;
 class WebURLResponse;
 class WebURLResponse;
 struct WebSize;
+class WebDeviceCpuListener;
+class WebDeviceGalleryListener;
+class WebDeviceSoundListener;
+class WebDeviceStorageListener;
+struct WebDeviceContactFindOptions;
+struct WebDeviceGalleryFindOptions;
+struct WebDeviceGalleryMediaObject;
+struct WebDeviceContactParameter;
+struct WebDeviceMessageObject;
+struct WebDeviceMessagingParameter;
 
 class BLINK_PLATFORM_EXPORT Platform {
 public:
@@ -401,6 +414,24 @@ public:
     // renderer was created with threaded rendering desabled.
     virtual WebThread* compositorThread() const { return 0; }
 
+    //Device Sound Function
+    virtual void outputDeviceType(WebDeviceSoundListener* mCallback) {}
+    virtual void deviceVolume(WebDeviceSoundListener* mCallback) {}
+    virtual void resetDeviceSoundDispatcher() {}
+
+    //Device Storage Function
+    virtual void getDeviceStorage(WebDeviceStorageListener* mCallback) {}
+    virtual void resetDeviceStorageDispatcher() {}
+
+    virtual void getDeviceCpuLoad(WebDeviceCpuListener* mCallback) {}
+    virtual void resetDeviceCpuDispatcher() {}
+
+    //Device Gallery Function
+    virtual void findMedia(blink::WebDeviceGalleryFindOptions* findOptions, blink::WebDeviceGalleryListener* callback) {}
+    virtual void getMedia(blink::WebDeviceGalleryMediaObject* media, blink::WebDeviceGalleryListener* callback) {}
+    virtual void deleteMedia(blink::WebDeviceGalleryMediaObject* media, blink::WebDeviceGalleryListener* callback) {}
+    virtual void resetDeviceGalleryDispatcher() {}
+
     // Testing -------------------------------------------------------------
 
     // Gets a pointer to URLLoaderMockFactory for testing. Will not be available in production builds.
@@ -459,6 +490,8 @@ public:
         const WebURL& topDocumentURL,
         WebGraphicsContext3DProvider* shareContext,
         GraphicsInfo*) { return nullptr; }
+
+    virtual void createWebCLGPUChannelContext() {}
 
     // Returns a newly allocated and initialized offscreen context provider,
     // backed by the process-wide shared main thread context. Returns null if
@@ -601,6 +634,22 @@ public:
     // Experimental Framework ----------------------------------------------
 
     virtual WebTrialTokenValidator* trialTokenValidator() { return nullptr; }
+    // Device Contact API--------------------------------------------------
+    virtual void findContact(WebDeviceContactParameter* parameter) {};
+    virtual void addContact(WebDeviceContactParameter* parameter) {};
+    virtual void deleteContact(WebDeviceContactParameter* parameter) {};
+    virtual void updateContact(WebDeviceContactParameter* parameter) {};
+
+    // Device Messaging API--------------------------------------------------
+    virtual void sendMessage(WebDeviceMessageObject* message) {};
+    virtual void findMessage(WebDeviceMessagingParameter* parameter) {};
+    virtual void addMessagingListener(WebDeviceMessagingParameter* parameter) {};
+    virtual void removeMessagingListener(WebDeviceMessagingParameter* parameter) {};
+
+    //WebCL Shared Memory API------------------------------------------------
+    #if defined(OS_LINUX)
+    virtual base::SharedMemory* getSharedMemoryForWebCL(int size) {return nullptr;};
+    #endif
 
 protected:
     Platform();

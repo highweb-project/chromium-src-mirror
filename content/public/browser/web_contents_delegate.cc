@@ -190,6 +190,11 @@ void WebContentsDelegate::RequestMediaAccessPermission(
                std::unique_ptr<MediaStreamUI>());
 }
 
+void WebContentsDelegate::RequestDeviceApiPermission(WebContents* web_contents, const DeviceApiPermissionRequest& request)
+{
+	request.callback_.Run(DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+}
+
 bool WebContentsDelegate::CheckMediaAccessPermission(
     WebContents* web_contents,
     const GURL& security_origin,

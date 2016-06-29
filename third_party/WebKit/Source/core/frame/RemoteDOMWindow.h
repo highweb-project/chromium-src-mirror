@@ -74,6 +74,8 @@ public:
     int requestAnimationFrame(FrameRequestCallback*) override;
     int webkitRequestAnimationFrame(FrameRequestCallback*) override;
     void cancelAnimationFrame(int id) override;
+    void sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*) override;
+    void sendAndroidBroadcastResponse(const String& action) override;
     int requestIdleCallback(IdleRequestCallback*, const IdleRequestOptions&) override;
     void cancelIdleCallback(int id) override;
     CustomElementsRegistry* customElements(ScriptState*) const override;

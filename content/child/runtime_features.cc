@@ -30,9 +30,9 @@ static void SetRuntimeFeatureDefaultsForPlatform() {
   // No plan to support complex UI for date/time INPUT types.
   WebRuntimeFeatures::enableInputMultipleFieldsUI(false);
   // Android does not yet support SharedWorker. crbug.com/154571
-  WebRuntimeFeatures::enableSharedWorker(false);
+  WebRuntimeFeatures::enableSharedWorker(true);
   // Android does not yet support NavigatorContentUtils.
-  WebRuntimeFeatures::enableNavigatorContentUtils(false);
+  WebRuntimeFeatures::enableNavigatorContentUtils(true);
   WebRuntimeFeatures::enableOrientationEvent(true);
   WebRuntimeFeatures::enableFastMobileScrolling(true);
   WebRuntimeFeatures::enableMediaCapture(true);

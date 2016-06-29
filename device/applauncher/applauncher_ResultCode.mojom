@@ -1,0 +1,43 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+enum applauncher_code_list{
+	// Exception code
+	SUCCESS = 0,
+	FAILURE = -1,
+	NOT_INSTALLED_APP = -2,
+	INVALID_PACKAGE_NAME = -3,
+	NOT_ENABLED_PERMISSION = -4,
+	INVALID_FLAGS = -5,
+};
+
+enum applauncher_function {
+	FUNC_LAUNCH_APP = 1,
+	FUNC_REMOVE_APP,
+	FUNC_GET_APP_LIST,
+	FUNC_GET_APPLICATION_INFO,
+};
+
+struct AppLauncher_ApplicationInfo {
+	string name = "";
+	string className = "";
+	string dataDir = "";
+	bool enabled = false;
+	int32 flags = 0;
+	string permission = "";
+	string processName = "";
+	int32 targetSdkVersion = 0;
+	int32 theme = 0;
+	int32 uid = 0;
+	string packageName = "";
+};
+
+struct AppLauncher_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	array<AppLauncher_ApplicationInfo>? applist;
+};

@@ -1,0 +1,119 @@
+#version 430
+/*
+ * This confidential and proprietary software may be used only as
+ * authorised by a licensing agreement from ARM Limited
+ * (C) COPYRIGHT 2016 ARM Limited
+ *     ALL RIGHTS RESERVED
+ * The entire notice above must be reproduced on all authorised
+ * copies and copies may only be made to the extent permitted
+ * by a licensing agreement from ARM Limited.
+ */
+layout(local_size_x=1024, local_size_y=1, local_size_z=1) in;
+
+layout (binding=0, std430) buffer a2
+{
+    float curPos[];
+};
+layout (binding=1, std430) buffer a1
+{
+    float curVel[];
+};
+layout (binding=2, std430) buffer a4
+{
+    int numBodies;
+};
+layout (binding=3, std430) buffer a5
+{
+    float deltaTime;
+};
+layout (binding=4, std430) buffer a6
+{
+    int epsSqr;
+};
+layout (binding=5, std430) buffer a7
+{
+    float localPos[];
+};
+layout (binding=6, std430) buffer a8
+{
+    float nxtPos[];
+};
+layout (binding=7, std430) buffer a9
+{
+    float nxtVel[];
+};
+
+const float PI = 3.1415926535897932384626433832795;
+
+void main()
+{
+    uint gid = gl_GlobalInvocationID.x;
+
+    uint tid = gl_LocalInvocationID.x;
+    
+    uint localSize = 1024;
+
+//     // Number of tiles we need to iterate
+    uint numTiles = numBodies / localSize;
+
+    vec4 myPos = { curPos[4 * gid + 0], curPos[4 * gid + 1], curPos[4 * gid + 2], curPos[4 * gid + 3] };
+    vec4 acc = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    for(int i = 0; i < numTiles; ++i) {
+        // load one tile into local memory
+        uint idx = i * localSize + tid;
+        for(int k=0; k<4; k++)
+        {
+              localPos[4*tid+k] = curPos[4*idx+k];
+        }
+        // Synchronize to make sure data is available for processing
+        barrier();
+        // calculate acceleration effect due to each body
+        // a[i->j] = m[j] * r[i->j] / (r^2 + epsSqr)^(3/2)
+        for(int j = 0; j < localSize; ++j)
+        {
+            // Calculate acceleration caused by particle j on particle i
+            vec4 aLocalPos = { localPos[4*j + 0], localPos[4*j + 1], localPos[4*j + 2], localPos[4*j + 3] };
+            vec4 r = aLocalPos - myPos;
+            float distSqr = r.x * r.x  +  r.y * r.y +  r.z * r.z;
+            float invDist = 1.0f / sqrt(distSqr + epsSqr);
+            float invDistCube = invDist * invDist * invDist;
+            float s = aLocalPos.w * invDistCube;
+            // accumulate effect of all particles
+            acc += s * r;
+        }
+        // Synchronize so that next tile can be loaded
+        barrier();
+    }
+    vec4 oldVel = { curVel[4*gid + 0], curVel[4*gid + 1], curVel[4*gid + 2], curVel[4*gid + 3] };
+
+        // updated position and velocity
+    vec4 newPos = myPos + oldVel * deltaTime + acc * 0.5f * deltaTime * deltaTime;
+    newPos.w = myPos.w;
+    vec4 newVel = oldVel + acc * deltaTime;
+
+    // check boundry
+    if(newPos.x > 1.0f || newPos.x < -1.0f || newPos.y > 1.0f || newPos.y < -1.0f || newPos.z > 1.0f || newPos.z < -1.0f) {
+        float rand = (1.0f * gid) / numBodies;
+        float r = 0.05f *  rand;
+        float theta = rand;
+        float phi = 2 * rand;
+        newPos.x = r * sin(PI * theta) * cos(PI * phi);
+        newPos.y = r * sin(PI * theta) * sin(PI * phi);
+        newPos.z = r * cos(PI * theta);
+        newVel.x = 0.0f;
+        newVel.y = 0.0f;
+        newVel.z = 0.0f;
+    }
+
+    // write to global memory
+    nxtPos[4*gid + 0] = newPos.x;
+    nxtPos[4*gid + 1] = newPos.y;
+    nxtPos[4*gid + 2] = newPos.z;
+    nxtPos[4*gid + 3] = newPos.w;
+
+    nxtVel[4*gid + 0] = newVel.x;
+    nxtVel[4*gid + 1] = newVel.y;
+    nxtVel[4*gid + 2] = newVel.z;
+    nxtVel[4*gid + 3] = newVel.w; 
+}

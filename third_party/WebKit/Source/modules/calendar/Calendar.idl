@@ -1,0 +1,21 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+enum CalendarOperationType {
+  "find",
+  "add",
+  "update",
+  "delete"
+};
+
+[
+    Exposed=(Window),
+	DoNotCheckConstants
+] interface Calendar {
+  void acquirePermission(CalendarOperationType operationType, CalendarEventErrorCallback permissionCallback);
+  void findEvent(CalendarEventSuccessCallback successCallback, [Default=Undefined] optional CalendarEventErrorCallback errorCallback, [Default=Undefined] optional CalendarFindOptions options);
+  void addEvent(CalendarEvent event, CalendarEventSuccessCallback successCallback, CalendarEventErrorCallback errorCallback);
+  void updateEvent(CalendarEvent event, CalendarEventSuccessCallback successCallback, CalendarEventErrorCallback errorCallback);
+  void deleteEvent(DOMString id, CalendarEventSuccessCallback successCallback, CalendarEventErrorCallback errorCallback);
+};

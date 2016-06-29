@@ -18,6 +18,12 @@ import org.chromium.sync.signin.AccountManagerHelper;
 
 import java.io.File;
 
+// sendAndroidBroadcast
+import android.util.Log;
+import android.os.Build;
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
+
 /**
  * Helper for issuing intents to the android framework.
  */
@@ -93,4 +99,45 @@ public abstract class IntentHelper {
             // If it doesn't work, avoid crashing.
         }
     }
+
+    /**
+     * Send Android Broadcast
+     */
+    @CalledByNative
+    static void sendAndroidBroadcast(Context context, String action, final int process_id_, final int routing_id_) {
+        Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, action : " + action + ", process_id_ " + process_id_ + ", routing_id_ : " + routing_id_);
+
+        if(action.contains("<>")) {
+      		String[] list = action.split("<>");
+      		Intent intent = new Intent(list[0]);
+
+      		if(list.length > 1) {
+      			intent.putExtra("text", list[1]);
+      		}
+
+      		context.sendBroadcast(intent);
+      	} else {
+      		context.sendBroadcast(new Intent(action));
+      	}
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, onReceive, action : " + action + ", process_id_ : " + process_id_ + ", routing_id_ : " + routing_id_);
+
+                nativeOnReceiveAndroidBroadcast(action, process_id_, routing_id_);
+                context.unregisterReceiver(this);
+            }
+        };
+
+        String responseAction = "webcl.broadcast.response";
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(responseAction);
+        context.registerReceiver(receiver, filter);
+        Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, Register Response Action : " + responseAction);
+        Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, END");
+    }
+
+    private static native void nativeOnReceiveAndroidBroadcast(String action, int process_id_, int routing_id_);
 }

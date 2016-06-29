@@ -190,6 +190,8 @@ public:
 
     void notifyPopupOpeningObservers() const;
 
+    void sendAndroidBroadcast(LocalFrame*, const String&) override;
+
 private:
     explicit ChromeClientImpl(WebViewImpl*);
 

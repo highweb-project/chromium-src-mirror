@@ -1,0 +1,32 @@
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/config.gni")
+import("//build/config/android/rules.gni")
+
+android_library("contact_manager_android") {
+  java_files = [ 
+    "java/src/org/chromium/device/contact/ContactConstantsAndroid.java",
+    "java/src/org/chromium/device/contact/ContactHandlerAndroid.java",
+    "java/src/org/chromium/device/contact/ContactManagerImpl.java",
+    "java/src/org/chromium/device/contact/OnContactResultListener.java",
+    "java/src/org/chromium/device/contact/OnContactWorkerListener.java",
+    "java/src/org/chromium/device/contact/object/ContactAddressAndroid.java",
+    "java/src/org/chromium/device/contact/object/ContactFindOptionsAndroid.java",
+    "java/src/org/chromium/device/contact/object/ContactNameAndroid.java",
+    "java/src/org/chromium/device/contact/object/ContactObjectAndroid.java",
+    "java/src/org/chromium/device/contact/worker/AbstractContactWorker.java",
+    "java/src/org/chromium/device/contact/worker/AddContactWorker.java",
+    "java/src/org/chromium/device/contact/worker/DeleteContactWorker.java",
+    "java/src/org/chromium/device/contact/worker/FindContactWorker.java",
+    "java/src/org/chromium/device/contact/worker/UpdateContactWorker.java",
+  ]
+
+  deps = [
+    "//base:base_java",
+    "//device/contact:mojo_bindings_java",
+    "//mojo/public/java:bindings",
+    "//mojo/public/java:system",
+  ]
+}

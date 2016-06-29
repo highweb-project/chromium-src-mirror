@@ -42,9 +42,11 @@ public class TouchDevice {
             return 2;
         } else if (context.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_TOUCHSCREEN)) {
-            return 1;
+            //return 1;
+            return 2;
         } else {
-            return 0;
+            //return 0;
+            return 2;
         }
     }
 

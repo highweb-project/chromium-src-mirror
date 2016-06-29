@@ -1,0 +1,19 @@
+# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/config.gni")
+import("//build/config/android/rules.gni")
+
+android_library("devicestorage_manager_android") {
+  java_files =
+      [ "java/src/org/chromium/device/storage/DeviceStorageManagerImpl.java" ]
+
+  deps = [
+    "//base:base_java",
+    "//device/storage:mojo_bindings_java",
+    "//mojo/public/java:bindings",
+    "//mojo/public/java:system",
+  ]
+}

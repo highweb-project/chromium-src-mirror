@@ -1,0 +1,23 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+struct MessageObject {
+	string id;
+	string type;
+	string to;
+	string from;
+	string? title;
+	string body;
+	string? date;
+};
+
+interface MessagingManager {
+  SendMessage(MessageObject message);
+  FindMessage(uint32 requestID, uint32 target, uint32 maxItem, string condition) => (uint32 requestID, uint32 error, array<MessageObject>? results);
+  AddMessagingListener(uint32 observerID) => (uint32 observerID, MessageObject message);
+  RemoveMessagingListener(uint32 observerID);
+};

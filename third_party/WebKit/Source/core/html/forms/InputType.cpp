@@ -47,6 +47,7 @@
 #include "core/html/forms/ColorInputType.h"
 #include "core/html/forms/DateInputType.h"
 #include "core/html/forms/DateTimeLocalInputType.h"
+#include "core/html/forms/DateTimeInputType.h"
 #include "core/html/forms/EmailInputType.h"
 #include "core/html/forms/FileInputType.h"
 #include "core/html/forms/HiddenInputType.h"
@@ -88,6 +89,7 @@ static PassOwnPtr<InputTypeFactoryMap> createInputTypeFactoryMap()
     map->add(InputTypeNames::color, ColorInputType::create);
     map->add(InputTypeNames::date, DateInputType::create);
     map->add(InputTypeNames::datetime_local, DateTimeLocalInputType::create);
+    map->add(InputTypeNames::datetime, DateTimeInputType::create);
     map->add(InputTypeNames::email, EmailInputType::create);
     map->add(InputTypeNames::file, FileInputType::create);
     map->add(InputTypeNames::hidden, HiddenInputType::create);
