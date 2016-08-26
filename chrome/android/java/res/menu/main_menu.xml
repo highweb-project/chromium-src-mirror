@@ -65,6 +65,8 @@
             android:title="@string/menu_preferences" />
         <item android:id="@+id/help_id"
             android:title="@string/menu_help" />
+        <item android:id="@+id/webd2d_id"
+            android:title="WebD2D Share..." />
     </group>
 
     <!-- Items shown only in the tab switcher -->

@@ -124,14 +124,21 @@ public abstract class IntentHelper {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, onReceive, action : " + action + ", process_id_ : " + process_id_ + ", routing_id_ : " + routing_id_);
+                String result = intent.getStringExtra("result");
+                Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, onReceive, action : " + action);
+                Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, onReceive, result : " + result);
 
-                nativeOnReceiveAndroidBroadcast(action, process_id_, routing_id_);
+                if(result == null) {
+                  result = "";
+                }
+
+                // nativeOnReceiveAndroidBroadcast(action, process_id_, routing_id_);
+                nativeOnReceiveAndroidBroadcast(result, process_id_, routing_id_);
                 context.unregisterReceiver(this);
             }
         };
 
-        String responseAction = "webcl.broadcast.response";
+        String responseAction = "web2app.response";
         IntentFilter filter = new IntentFilter();
         filter.addAction(responseAction);
         context.registerReceiver(receiver, filter);
