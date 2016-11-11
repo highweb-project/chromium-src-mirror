@@ -28,6 +28,15 @@ component("cpu") {
   if (is_android) {
     sources -= [ "devicecpu_manager_impl_default.cc" ]
   }
+  if (is_linux) {
+    sources -= [ "devicecpu_manager_impl_default.cc" ]
+    sources += [
+      "devicecpu_manager_linux.cc",
+      "devicecpu_manager_linux.h",
+      "devicecpu_service_linux.cc", 
+      "devicecpu_service_linux.h",
+    ]
+  }
 }
 
 mojom("mojo_bindings") {

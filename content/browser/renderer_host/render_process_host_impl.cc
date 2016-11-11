@@ -182,7 +182,6 @@
 #include "ui/native_theme/native_theme_switches.h"
 #include "content/browser/device_api/device_api_permission_check_message_filter.h"
 #include "content/browser/device_sensors/device_proximity_message_filter.h"
-#include "device/applauncher/applauncher_manager_impl.h"
 
 #if defined(OS_ANDROID)
 #include "content/browser/android/child_process_launcher_android.h"
@@ -239,6 +238,14 @@
 #else
 #define IntToStringType base::IntToString
 #endif
+
+#include "device/applauncher/applauncher_manager_impl.h"
+#include "device/calendar/calendar_manager_impl.h"
+#include "device/contact/contact_manager_impl.h"
+#include "device/cpu/devicecpu_manager_impl.h"
+#include "device/gallery/devicegallery_manager_impl.h"
+#include "device/sound/devicesound_manager_impl.h"
+#include "device/storage/devicestorage_manager_impl.h"
 
 namespace content {
 namespace {
@@ -1068,6 +1075,20 @@ void RenderProcessHostImpl::RegisterMojoServices() {
 #if !defined(OS_ANDROID)
   mojo_application_host_->service_registry()->AddService(
       base::Bind(&device::BatteryMonitorImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::AppLauncherManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::CalendarManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::ContactManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::DeviceCpuManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::DeviceGalleryManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::DeviceSoundManagerImpl::Create));
+  mojo_application_host_->service_registry()->AddService(
+      base::Bind(&device::DeviceStorageManagerImpl::Create));
 #endif
 
   mojo_application_host_->service_registry()->AddService(

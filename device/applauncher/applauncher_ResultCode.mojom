@@ -13,6 +13,7 @@ enum applauncher_code_list{
 	INVALID_PACKAGE_NAME = -3,
 	NOT_ENABLED_PERMISSION = -4,
 	INVALID_FLAGS = -5,
+	NOT_SUPPORT_API = 9999,
 };
 
 enum applauncher_function {

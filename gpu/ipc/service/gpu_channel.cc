@@ -53,6 +53,9 @@
 
 #include "ui/opencl/opencl_implementation.h"
 
+//vulkan implementation
+#include "ui/native_vulkan/vulkan_implementation.h"
+
 #if defined(OS_POSIX)
 #include "ipc/ipc_channel_posix.h"
 #endif
@@ -638,14 +641,6 @@ bool GpuChannelMessageFilter::OnMessageReceived(const IPC::Message& message) {
 		isNeedFastReplyWebCLMsg = true;
 		cl_api_->doEnqueueReleaseGLObjects();
 		break;
-  case OpenCLChannelMsg_CTRL_Trigger_readVulkanBuffer::ID:
-    isNeedFastReplyWebCLMsg = true;
-    cl_api_->doReadVulkanBuffer();
-    break;
-  case OpenCLChannelMsg_CTRL_Trigger_writeVulkanBuffer::ID:
-    isNeedFastReplyWebCLMsg = true;
-    cl_api_->doWriteVulkanBuffer();
-    break;
 	}
 
 	if(isNeedFastReplyWebCLMsg) {
@@ -654,6 +649,23 @@ bool GpuChannelMessageFilter::OnMessageReceived(const IPC::Message& message) {
 		return true;
 	}
 
+  //vulkan
+  bool isNeedFastReplyWebVKCMsg = false;
+  switch(message.type()) {
+    case VulkanComputeChannelMsg_Trigger_WriteBuffer::ID:
+      isNeedFastReplyWebVKCMsg = true;
+      vkc_api_->vkcWriteBuffer();
+      break;
+    case VulkanComputeChannelMsg_Trigger_ReadBuffer::ID:
+      isNeedFastReplyWebVKCMsg = true;
+      vkc_api_->vkcReadBuffer();
+      break;
+  }
+  if(isNeedFastReplyWebVKCMsg) {
+    IPC::Message* reply = IPC::SyncMessage::GenerateReply(&message);
+    Send(reply);
+    return true;
+  }
 
   scoped_refptr<GpuChannelMessageQueue> message_queue =
       LookupStreamByRoute(message.routing_id());
@@ -729,16 +741,21 @@ GpuChannel::GpuChannel(GpuChannelManager* gpu_channel_manager,
       CreateStream(GPU_STREAM_DEFAULT, GpuStreamPriority::HIGH);
   AddRouteToStream(MSG_ROUTING_CONTROL, GPU_STREAM_DEFAULT);
   clApiImpl = new gfx::CLApi();
+  vkcApiImpl = new gfx::VKCApi();
 #if defined(OS_LINUX)
   gfx::CLApi::parent_channel_ = this;
+  gfx::VKCApi::parent_channel_ = this;
 #elif defined(OS_ANDROID)
   clApiImpl->setChannel(this);
+  vkcApiImpl->setChannel(this);
 #endif
   filter_->setCLApi(clApiImpl);
+  filter_->setVKCApi(vkcApiImpl);
 
   CLLOG(INFO) << "client_id_ : " << client_id_ << "channel_id_ : " << channel_id_ << ", clApiImpl : " << clApiImpl << ", GpuChannel : " << this;
 
   gfx::InitializeStaticCLBindings(clApiImpl);
+  gfx::InitializeStaticVKCBindings(vkcApiImpl);
 }
 
 GpuChannel::~GpuChannel() {
@@ -928,7 +945,7 @@ unsigned int GpuChannel::LookupGLServiceId(unsigned int resource_id, GLResourceT
                 if(texture) {
                   // GLenum target = texture->target();
                   // DLOG(INFO) << "GpuChannel::LookupGLServiceId, target : " << target;
-                  return texture->service_id();  
+                  return texture->service_id();
                 }
               }
             }
@@ -1036,11 +1053,11 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
 
 	//clGetEventInfo
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetEventInfo_cl_point,
-									OnCallclGetEventInfo_cl_point) 
+									OnCallclGetEventInfo_cl_point)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetEventInfo_cl_uint,
-									OnCallclGetEventInfo_cl_uint)   
+									OnCallclGetEventInfo_cl_uint)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetEventInfo_cl_int,
-									OnCallclGetEventInfo_cl_int)  
+									OnCallclGetEventInfo_cl_int)
 
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetEventProfilingInfo_cl_ulong,
 									OnCallclGetEventProfilingInfo_cl_ulong)
@@ -1084,11 +1101,11 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
 
 	//clGetKernelInfo
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelInfo_string,
-									OnCallclGetKernelInfo_string)  
+									OnCallclGetKernelInfo_string)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelInfo_cl_uint,
-									OnCallclGetKernelInfo_cl_uint) 
+									OnCallclGetKernelInfo_cl_uint)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelInfo_cl_point,
-									OnCallclGetKernelInfo_cl_point) 
+									OnCallclGetKernelInfo_cl_point)
 
 	//clGetKernelWorkGroupInfo
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelWorkGroupInfo_size_t_list,
@@ -1100,11 +1117,11 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
 
 	//clGetKernelArgInfo
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelArgInfo_string,
-									OnCallclGetKernelArgInfo_string)  
+									OnCallclGetKernelArgInfo_string)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelArgInfo_cl_uint,
-									OnCallclGetKernelArgInfo_cl_uint) 
+									OnCallclGetKernelArgInfo_cl_uint)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetKernelArgInfo_cl_ulong,
-									OnCallclGetKernelArgInfo_cl_ulong)  
+									OnCallclGetKernelArgInfo_cl_ulong)
 
 	//clReleaseKernel
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_ReleaseKernel,
@@ -1124,7 +1141,7 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetProgramInfo_string_list,
 									OnCallclGetProgramInfo_string_list)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetProgramInfo_size_t,
-									OnCallclGetProgramInfo_size_t) 
+									OnCallclGetProgramInfo_size_t)
 
 	//clCreateProgramWithSource
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_CreateProgramWithSource,
@@ -1132,15 +1149,15 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
 
 	//clGetProgramBuildInfo
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetProgramBuildInfo_cl_int,
-									OnCallclGetProgramBuildInfo_cl_int) 
+									OnCallclGetProgramBuildInfo_cl_int)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetProgramBuildInfo_string,
-									OnCallclGetProgramBuildInfo_string) 
+									OnCallclGetProgramBuildInfo_string)
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_GetProgramBuildInfo_cl_uint,
-									OnCallclGetProgramBuildInfo_cl_uint)  
+									OnCallclGetProgramBuildInfo_cl_uint)
 
 	//clBuildProgram
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_BuildProgram,
-									OnCallclBuildProgram) 
+									OnCallclBuildProgram)
 
 	IPC_MESSAGE_HANDLER(OpenCLChannelMsg_EnqueueMarker,
 									OnCallclEnqueueMarker)
@@ -1173,11 +1190,79 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
   IPC_MESSAGE_HANDLER(OpenCLChannelMsg_getGLContext,
                   OnCallGetGLContext)
 
-  // vulkan test
-  IPC_MESSAGE_HANDLER(OpenCLChannelMsg_initNBody,
-        OnCallclinitNBody)
-  IPC_MESSAGE_HANDLER(OpenCLChannelMsg_doNBody,
-        OnCallcldoNBody)
+   //Vulkan IPC Message Received
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_SetSharedHandles,
+                  OnCallVKCSetSharedHandles)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ClearSharedHandles,
+                  OnCallVKCClearSharedHandles)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateInstance,
+        OnCallVKCCreateInstance)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyInstance,
+        OnCallVKCDestroyInstance)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_EnumeratePhysicalDevice,
+        OnCallVKCEnumeratePhysicalDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyPhysicalDevice,
+        OnCallVKCDestroyPhysicalDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDevice,
+        OnCallVKCCreateDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyDevice,
+        OnCallVKCDestroyDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_uint,
+        OnCallVKCGetDeviceInfoUint)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_array,
+        OnCallVKCGetDeviceInfoArray)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_string,
+        OnCallVKCGetDeviceInfoString)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateBuffer,
+        OnCallVKCCreateBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseBuffer,
+        OnCallVKCReleaseBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_FillBuffer,
+        OnCallVKCFillBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateCommandQueue,
+        OnCallVKCCreateCommandQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseCommandQueue,
+        OnCallVKCReleaseCommandQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorSetLayout,
+        OnCallVKCCreateDescriptorSetLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorSetLayout,
+        OnCallVKCReleaseDescriptorSetLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorPool,
+        OnCallVKCCreateDescriptorPool)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorPool,
+        OnCallVKCReleaseDescriptorPool)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorSet,
+        OnCallVKCCreateDescriptorSet)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorSet,
+        OnCallVKCReleaseDescriptorSet)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreatePipelineLayout,
+        OnCallVKCCreatePipelineLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleasePipelineLayout,
+        OnCallVKCReleasePipelineLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateShaderModule,
+        OnCallVKCCreateShaderModule)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseShaderModule,
+        OnCallVKCReleaseShaderModule)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreatePipeline,
+        OnCallVKCCreatePipeline)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleasePipeline,
+        OnCallVKCReleasePipeline)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_UpdateDescriptorSets,
+        OnCallVKCUpdateDescriptorSets)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_BeginQueue,
+        OnCallVKCBeginQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_EndQueue,
+        OnCallVKCEndQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_Dispatch,
+        OnCallVKCDispatch)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_PipelineBarrier,
+        OnCallVKCPipelineBarrier)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CmdCopyBuffer,
+        OnCallVKCCmdCopyBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_QueueSubmit,
+        OnCallVKCQueueSubmit)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DeviceWaitIdle,
+        OnCallVKCDeviceWaitIdle)
 
   IPC_MESSAGE_UNHANDLED(handled = false)
 
@@ -2036,7 +2121,7 @@ void GpuChannel::OnCallclGetSamplerInfo_cl_uint(
 }
 
 void GpuChannel::OnCallclGetSamplerInfo_cl_point(
-    const cl_point& point_sampler, 
+    const cl_point& point_sampler,
     const cl_sampler_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
@@ -2130,11 +2215,11 @@ void GpuChannel::OnCallclGetImageInfo_cl_point(
 }
 
 void GpuChannel::OnCallclGetEventInfo_cl_point(
-    const cl_point& point_event, 
-    const cl_event_info& param_name, 
+    const cl_point& point_event,
+    const cl_event_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_point* cl_point_ret, 
+    cl_point* cl_point_ret,
     size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_event clevent = (cl_event) point_event;
@@ -2157,11 +2242,11 @@ void GpuChannel::OnCallclGetEventInfo_cl_point(
 
 void GpuChannel::OnCallclGetEventInfo_cl_uint(
     const cl_point& point_event,
-    const cl_event_info& param_name, 
+    const cl_event_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     cl_uint* cl_uint_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_event clevent = (cl_event) point_event;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2187,7 +2272,7 @@ void GpuChannel::OnCallclGetEventInfo_cl_int(
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     cl_int* cl_int_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_event clevent = (cl_event) point_event;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2208,12 +2293,12 @@ void GpuChannel::OnCallclGetEventInfo_cl_int(
 }
 
 void GpuChannel::OnCallclGetEventProfilingInfo_cl_ulong(
-    const cl_point& point_event, 
+    const cl_point& point_event,
     const cl_profiling_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     cl_ulong* cl_ulong_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_event clevent = (cl_event) point_event;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2564,11 +2649,11 @@ void GpuChannel::OnCallFlush(
 }
 
 void GpuChannel::OnCallclGetKernelInfo_string(
-    const cl_point& point_kernel, 
-    const cl_kernel_info& param_name, 
+    const cl_point& point_kernel,
+    const cl_kernel_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    std::string* string_ret, 
+    std::string* string_ret,
     size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_kernel kernel = (cl_kernel) point_kernel;
@@ -2578,7 +2663,7 @@ void GpuChannel::OnCallclGetKernelInfo_string(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
-  
+
   CLLOG(INFO) << "OnCallclGetKernelArgInfo_string :: param_value_size/sizeof(char)" << param_value_size/sizeof(char);
   if (!return_variable_null_status[1] && param_value_size >= sizeof(char))
     param_value = new char[param_value_size/sizeof(char)];
@@ -2599,12 +2684,12 @@ void GpuChannel::OnCallclGetKernelInfo_string(
 }
 
 void GpuChannel::OnCallclGetKernelInfo_cl_uint(
-    const cl_point& point_kernel, 
+    const cl_point& point_kernel,
     const cl_kernel_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_uint* cl_uint_ret, 
-    size_t* param_value_size_ret, 
+    cl_uint* cl_uint_ret,
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_kernel kernel = (cl_kernel) point_kernel;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2625,7 +2710,7 @@ void GpuChannel::OnCallclGetKernelInfo_cl_uint(
 }
 
 void GpuChannel::OnCallclGetKernelInfo_cl_point(
-    const cl_point& point_kernel, 
+    const cl_point& point_kernel,
     const cl_kernel_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
@@ -2651,13 +2736,13 @@ void GpuChannel::OnCallclGetKernelInfo_cl_point(
 }
 
 void GpuChannel::OnCallclGetKernelWorkGroupInfo_size_t_list(
-    const cl_point& point_kernel, 
+    const cl_point& point_kernel,
     const cl_point& point_device,
     const cl_kernel_work_group_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     std::vector<size_t>* size_t_list_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_kernel kernel = (cl_kernel) point_kernel;
   cl_device_id device = (cl_device_id) point_device;
@@ -2667,7 +2752,7 @@ void GpuChannel::OnCallclGetKernelWorkGroupInfo_size_t_list(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
-   
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(size_t))
     param_value = new size_t[param_value_size/sizeof(size_t)];
   else if (!return_variable_null_status[1])
@@ -2720,7 +2805,7 @@ void GpuChannel::OnCallclGetKernelWorkGroupInfo_size_t(
 void GpuChannel::OnCallclGetKernelWorkGroupInfo_cl_ulong(
     const cl_point& point_kernel,
     const cl_point& point_device,
-    const cl_kernel_work_group_info& param_name, 
+    const cl_kernel_work_group_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     cl_ulong* cl_ulong_ret,
@@ -2747,12 +2832,12 @@ void GpuChannel::OnCallclGetKernelWorkGroupInfo_cl_ulong(
 }
 
 void GpuChannel::OnCallclGetKernelArgInfo_string(
-    const cl_point& point_kernel, 
+    const cl_point& point_kernel,
     const cl_uint& arg_indx,
-    const cl_kernel_arg_info& param_name, 
+    const cl_kernel_arg_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    std::string* string_ret, 
+    std::string* string_ret,
     size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_kernel kernel = (cl_kernel) point_kernel;
@@ -2762,7 +2847,7 @@ void GpuChannel::OnCallclGetKernelArgInfo_string(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
-  
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(char))
     param_value = new char[param_value_size/sizeof(char)];
   else if (!return_variable_null_status[1])
@@ -2783,13 +2868,13 @@ void GpuChannel::OnCallclGetKernelArgInfo_string(
 }
 
 void GpuChannel::OnCallclGetKernelArgInfo_cl_uint(
-    const cl_point& point_kernel, 
+    const cl_point& point_kernel,
     const cl_uint& arg_indx,
     const cl_kernel_arg_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_uint* cl_uint_ret, 
-    size_t* param_value_size_ret, 
+    cl_uint* cl_uint_ret,
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_kernel kernel = (cl_kernel) point_kernel;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2849,7 +2934,7 @@ void GpuChannel::OnCallclReleaseKernel(
 
 void GpuChannel::OnCallclGetProgramInfo_cl_uint(
     const cl_point& point_program,
-    const cl_program_info& param_name, 
+    const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     cl_uint* cl_uint_ret,
@@ -2878,7 +2963,7 @@ void GpuChannel::OnCallclGetProgramInfo_cl_point(
     const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_point* cl_point_ret, 
+    cl_point* cl_point_ret,
     size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
@@ -2887,7 +2972,7 @@ void GpuChannel::OnCallclGetProgramInfo_cl_point(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
- 
+
   if (return_variable_null_status[1])
     cl_point_ret_inter = NULL;
 
@@ -2900,7 +2985,7 @@ void GpuChannel::OnCallclGetProgramInfo_cl_point(
 }
 
 void GpuChannel::OnCallclGetProgramInfo_cl_point_list(
-    const cl_point& point_program, 
+    const cl_point& point_program,
     const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
@@ -2919,7 +3004,7 @@ void GpuChannel::OnCallclGetProgramInfo_cl_point_list(
     param_value = new cl_point[param_value_size/sizeof(cl_point)];
   else if (!return_variable_null_status[1])
     param_value = &c;
-  
+
   *errcode_ret = clApiImpl->doClGetProgramInfo(
                      program,
                      param_name,
@@ -2936,7 +3021,7 @@ void GpuChannel::OnCallclGetProgramInfo_cl_point_list(
 
 void GpuChannel::OnCallclGetProgramInfo_string(
     const cl_point& point_program,
-    const cl_program_info& param_name, 
+    const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     std::string* string_ret,
@@ -2946,10 +3031,10 @@ void GpuChannel::OnCallclGetProgramInfo_string(
   size_t *param_value_size_ret_inter = param_value_size_ret;
   char* param_value = NULL;
   char c;
- 
+
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
- 
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(char))
     param_value = new char[param_value_size/sizeof(char)];
   else if (!return_variable_null_status[1])
@@ -2961,7 +3046,7 @@ void GpuChannel::OnCallclGetProgramInfo_string(
                      param_value_size,
                      param_value,
                      param_value_size_ret_inter);
-  
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(char)) {
     (*string_ret) = std::string(param_value);
     delete[] param_value;
@@ -2969,12 +3054,12 @@ void GpuChannel::OnCallclGetProgramInfo_string(
 }
 
 void GpuChannel::OnCallclGetProgramInfo_size_t_list(
-    const cl_point& point_program, 
+    const cl_point& point_program,
     const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     std::vector<size_t>* size_t_list_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -2995,7 +3080,7 @@ void GpuChannel::OnCallclGetProgramInfo_size_t_list(
                      param_value_size,
                      param_value,
                      param_value_size_ret_inter);
-  
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(size_t)) {
     for (cl_uint index = 0; index < param_value_size/sizeof(size_t); ++index)
       (*size_t_list_ret).push_back(param_value[index]);
@@ -3004,12 +3089,12 @@ void GpuChannel::OnCallclGetProgramInfo_size_t_list(
 }
 
 void GpuChannel::OnCallclGetProgramInfo_string_list(
-    const cl_point& point_program, 
-    const cl_program_info& param_name, 
+    const cl_point& point_program,
+    const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     std::vector<std::string>* string_list_ret,
-    size_t* param_value_size_ret, 
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
   size_t *param_value_size_ret_inter = param_value_size_ret;
@@ -3034,8 +3119,8 @@ void GpuChannel::OnCallclGetProgramInfo_string_list(
 }
 
 void GpuChannel::OnCallclGetProgramInfo_size_t(
-    const cl_point& point_program, 
-    const cl_program_info& param_name, 
+    const cl_point& point_program,
+    const cl_program_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
     size_t *size_t_ret,
@@ -3047,7 +3132,7 @@ void GpuChannel::OnCallclGetProgramInfo_size_t(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
-  
+
   if (return_variable_null_status[1])
     size_t_ret_inter = NULL;
 
@@ -3113,8 +3198,8 @@ void GpuChannel::OnCallclGetProgramBuildInfo_cl_int(
     const cl_program_build_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_int* cl_int_ret, 
-    size_t* param_value_size_ret, 
+    cl_int* cl_int_ret,
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
   cl_device_id device = (cl_device_id) point_device;
@@ -3138,11 +3223,11 @@ void GpuChannel::OnCallclGetProgramBuildInfo_cl_int(
 
 void GpuChannel::OnCallclGetProgramBuildInfo_string(
     const cl_point& point_program,
-    const cl_point& point_device, 
-    const cl_program_build_info& param_name, 
+    const cl_point& point_device,
+    const cl_program_build_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    std::string* string_ret, 
+    std::string* string_ret,
     size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
@@ -3166,7 +3251,7 @@ void GpuChannel::OnCallclGetProgramBuildInfo_string(
                      param_value_size,
                      param_value,
                      param_value_size_ret_inter);
-  
+
   if (!return_variable_null_status[1] && param_value_size >= sizeof(char)) {
     (*string_ret) = std::string(param_value);
     delete[] param_value;
@@ -3179,8 +3264,8 @@ void GpuChannel::OnCallclGetProgramBuildInfo_cl_uint(
     const cl_program_build_info& param_name,
     const size_t& param_value_size,
     const std::vector<bool>& return_variable_null_status,
-    cl_uint* cl_uint_ret, 
-    size_t* param_value_size_ret, 
+    cl_uint* cl_uint_ret,
+    size_t* param_value_size_ret,
     cl_int* errcode_ret) {
   cl_program program = (cl_program) point_program;
   cl_device_id device = (cl_device_id) point_device;
@@ -3189,7 +3274,7 @@ void GpuChannel::OnCallclGetProgramBuildInfo_cl_uint(
 
   if (return_variable_null_status[0])
     param_value_size_ret_inter = NULL;
-  
+
   if (return_variable_null_status[1])
     cl_uint_ret_inter = NULL;
 
@@ -3357,12 +3442,12 @@ void GpuChannel::OnCallGetGLContext(
   gl::GLContextEGL* eglContext = static_cast<gl::GLContextEGL*>(context);
 
   CLLOG(INFO) << "OnCallGetGLContext, context : " << context << ", eglContext : " << eglContext;
-  CLLOG(INFO) << "OnCallGetGLContext, eglContext->GetDisplayHandle() : " << eglContext->GetDisplayHandle();  
+  CLLOG(INFO) << "OnCallGetGLContext, eglContext->GetDisplayHandle() : " << eglContext->GetDisplayHandle();
 
   CLLOG(INFO) << "OnCallGetGLContext, share_group()->GetContext()->GetHandle() : " << share_group()->GetContext()->GetHandle();
   CLLOG(INFO) << "OnCallGetGLContext, share_group()->GetSharedContext()->GetHandle() : " << share_group()->GetSharedContext()->GetHandle();
 
-  // CLLOG(INFO) << "OnCallGetGLContext, share_group()->GetContext()->GetHandle() : " << share_group()->GetContext()->GetHandle();  
+  // CLLOG(INFO) << "OnCallGetGLContext, share_group()->GetContext()->GetHandle() : " << share_group()->GetContext()->GetHandle();
 
   *glContext = reinterpret_cast<cl_point>(share_group()->GetContext()->GetHandle());
   *glDisplay = reinterpret_cast<cl_point>(eglContext->GetDisplayHandle());
@@ -3389,16 +3474,208 @@ void GpuChannel::OnCallCtrlClearSharedHandles(
 	*result = clApiImpl->clearSharedMemory();
 }
 
-void GpuChannel::OnCallclinitNBody(
-      const std::string& filePath) {
-  CLLOG(INFO) << "GpuChannel::OnCallclinitNBody";
-  clApiImpl->initNBody(filePath.c_str());
-}
-void GpuChannel::OnCallcldoNBody() {
-  CLLOG(INFO) << "GpuChannel::OnCallcldoNBody";
-  clApiImpl->doNBody();
+//Vulkan Function
+void GpuChannel::OnCallVKCSetSharedHandles(
+  const base::SharedMemoryHandle& data_handle,
+  const base::SharedMemoryHandle& operation_handle,
+  const base::SharedMemoryHandle& result_handle,
+  bool* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCSetSharedHandles";
+
+  *result = vkcApiImpl->setSharedMemory(data_handle, operation_handle, result_handle);
 }
 
+void GpuChannel::OnCallVKCClearSharedHandles(bool* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCClearSharedHandles";
+
+  *result = vkcApiImpl->clearSharedMemory();
+}
+
+void GpuChannel::OnCallVKCCreateInstance(
+  const std::vector<std::string>& names,
+  const std::vector<uint32_t>& versions,
+  const std::vector<std::string>& enabledLayerNames,
+  const std::vector<std::string>& enabledExtensionNames,
+  VKCPoint* vkcInstance,
+  int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCCreateInstance";
+
+  *result = vkcApiImpl->vkcCreateInstance(names, versions, enabledLayerNames, enabledExtensionNames, vkcInstance);
+}
+
+void GpuChannel::OnCallVKCDestroyInstance(const VKCPoint& vkcInstance, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCDestroyInstance " << vkcInstance;
+
+  *result = vkcApiImpl->vkcDestroyInstance(vkcInstance);
+}
+
+void GpuChannel::OnCallVKCEnumeratePhysicalDevice(const VKCPoint& vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCEnumeratePhysicalDevice " << vkcInstance;
+  *result = vkcApiImpl->vkcEnumeratePhysicalDevice(vkcInstance, physicalDeviceCount, physicalDeviceList);
+}
+
+void GpuChannel::OnCallVKCDestroyPhysicalDevice(const VKCPoint& physicalDeviceList, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCDestroyPhysicalDevice " << physicalDeviceList;
+  *result = vkcApiImpl->vkcDestroyPhysicalDevice(physicalDeviceList);
+}
+
+void GpuChannel::OnCallVKCCreateDevice(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue, int* result) {
+  VKCLOG(INFO) << "GpuCHannel::OnCallVKCCreateDevice " << vdIndex << ", " << physicalDeviceList;
+  *result = vkcApiImpl->vkcCreateDevice(vdIndex, physicalDeviceList, vkcDevice, vkcQueue);
+}
+
+void GpuChannel::OnCallVKCDestroyDevice(const VKCPoint& vkcDevice, const VKCPoint& vkcQueue, int* result) {
+  VKCLOG(INFO) << "GpuCHannel::OnCallVKCDestroyDevice";
+
+  *result = vkcApiImpl->vkcDestroyDevice(vkcDevice, vkcQueue);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoUint(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, VKCuint* data_uint, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoUint " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_uint);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoArray(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::vector<VKCuint>* data_array, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoArray " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_array);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoString(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::string* data_string, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoString " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_string);
+}
+
+void GpuChannel::OnCallVKCCreateBuffer(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, const VKCuint& sizeInBytes, VKCPoint* vkcBuffer, VKCPoint* vkcMemory, int* result) {
+  VKCLOG(INFO) << "createBuffer : " << vkcDevice << ", " << sizeInBytes;
+
+  *result = vkcApiImpl->vkcCreateBuffer(vkcDevice, physicalDeviceList, vdIndex, sizeInBytes, vkcBuffer, vkcMemory);
+}
+
+void GpuChannel::OnCallVKCReleaseBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcBuffer, const VKCPoint& vkcMemory, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseBuffer : " << vkcDevice << ", " << vkcBuffer << ", " << vkcMemory;
+
+  *result = vkcApiImpl->vkcReleaseBuffer(vkcDevice, vkcBuffer, vkcMemory);
+}
+
+void GpuChannel::OnCallVKCFillBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcMemory, const std::vector<VKCuint>& uintVector, int* result) {
+  VKCLOG(INFO) << "OnCallVKCFillBuffer : " << vkcDevice << ", " << vkcMemory << ", " << uintVector[0] << ", " << uintVector[1];
+
+  *result = vkcApiImpl->vkcFillBuffer(vkcDevice, vkcMemory, uintVector);
+}
+
+void GpuChannel::OnCallVKCCreateCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, VKCPoint* vkcCMDBuffer, VKCPoint* vkcCMDPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateCommandQueue : " << vkcDevice << ", " << physicalDeviceList << ", " << vdIndex;
+
+  *result = vkcApiImpl->vkcCreateCommandQueue(vkcDevice, physicalDeviceList, vdIndex, vkcCMDBuffer, vkcCMDPool);
+}
+
+void GpuChannel::OnCallVKCReleaseCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcCMDPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseCommandQueue : " << vkcDevice << ", " << vkcCMDBuffer << ", " << vkcCMDPool;
+
+  *result = vkcApiImpl->vkcReleaseCommandQueue(vkcDevice, vkcCMDBuffer, vkcCMDPool);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorSetLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorSetLayout : " << vkcDevice << ", " << useBufferCount;
+  *result = vkcApiImpl->vkcCreateDescriptorSetLayout(vkcDevice, useBufferCount, vkcDescriptorSetLayout);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorSetLayout : " << vkcDevice << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcReleaseDescriptorSetLayout(vkcDevice, vkcDescriptorSetLayout);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorPool(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorPool : " << vkcDevice << ", " << useBufferCount;
+  *result = vkcApiImpl->vkcCreateDescriptorPool(vkcDevice, useBufferCount, vkcDescriptorPool);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorPool(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorPool : " << vkcDevice << ", " << vkcDescriptorPool;
+  *result = vkcApiImpl->vkcReleaseDescriptorPool(vkcDevice, vkcDescriptorPool);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorSet : " << vkcDevice << ", " << vkcDescriptorPool << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcCreateDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSetLayout, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorSet : " << vkcDevice << ", " <<vkcDescriptorPool << ", " << vkcDescriptorSet;
+  *result = vkcApiImpl->vkcReleaseDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCCreatePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreatePipelineLayout : " << vkcDevice << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcCreatePipelineLayout(vkcDevice, vkcDescriptorSetLayout, vkcPipelineLayout);
+}
+
+void GpuChannel::OnCallVKCReleasePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleasePipelineLyaout : " << vkcDevice << ", " << vkcPipelineLayout;
+  *result = vkcApiImpl->vkcReleasePipelineLayout(vkcDevice, vkcPipelineLayout);
+}
+
+void GpuChannel::OnCallVKCCreateShaderModule(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateShaderModule : " << vkcDevice << ", " << shaderPath;
+  *result = vkcApiImpl->vkcCreateShaderModule(vkcDevice, shaderPath, vkcShaderModule);
+}
+void GpuChannel::OnCallVKCReleaseShaderModule(const VKCPoint& vkcDevice, const VKCPoint& vkcShaderModule, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseShaderModule : " << vkcDevice << ", " << vkcShaderModule;
+  *result = vkcApiImpl->vkcReleaseShaderModule(vkcDevice, vkcShaderModule);
+}
+
+void GpuChannel::OnCallVKCCreatePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreatePipeline : " << vkcDevice << ", " << vkcPipelineLayout << ", " << vkcShaderModule;
+  *result = vkcApiImpl->vkcCreatePipeline(vkcDevice, vkcPipelineLayout, vkcShaderModule, vkcPipelineCache, vkcPipeline);
+}
+
+void GpuChannel::OnCallVKCReleasePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineCache, const VKCPoint& vkcPipeline, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleasePipeline : " << vkcDevice << ", " << vkcPipelineCache << ", " << vkcPipeline;
+  *result = vkcApiImpl->vkcReleasePipeline(vkcDevice, vkcPipelineCache, vkcPipeline);
+}
+
+void GpuChannel::OnCallVKCUpdateDescriptorSets(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSet, const std::vector<VKCPoint>& bufferVector, int* result) {
+  VKCLOG(INFO) << "OnCallVKCUpdateDescriptorSets : " << vkcDevice << ", " << vkcDescriptorSet << ", "  << bufferVector.size();
+  *result = vkcApiImpl->vkcUpdateDescriptorSets(vkcDevice, vkcDescriptorSet, bufferVector);
+}
+
+void GpuChannel::OnCallVKCBeginQueue(const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcPipeline, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCBeginQueue : " << vkcCMDBuffer << ", " << vkcPipeline << ", " << vkcPipelineLayout << ", " << vkcDescriptorSet;
+  *result = vkcApiImpl->vkcBeginQueue(vkcCMDBuffer, vkcPipeline, vkcPipelineLayout, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCEndQueue(const VKCPoint& vkcCMDBuffer, int* result) {
+  VKCLOG(INFO) << "OnCallVKCEndQueue : " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcEndQueue(vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCDispatch(const VKCPoint& vkcCMDBuffer, const VKCuint& workGroupX, const VKCuint& workGroupY, const VKCuint& workGroupZ, int* result) {
+  // VKCLOG(INFO) << "OnCallVKCDispatch : " << vkcCMDBuffer << ", " << workGroupX;
+  *result = vkcApiImpl->vkcDispatch(vkcCMDBuffer, workGroupX, workGroupY, workGroupZ);
+}
+
+void GpuChannel::OnCallVKCPipelineBarrier(const VKCPoint& vkcCMDBuffer, int* result) {
+  // VKCLOG(INFO) << "OnCallVKCPipelineBarrier : " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcPipelineBarrier(vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCCmdCopyBuffer(const VKCPoint& vkcCMDBuffer, const VKCPoint& srcBuffer, const VKCPoint& dstBuffer, const VKCuint& copySize, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCmdCopyBuffer : " << vkcCMDBuffer << ", " << srcBuffer << ", " << dstBuffer << ", " << copySize;
+  *result = vkcApiImpl->vkcCmdCopyBuffer(vkcCMDBuffer, srcBuffer, dstBuffer, copySize);
+}
+
+void GpuChannel::OnCallVKCQueueSubmit(const VKCPoint& vkcQueue, const VKCPoint& vkcCMDBuffer, int* result) {
+  VKCLOG(INFO) << "OnCallVKCQueueSubmit : " << vkcQueue << ", " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcQueueSubmit(vkcQueue, vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCDeviceWaitIdle(const VKCPoint& vkcDevice, int* result) {
+  VKCLOG(INFO) << "OnCallVKCDeviceWaitIdle : " << vkcDevice;
+  *result = vkcApiImpl->vkcDeviceWaitIdle(vkcDevice);
+}
 
 void GpuChannel::CacheShader(const std::string& key,
                              const std::string& shader) {

@@ -8,6 +8,8 @@
 //#include "base/basictypes.h"
 #include <stddef.h>
 #include "mojo/public/cpp/bindings/strong_binding.h"
+#include "device/cpu/devicecpu_manager.mojom.h"
+#include "device/cpu/devicecpu_ResultCode.mojom.h"
 
 namespace device {
 
@@ -15,9 +17,17 @@ namespace {
 
 class DeviceCpuManagerEmptyImpl : public DeviceCpuManager {
  public:
-  void getDeviceCpuLoad(const getDeviceCpuLoadCallback& callback) override {}
-  void startCpuLoad() override {}
-  void stopCpuLoad() override {}
+  void getDeviceCpuLoad(const getDeviceCpuLoadCallback& callback) override {
+    DeviceCpu_ResultCodePtr result(DeviceCpu_ResultCode::New());
+    result->resultCode = int32_t(device::device_cpu_ErrorCodeList::NOT_SUPPORT_API);
+    result->functionCode = int32_t(device::device_cpu_function::FUNC_GET_CPU_LOAD);
+    result->load = 0.0f;
+    callback.Run(result.Clone());
+  }
+  void startCpuLoad() override {
+  }
+  void stopCpuLoad() override {
+  }
 
  private:
   friend DeviceCpuManagerImpl;

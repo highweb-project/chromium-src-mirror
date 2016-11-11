@@ -15,7 +15,12 @@ namespace {
 
 class DeviceStorageManagerEmptyImpl : public DeviceStorageManager {
  public:
-  void getDeviceStorage(const getDeviceStorageCallback& callback) override {}
+  void getDeviceStorage(const getDeviceStorageCallback& callback) override {
+    DeviceStorage_ResultCodePtr result(DeviceStorage_ResultCode::New());
+    result->resultCode = int32_t(device::device_storage_ErrorCodeList::NOT_SUPPORT_API);
+    result->functionCode = int32_t(device::device_storage_function::FUNC_GET_DEVICE_STORAGE);
+    callback.Run(result.Clone());
+  }
 
  private:
   friend DeviceStorageManagerImpl;

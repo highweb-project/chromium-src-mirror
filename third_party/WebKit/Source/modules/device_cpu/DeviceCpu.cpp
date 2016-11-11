@@ -7,19 +7,22 @@
 #include "wtf/build_config.h"
 #include "modules/device_cpu/DeviceCpu.h"
 
-// #include "base/basictypes.h"
 #include "base/bind.h"
 #include "core/frame/LocalFrame.h"
 #include "core/dom/Document.h"
 #include "public/platform/Platform.h"
-#include "public/platform/WebString.h"
-#include "DeviceCpuListener.h"
 #include "DeviceCpuStatus.h"
 #include "DeviceCpuScriptCallback.h"
 
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
+
+
 namespace blink {
+#define CPULOAD_ROUNDING(x, dig) floor((x) * pow(float(10), dig) + 0.5f) / pow(float(10), dig)
 
 DeviceCpu::DeviceCpu(Document& document)
 	: ActiveScriptWrappable(this), ActiveDOMObject((ExecutionContext*)&document)
@@ -34,9 +37,7 @@ DeviceCpu::DeviceCpu(Document& document)
 
 DeviceCpu::~DeviceCpu()
 {
-	mCallback = NULL;
-	d_functionData.clear();
-	//20160419-jphong
+	stopOnLoadCallback();
 	callbackList.clear();
 }
 
@@ -55,32 +56,43 @@ void DeviceCpu::load(DeviceCpuScriptCallback* passCallback) {
 	}
 }
 
+void DeviceCpu::loadInternal() {
+	if (!deviceCpuManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&deviceCpuManager));
+	}
+	if (!isPending) {
+		stopOnLoadCallback();
+		return;
+	}
+	deviceCpuManager->startCpuLoad();
+	deviceCpuManager->getDeviceCpuLoad(createBaseCallback(bind<device::blink::DeviceCpu_ResultCodePtr>(&DeviceCpu::OnLoadCallback, this)));
+}
+
+void DeviceCpu::OnLoadCallback(device::blink::DeviceCpu_ResultCodePtr result) {
+	if (mLastLoadData == nullptr) {
+		mLastLoadData = DeviceCpuStatus::create();
+	}
+	mLastLoadData->setFunctionCode(result->functionCode);
+	mLastLoadData->setResultCode(result->resultCode);
+	mLastLoadData->setLoad(CPULOAD_ROUNDING(result->load, 5));
+	resultCodeCallback();
+}
+
 void DeviceCpu::resultCodeCallback() {
 	Document* document = toDocument(getExecutionContext());
 	if (document->activeDOMObjectsAreSuspended() || document->activeDOMObjectsAreStopped()) {
-		Platform::current()->resetDeviceCpuDispatcher();
-		mCallback = NULL;
+		stopOnLoadCallback();
 		return;
 	}
 
-	DeviceCpuStatus* status = nullptr;
-	if (mCallback != nullptr) {
-		status = mCallback->lastData();
-	}
+	DeviceCpuStatus* status = mLastLoadData;;
 	//20160419-jphong
 	if (status != nullptr) {
 		if (status->getFunctionCode() == function::FUNC_GET_CPU_LOAD) {
 			notifyCallback(status, nullptr);
 		}
-		else {
-			mCallback = nullptr;
-			notifyCallback(status, nullptr);
-		}
 	} else {
 		if (status->getFunctionCode() == function::FUNC_GET_CPU_LOAD) {
-			notifyError(ErrorCodeList::FAILURE, nullptr);
-		}
-		else {
 			notifyError(ErrorCodeList::FAILURE, nullptr);
 		}
 	}
@@ -97,24 +109,18 @@ void DeviceCpu::notifyCallback(DeviceCpuStatus* status, DeviceCpuScriptCallback*
 		        callback->handleEvent(status);
 		    }
 		}
-		if (d_functionData.size() > 0 && d_functionData.first()->functionCode == function::FUNC_GET_CPU_LOAD) {
-			d_functionData.removeFirst();
-		}
+		functionData* data = d_functionData.first();
 		if (status->resultCode() != ErrorCodeList::SUCCESS) {
-			mCallback = NULL;
-			Platform::current()->resetDeviceCpuDispatcher();
+			stopOnLoadCallback();
+		} else {
+			if (d_functionData.size() > 0) {
+				d_functionData.removeFirst();
+			}
+			if (d_functionData.size() > 0 && d_functionData.first()->functionCode == function::FUNC_GET_CPU_LOAD) {
+			} else {
+				d_functionData.append(data);
+			}
 		}
-		return;
-	}
-	else {
-		if (callback != NULL) {
-			callback->handleEvent(status);
-			callback = nullptr;
-		}
-	}
-
-	if (d_functionData.size() > 0) {
-		d_functionData.removeFirst();
 	}
 	continueFunction();
 }
@@ -126,17 +132,14 @@ void DeviceCpu::notifyError(int errorCode, DeviceCpuScriptCallback* callback) {
 }
 
 void DeviceCpu::continueFunction() {
-	if (!ViewPermissionState) {
+	if (!ViewPermissionState && d_functionData.size() > 0) {
 		requestPermission();
 		return;
 	}
 	if (d_functionData.size() > 0) {
-		if (mCallback == NULL) {
-			mCallback = DeviceCpuListener::instance(this);
-		}
 		switch(d_functionData.first()->functionCode) {
 			case function::FUNC_GET_CPU_LOAD : {
-				Platform::current()->getDeviceCpuLoad(mCallback);
+				loadInternal();
 			}
 			default: {
 				break;
@@ -169,8 +172,7 @@ void DeviceCpu::onPermissionChecked(PermissionResult result)
 void DeviceCpu::suspend()
 {
 	isPending = false;
-	Platform::current()->resetDeviceCpuDispatcher();
-	mCallback = NULL;
+	stopOnLoadCallback();
 }
 
 void DeviceCpu::resume()
@@ -191,9 +193,7 @@ void DeviceCpu::stop()
 //void DeviceCpu::contextDestroyed()
 {
 	isPending = false;
-	Platform::current()->resetDeviceCpuDispatcher();
-	mCallback = NULL;
-	d_functionData.clear();
+	stopOnLoadCallback();
 }
 
 bool DeviceCpu::hasPendingActivity() const
@@ -201,15 +201,23 @@ bool DeviceCpu::hasPendingActivity() const
 	return isPending;
 }
 
+void DeviceCpu::stopOnLoadCallback() {
+	if (deviceCpuManager.is_bound()) {
+		deviceCpuManager.reset();
+	}
+	mLastLoadData = nullptr;
+	d_functionData.clear();
+}
+
 DEFINE_TRACE(DeviceCpu)
 {
-	visitor->trace(mCallback);
 	visitor->trace(callbackList);
-	//visitor->trace(d_functionData);
+	visitor->trace(mLastLoadData);
+	// visitor->trace(d_functionData);
 	//visitor->trace(callbackList);
 	//GarbageCollectedFinalized<DeviceCpu>::trace(visitor);
 	EventTargetWithInlineData::trace(visitor);
-	ActiveDOMObject::trace(visitor);	
+	ActiveDOMObject::trace(visitor);
 }
 
 } // namespace blink

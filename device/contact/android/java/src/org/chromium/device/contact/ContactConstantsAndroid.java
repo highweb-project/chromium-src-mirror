@@ -80,7 +80,8 @@ public interface ContactConstantsAndroid {
         NOT_SUPPORTED_ERROR(6),
         PERMISSION_DENIED_ERROR(20),
         MESSAGE_SIZE_EXCEEDED(30),
-        SUCCESS(40);
+        SUCCESS(40),
+        NOT_SUPPORT_API(9999);
 
         private final int mValue;
 

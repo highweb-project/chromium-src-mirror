@@ -21,6 +21,21 @@
       ],
     },
     {
+      # GN version: //device/storage:mojo_bindings_blink
+      'target_name': 'device_storage_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'devicestorage_manager.mojom',
+        'devicestorage_ResultCode.mojom',
+      ],
+    },
+    {
       # GN version: //device/storage
       'target_name': 'device_storage',
       'type': '<(component)',

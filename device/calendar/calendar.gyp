@@ -20,6 +20,21 @@
       ],
     },
     {
+      # GN version: //device/contact:mojo_bindings_blink
+      'target_name': 'device_calendar_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'calendar_manager.mojom',
+        'calendar_ResultCode.mojom',
+      ],
+    },
+    {
       # GN version: //device/calendar
       'target_name': 'device_calendar',
       'type': '<(component)',

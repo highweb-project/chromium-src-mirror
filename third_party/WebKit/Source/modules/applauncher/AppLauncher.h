@@ -12,16 +12,17 @@
 #include "wtf/PassOwnPtr.h"
 #include "wtf/Vector.h"
 #include "wtf/text/WTFString.h"
-#include "AppLauncherListener.h"
 #include "wtf/Deque.h"
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
-#include "platform/applauncher/applauncher_dispatcher.h"
+
+#include "device/applauncher/applauncher_manager.mojom-blink.h"
+#include "device/applauncher/applauncher_ResultCode.mojom-blink.h"
 
 namespace blink {
 
 class LocalFrame;
-class AppLauncherListener;
+class AppStatus;
 class AppLauncherScriptCallback;
 class ApplicationInfo;
 
@@ -39,6 +40,7 @@ public:
 		INVALID_PACKAGE_NAME = -3,
 		NOT_ENABLED_PERMISSION = -4,
 		INVALID_FLAGS = -5,
+		NOT_SUPPORT_API = 9999,
 
 		//getApplicationInfo flag
 		FLAG_GET_META_DATA = 128,
@@ -63,6 +65,13 @@ public:
 		functionData(int code) {
 			functionCode = code;
 		}
+		void setString(String& str, String data) {
+			if (data.isEmpty()) {
+				str = "";
+			} else {
+				str = data;
+			}
+		}
 	};
 
 	static AppLauncher* create(LocalFrame& frame) {
@@ -82,7 +91,6 @@ public:
 	void getApplicationInfo(const String packageName, const int flags, AppLauncherScriptCallback* callback);
 	void getApplicationInfo();
 
-	void resultCodeCallback();
 	void notifyCallback(AppStatus*, AppLauncherScriptCallback*);
 	void notifyError(int, AppLauncherScriptCallback*);
 	void continueFunction();
@@ -95,19 +103,19 @@ public:
 private:
 	AppLauncher(LocalFrame& frame);
 
-	Member<AppLauncherListener> mCallback = nullptr;
+	void mojoResultCallback(device::blink::AppLauncher_ResultCodePtr result);
 
 	Deque<functionData*> d_functionData;
 	//20160419-jphong
 	HeapVector<Member<AppLauncherScriptCallback>> mCallbackList;
-
-	Member<AppLauncherDispatcher> dispatcher;
 
 	WTF::String mOrigin;
 	WebDeviceApiPermissionCheckClient* mClient;
 
 	bool ViewPermissionState = false;
 	bool DeletePermissionState = false;
+
+	device::blink::AppLauncherManagerPtr appManager;
 };
 
 } // namespace blink

@@ -21,6 +21,21 @@
       ],
     },
     {
+      # GN version: //device/cpu:mojo_bindings_blink
+      'target_name': 'device_cpu_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'devicecpu_manager.mojom',
+        'devicecpu_ResultCode.mojom',
+      ],
+    },
+    {
       # GN version: //device/cpu
       'target_name': 'device_cpu',
       'type': '<(component)',
@@ -46,6 +61,17 @@
           ],
           'sources!': [
             'devicecpu_manager_impl_default.cc',
+          ],
+        }],
+        ['OS == "linux"', {
+          'sources!': [
+            'devicecpu_manager_impl_default.cc',
+          ],
+          'sources': [
+            'devicecpu_manager_linux.cc',
+            'devicecpu_manager_linux.h',
+            'devicecpu_service_linux.cc',
+            'devicecpu_service_linux.h',
           ],
         }],
       ],

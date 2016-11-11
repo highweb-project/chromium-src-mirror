@@ -7,19 +7,20 @@
 #include "wtf/build_config.h"
 #include "modules/device_sound/DeviceSound.h"
 
-// #include "base/basictypes.h"
 #include "base/bind.h"
 #include "core/frame/LocalFrame.h"
 #include "core/dom/Document.h"
 #include "public/platform/Platform.h"
-#include "public/platform/WebString.h"
-#include "DeviceSoundListener.h"
 #include "DeviceSoundStatus.h"
 #include "DeviceSoundScriptCallback.h"
 #include "modules/device_sound/DeviceVolume.h"
 
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
+
 namespace blink {
 
 DeviceSound::DeviceSound(LocalFrame& frame)
@@ -32,6 +33,11 @@ DeviceSound::DeviceSound(LocalFrame& frame)
 
 DeviceSound::~DeviceSound()
 {
+	if (soundManager.is_bound()) {
+		soundManager.reset();
+	}
+	d_functionData.clear();
+	mCallbackList.clear();
 }
 
 
@@ -47,6 +53,14 @@ void DeviceSound::outputDeviceType(DeviceSoundScriptCallback* callback) {
 	}
 }
 
+void DeviceSound::outputDeviceTypeInternal() {
+	if (!soundManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&soundManager));
+	}
+	soundManager->outputDeviceType(
+		createBaseCallback(bind<device::blink::DeviceSound_ResultCodePtr>(&DeviceSound::mojoResultCallback, this)));
+}
+
 void DeviceSound::deviceVolume(DeviceSoundScriptCallback* callback) {
 	functionData* data = new functionData(function::FUNC_DEVICE_VOLUME);
 	//data->scriptCallback = callback;
@@ -59,12 +73,15 @@ void DeviceSound::deviceVolume(DeviceSoundScriptCallback* callback) {
 	}
 }
 
-void DeviceSound::resultCodeCallback() {
-	DeviceSoundStatus* status = nullptr;
-	if (mCallback != nullptr) {
-		status = mCallback->lastData();
-		mCallback = nullptr;
+void DeviceSound::deviceVolumeInternal() {
+	if (!soundManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&soundManager));
 	}
+	soundManager->deviceVolume(
+		createBaseCallback(bind<device::blink::DeviceSound_ResultCodePtr>(&DeviceSound::mojoResultCallback, this)));
+}
+
+void DeviceSound::resultCodeCallback(DeviceSoundStatus* status) {
 	if (status != nullptr) {
 		notifyCallback(status, mCallbackList.at(0).get());
 	} else {
@@ -72,14 +89,46 @@ void DeviceSound::resultCodeCallback() {
 	}
 }
 
+void DeviceSound::mojoResultCallback(device::blink::DeviceSound_ResultCodePtr result) {
+	DCHECK(result.get());
+	DeviceSoundStatus* status = nullptr;
+	if (result.get() != nullptr) {
+		status = DeviceSoundStatus::create();
+		status->setResultCode(result->resultCode);
+		switch(result->functionCode) {
+			case function::FUNC_OUTPUT_DEVICE_TYPE: {
+				status->setOutputType(result->outputType);
+				break;
+			}
+			case function::FUNC_DEVICE_VOLUME: {
+				DeviceVolume volume = DeviceVolume();
+				if (result->volume.get() != nullptr) {
+					volume.setMediaVolume(result->volume->MediaVolume);
+					volume.setNotificationVolume(result->volume->NotificationVolume);
+					volume.setAlarmVolume(result->volume->AlarmVolume);
+					volume.setBellVolume(result->volume->BellVolume);
+					volume.setCallVolume(result->volume->CallVolume);
+					volume.setSystemVolume(result->volume->SystemVolume);
+					volume.setDTMFVolume(result->volume->DTMFVolume);
+				}
+				status->setVolume(volume);
+				break;
+			}
+		}
+	}
+	resultCodeCallback(status);
+}
+
 void DeviceSound::notifyCallback(DeviceSoundStatus* status, DeviceSoundScriptCallback* callback) {
 	if (callback != NULL) {
 		callback->handleEvent(status);
 		callback = nullptr;
 	}
-	Platform::current()->resetDeviceSoundDispatcher();
 	if (d_functionData.size() > 0)
 		d_functionData.removeFirst();
+
+	if(mCallbackList.size() > 0)
+		mCallbackList.remove(0);
 	continueFunction();
 }
 
@@ -90,21 +139,18 @@ void DeviceSound::notifyError(int errorCode, DeviceSoundScriptCallback* callback
 }
 
 void DeviceSound::continueFunction() {
-	if (!ViewPermissionState) {
+	if (!ViewPermissionState && d_functionData.size() > 0) {
 		requestPermission();
 		return;
 	}
 	if (d_functionData.size() > 0) {
-		if (mCallback == NULL) {
-			mCallback = DeviceSoundListener::instance(this);
-		}
 		switch(d_functionData.first()->functionCode) {
 			case function::FUNC_OUTPUT_DEVICE_TYPE : {
-				Platform::current()->outputDeviceType(mCallback);
+				outputDeviceTypeInternal();
 				break;
 			}
 			case function::FUNC_DEVICE_VOLUME : {
-				Platform::current()->deviceVolume(mCallback);
+				deviceVolumeInternal();
 				break;
 			}
 			default: {
@@ -137,7 +183,6 @@ void DeviceSound::onPermissionChecked(PermissionResult result)
 
 DEFINE_TRACE(DeviceSound)
 {
-	visitor->trace(mCallback);
 	//visitor->trace(d_functionData);
 	visitor->trace(mCallbackList);
 }

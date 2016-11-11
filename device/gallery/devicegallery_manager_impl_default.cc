@@ -8,6 +8,8 @@
 //#include "base/basictypes.h"
 #include <stddef.h>
 #include "mojo/public/cpp/bindings/strong_binding.h"
+#include "device/gallery/devicegallery_manager.mojom.h"
+#include "device/gallery/devicegallery_ResultCode.mojom.h"
 
 namespace device {
 
@@ -15,9 +17,27 @@ namespace {
 
 class DeviceGalleryManagerEmptyImpl : public DeviceGalleryManager {
  public:
-  void findMedia(MojoDeviceGalleryFindOptionsPtr options, const findMediaCallback& callback) override {}
-  void getMedia(MojoDeviceGalleryMediaObjectPtr object, const getMediaCallback& callback) override {}
-  void deleteMedia(MojoDeviceGalleryMediaObjectPtr object, const deleteMediaCallback& callback) override {}
+  void findMedia(MojoDeviceGalleryFindOptionsPtr options, const findMediaCallback& callback) override {
+    DeviceGallery_ResultCodePtr result(DeviceGallery_ResultCode::New());
+    result->resultCode = int32_t(device::device_gallery_ErrorCodeList::NOT_SUPPORT_API);
+    result->functionCode = int32_t(device::device_gallery_function::FUNC_FIND_MEDIA);
+    result->mediaListSize = 0;
+    callback.Run(result.Clone());
+  }
+  void getMedia(MojoDeviceGalleryMediaObjectPtr object, const getMediaCallback& callback) override {
+    DeviceGallery_ResultCodePtr result(DeviceGallery_ResultCode::New());
+    result->resultCode = int32_t(device::device_gallery_ErrorCodeList::NOT_SUPPORT_API);
+    result->functionCode = int32_t(device::device_gallery_function::FUNC_FIND_MEDIA);
+    result->mediaListSize = 0;
+    callback.Run(result.Clone());
+  }
+  void deleteMedia(MojoDeviceGalleryMediaObjectPtr object, const deleteMediaCallback& callback) override {
+    DeviceGallery_ResultCodePtr result(DeviceGallery_ResultCode::New());
+    result->resultCode = int32_t(device::device_gallery_ErrorCodeList::NOT_SUPPORT_API);
+    result->functionCode = int32_t(device::device_gallery_function::FUNC_FIND_MEDIA);
+    result->mediaListSize = 0;
+    callback.Run(result.Clone());
+  }
 
  private:
   friend DeviceGalleryManagerImpl;

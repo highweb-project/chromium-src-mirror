@@ -34,4 +34,8 @@ namespace blink {
 		mAppInfo = info;
 	}
 
+	void AppStatus::setResultCode(int resultCode) {
+		mResultCode = resultCode;
+	}
+
 } // namespace blink

@@ -92,6 +92,7 @@ source_set("common") {
     "//url",
     "//url/ipc:url_ipc",
     "//ui/opencl",
+    "//ui/native_vulkan",
   ]
 
   defines = []

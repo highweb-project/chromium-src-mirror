@@ -17,4 +17,5 @@ interface MediaDevices : EventTarget {
     [RuntimeEnabled=MediaConstraints] MediaTrackSupportedConstraints getSupportedConstraints();
     [RuntimeEnabled=GetUserMedia, CallWith=ScriptState, RaisesException] Promise<MediaStream> getUserMedia(MediaStreamConstraints options);
     [RuntimeEnabled=OnDeviceChange] attribute EventHandler ondevicechange;
+    [RuntimeEnabled=GetUserMedia, ImplementedAs=getUserMedia, CallWith=ScriptState, RaisesException] Promise<MediaStream> getDisplayMedia(MediaStreamConstraints options);
 };

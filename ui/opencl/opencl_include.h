@@ -14,9 +14,6 @@
 #include "base/logging.h"
 #include <vector>
 
- //vulkan
-#include <third_party/vulkan/include/vulkan/vulkan.h>
-
 // gl/cl sharing
 //#include "third_party/khronos/GLES2/gl2.h"
 #include <third_party/khronos/KHR/khrplatform.h>
@@ -122,8 +119,6 @@ enum OPENCL_OPERATION_TYPE {
 	ENQUEUE_ACQUIRE_GLOBJECTS,
 	ENQUEUE_RELEASE_GLOBJECTS,
 	FINISH,
-	VULKAN_WRITE_BUFFER,
-	VULKAN_READ_BUFFER
 };
 
 enum HOST_PTR_DATA_TYPE {
@@ -505,22 +500,6 @@ struct WebCL_Result_getGLObjectInfo : public WebCL_Result_Base {
 		operation_type = OPENCL_OPERATION_TYPE::GET_GL_OBJECT_INFO;
 	}
 };
-
-struct WebCL_Operation_VulkanReadBuffer : public WebCL_Operation_Base {
-	unsigned index;
-	unsigned size;
-	WebCL_Operation_VulkanReadBuffer() {
-		operation_type = OPENCL_OPERATION_TYPE::VULKAN_READ_BUFFER;
-	}
-};
-struct WebCL_Operation_VulkanWriteBuffer : public WebCL_Operation_Base {
-	unsigned index;
-	unsigned size;
-	WebCL_Operation_VulkanWriteBuffer() {
-		operation_type = OPENCL_OPERATION_TYPE::VULKAN_WRITE_BUFFER;
-	}
-};
-
 
 #define ARG_PTR(type) \
 	type *

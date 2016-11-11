@@ -9,22 +9,20 @@
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "platform/heap/Handle.h"
 #include "wtf/PassOwnPtr.h"
-#include "DeviceGalleryListener.h"
-#include "wtf/Deque.h"
 #include "modules/device_gallery/GalleryFindOptions.h"
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
 
+#include "device/gallery/devicegallery_manager.mojom-blink.h"
+#include "device/gallery/devicegallery_ResultCode.mojom-blink.h"
+
 namespace blink {
 
 class LocalFrame;
-class DeviceGalleryListener;
 class GallerySuccessCallback;
 class GalleryErrorCallback;
 class GalleryMediaObject;
 class DeviceGalleryStatus;
-struct WebDeviceGalleryMediaObject;
-struct WebDeviceGalleryFindOptions;
 
 class DeviceGallery
 	: public GarbageCollectedFinalized<DeviceGallery>
@@ -43,6 +41,7 @@ public:
 		IO_ERROR = 5,
 		NOT_SUPPORTED_ERROR = 6,
 		MEDIA_SIZE_EXCEEDED = 20,
+		NOT_SUPPORT_API = 9999,
 	};
 
 	enum function {
@@ -53,8 +52,6 @@ public:
 
 	struct functionData : public GarbageCollectedFinalized<functionData>{
 		int functionCode = -1;
-		//GallerySuccessCallback* successCallback = nullptr;
-		//GalleryErrorCallback* errorCallback = nullptr;
 		GalleryFindOptions option;
 		Member<GalleryMediaObject> object = nullptr;
 		functionData(int code) {
@@ -76,13 +73,9 @@ public:
 	void getMedia(GalleryMediaObject* media, GallerySuccessCallback* successCallback, GalleryErrorCallback* errorCallback);
 	void deleteMedia(GalleryMediaObject* media, GalleryErrorCallback* errorCallback);
 
-	void resultCodeCallback();
 	void notifyCallback(DeviceGalleryStatus*, GallerySuccessCallback*);
 	void notifyError(int, GalleryErrorCallback*);
 	void continueFunction();
-
-	void copyFindOptions(GalleryFindOptions& source, WebDeviceGalleryFindOptions* dest);
-	void copyMediaObjectNotBlob(GalleryMediaObject* source, WebDeviceGalleryMediaObject* dest);
 
 	void requestPermission(PermissionOptType type);
 	void onPermissionChecked(PermissionResult result);
@@ -93,7 +86,16 @@ public:
 private:
 	DeviceGallery(LocalFrame& frame);
 
-	Member<DeviceGalleryListener> mCallback = nullptr;
+	void convertScriptFindOptionToMojo(device::blink::MojoDeviceGalleryFindOptions* mojoFindOption, GalleryFindOptions& option);
+	void convertScriptMediaObjectToMojo(device::blink::MojoDeviceGalleryMediaObject* mojoMediaObject, GalleryMediaObject* object);
+	void convertMojoToScriptObject(GalleryMediaObject* object, device::blink::MojoDeviceGalleryMediaObject* mojoObject);
+
+	void findMediaInternal();
+	void getMediaInternal();
+	void deleteMediaInternal();
+	void mojoResultCallback(device::blink::DeviceGallery_ResultCodePtr result);
+
+	device::blink::DeviceGalleryManagerPtr galleryManager;
 
 	HeapDeque<Member<functionData>> d_functionData;
 	HeapVector<Member<GallerySuccessCallback>> mSuccessCallbackList;

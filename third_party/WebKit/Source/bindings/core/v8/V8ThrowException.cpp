@@ -29,6 +29,7 @@
 #include "bindings/core/v8/V8DOMException.h"
 #include "core/dom/DOMException.h"
 #include "modules/webcl/WebCLException.h"
+#include "modules/webvulkan/WebVKCException.h"
 #include "core/dom/ExceptionCode.h"
 
 namespace blink {
@@ -81,10 +82,14 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     v8::Local<v8::Value> exception;
     DOMException* domException = nullptr;
     WebCLException* webclException = nullptr;
+    WebVKCException* webvkcException = nullptr;
 	
     if(WebCLException::isWebCLException(ec)) {
     	webclException = WebCLException::create(ec, sanitizedMessage, unsanitizedMessage);
     	exception = toV8(webclException, sanitizedCreationContext, isolate);
+    } else if(WebVKCException::isWebVKCException(ec)) {
+        webvkcException = WebVKCException::create(ec, sanitizedMessage, unsanitizedMessage);
+        exception = toV8(webvkcException, sanitizedCreationContext, isolate);
     }
     else {
 	    domException = DOMException::create(ec, sanitizedMessage, unsanitizedMessage);
@@ -101,6 +106,8 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     v8::Local<v8::Value> error;
     if(WebCLException::isWebCLException(ec)) {
     	error = v8::Exception::Error(v8String(isolate, webclException->message()));
+    } else if(WebVKCException::isWebVKCException(ec)) {
+        error = v8::Exception::Error(v8String(isolate, webvkcException->message()));
     }
     else {
     	error = v8::Exception::Error(v8String(isolate, domException->message()));

@@ -1,0 +1,17 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+typedef long VKCResult;
+typedef unsigned long VKCuint;
+typedef int VKCint;
+typedef unsigned long VKCenum;
+[
+] interface WebVKCCommandQueue {
+	[RaisesException] void release();
+	[RaisesException] void begin(WebVKCProgram program);
+	[RaisesException] void end();
+	[RaisesException] void dispatch(VKCuint workGroupX, optional VKCuint workGroupY = 1, optional VKCuint workGroupZ = 1);
+	[RaisesException] void barrier();
+	[RaisesException] void copyBuffer(WebVKCBuffer srcBuffer, WebVKCBuffer dstBuffer, VKCuint copyBufferSize);
+};

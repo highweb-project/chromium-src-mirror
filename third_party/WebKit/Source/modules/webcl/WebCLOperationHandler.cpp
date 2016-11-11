@@ -345,13 +345,6 @@ void WebCLOperationHandler::setOperationParameter(WebCL_Operation_Base* paramPtr
 		mSharedOperationPtr->bool_01 = tmp->need_event;
 	}
 	break;
-	case OPENCL_OPERATION_TYPE::VULKAN_WRITE_BUFFER:
-	case OPENCL_OPERATION_TYPE::VULKAN_READ_BUFFER: {
-		WebCL_Operation_VulkanReadBuffer* tmp = static_cast<WebCL_Operation_VulkanReadBuffer*>(paramPtr);
-		mSharedOperationPtr->uint_01 = tmp->index;
-		mSharedOperationPtr->uint_02 = tmp->size;
-	}
-	break;
 	}
 }
 
@@ -417,11 +410,6 @@ void WebCLOperationHandler::getOperationResult(WebCL_Result_Base* resultPtr)
 		tmp->glObjectName = mSharedResultPtr->uint_02;
 		tmp->clGLTextureTarget = mSharedResultPtr->uint_03;
 		tmp->clGLMipMapLevel = mSharedResultPtr->uint_04;
-	}
-	break;
-	case OPENCL_OPERATION_TYPE::VULKAN_READ_BUFFER: {
-		WebCL_Result_Base* tmp = static_cast<WebCL_Result_Base*>(resultPtr);
-		tmp->result = mSharedResultPtr->int_01;
 	}
 	break;
 	}

@@ -29,6 +29,7 @@ public class DeviceSoundManagerImpl implements DeviceSoundManager {
 		static final int SUCCESS = 0;
 		static final int FAILURE = -1;
 		static final int NOT_ENABLED_PERMISSION = -2;
+		static final int NOT_SUPPORT_API = 9999;
 	};
 
 	static class devicesound_function {
@@ -72,7 +73,7 @@ public class DeviceSoundManagerImpl implements DeviceSoundManager {
 		} else {
 			code.outputType = device_outputtype.DEVICE_DEFAULT;
 		}
-		
+
 		code.resultCode = devicesound_ErrorCodeList.SUCCESS;
 		callback.call(code);
 		code = null;
@@ -90,7 +91,7 @@ public class DeviceSoundManagerImpl implements DeviceSoundManager {
 		float nowVolume = 0;
 
 		AudioManager am = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
-		
+
 		maxVolume = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
 		nowVolume = am.getStreamVolume(AudioManager.STREAM_ALARM);
 		code.volume.alarmVolume = nowVolume / maxVolume;

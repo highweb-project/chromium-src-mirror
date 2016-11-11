@@ -35,6 +35,7 @@
 #include "ui/gfx/swap_result.h"
 #include "url/ipc/url_param_traits.h"
 #include "ui/opencl/opencl_include.h"
+#include "ui/native_vulkan/vulkan_include.h"
 #if defined(OS_ANDROID)
 #include "gpu/ipc/common/android/surface_texture_peer.h"
 #elif defined(OS_MACOSX)
@@ -921,7 +922,50 @@ IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueReleaseGLObject
 IPC_SYNC_MESSAGE_CONTROL0_2(OpenCLChannelMsg_getGLContext,
           cl_point, cl_point)
 
-IPC_SYNC_MESSAGE_CONTROL1_0(OpenCLChannelMsg_initNBody, std::string)
-IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_doNBody)
-IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_readVulkanBuffer)
-IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_writeVulkanBuffer)
+//vulkan IPC Messages
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_SetSharedHandles,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		bool)
+
+IPC_SYNC_MESSAGE_CONTROL0_1(VulkanComputeChannelMsg_ClearSharedHandles,
+		bool)
+IPC_SYNC_MESSAGE_CONTROL4_2(VulkanComputeChannelMsg_CreateInstance,
+		std::vector<std::string>, std::vector<uint32_t>,
+		std::vector<std::string>, std::vector<std::string>, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DestroyInstance, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_3(VulkanComputeChannelMsg_EnumeratePhysicalDevice, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DestroyPhysicalDevice, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_3(VulkanComputeChannelMsg_CreateDevice, VKCuint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_DestroyDevice, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_uint, VKCuint, VKCPoint, VKCenum, uint32_t, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_string, VKCuint, VKCPoint, VKCenum, std::string, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_array, VKCuint, VKCPoint, VKCenum, std::vector<VKCuint>, int)
+IPC_SYNC_MESSAGE_CONTROL4_3(VulkanComputeChannelMsg_CreateBuffer, VKCPoint, VKCPoint, VKCuint, VKCuint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseBuffer, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_FillBuffer, VKCPoint, VKCPoint, std::vector<VKCuint>, int)
+IPC_SYNC_MESSAGE_CONTROL0_0(VulkanComputeChannelMsg_Trigger_WriteBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(VulkanComputeChannelMsg_Trigger_ReadBuffer)
+IPC_SYNC_MESSAGE_CONTROL3_3(VulkanComputeChannelMsg_CreateCommandQueue, VKCPoint, VKCPoint, VKCuint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseCommandQueue, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateDescriptorSetLayout, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseDescriptorSetLayout, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateDescriptorPool, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseDescriptorPool, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_CreateDescriptorSet, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseDescriptorSet, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreatePipelineLayout, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleasePipelineLayout, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateShaderModule, VKCPoint, std::string, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseShaderModule, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_3(VulkanComputeChannelMsg_CreatePipeline, VKCPoint, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleasePipeline, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_UpdateDescriptorSets, VKCPoint, VKCPoint, std::vector<VKCPoint>, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_BeginQueue, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_EndQueue, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_Dispatch, VKCPoint, VKCuint, VKCuint, VKCuint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_PipelineBarrier, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_CmdCopyBuffer, VKCPoint, VKCPoint, VKCPoint, VKCuint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_QueueSubmit, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DeviceWaitIdle, VKCPoint, int);

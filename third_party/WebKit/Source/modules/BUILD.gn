@@ -56,6 +56,17 @@ component("modules") {
     "//third_party/icu",
     "//third_party/sqlite",
     "//third_party/zlib",
+    "//ui/opencl:opencl",
+    "//ui/native_vulkan:native_vulkan",
+    "//third_party/WebKit/public:blink_headers",
+    "//device/contact:mojo_bindings_blink",
+    "//device/cpu:mojo_bindings_blink",
+    "//device/gallery:mojo_bindings_blink",
+    "//device/messaging:mojo_bindings_blink",
+    "//device/sound:mojo_bindings_blink",
+    "//device/storage:mojo_bindings_blink",
+    "//device/applauncher:mojo_bindings_blink",
+    "//device/calendar:mojo_bindings_blink",
   ]
 
   if (is_win) {

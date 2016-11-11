@@ -26,7 +26,7 @@ typedef const unsigned long	CLenum;     // Used for enumerated types, such as We
 
 namespace gpu {
 	class GpuChannelHost;
-	
+
 	cl_int webcl_getPlatformIDs(GpuChannelHost*, cl_uint, cl_platform_id*, cl_uint*);
 	cl_int webcl_clGetPlatformInfo(GpuChannelHost*, cl_platform_id, cl_platform_info, size_t, char*, size_t*);
 	cl_int webcl_clGetDeviceIDs(GpuChannelHost*, cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*);
@@ -74,9 +74,4 @@ namespace gpu {
 	bool webcl_ctrlSetSharedHandles(GpuChannelHost*, base::SharedMemoryHandle, base::SharedMemoryHandle, base::SharedMemoryHandle, base::SharedMemoryHandle);
 	bool webcl_ctrlClearSharedHandles(GpuChannelHost*);
 	bool webcl_ctrlTriggerSharedOperation(GpuChannelHost*, int operation);
-
-	//vulkan test
-	void webcl_vulkanTest(GpuChannelHost*, const char*);
-	void webcl_initNBody(GpuChannelHost*, const char*);
-	void webcl_doNBody(GpuChannelHost*);
 }

@@ -33,6 +33,7 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 		static final int SUCCESS = 0;
 		static final int FAILURE = -1;
 		static final int NOT_ENABLED_PERMISSION = -2;
+		static final int NOT_SUPPORT_API = 9999;
 	};
 
 	static class device_cpu_function {
@@ -44,27 +45,17 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 	}
 
 	@Override
-	public void close() {}
+	public void close() {
+		threadContinue = false;
+	}
 
 	@Override
-	public void onConnectionError(MojoException e) {}
+	public void onConnectionError(MojoException e) {
+		threadContinue = false;
+	}
 
 	@Override
 	public void getDeviceCpuLoad(GetDeviceCpuLoadResponse callback) {
-		// DeviceCpuResultCode code = new DeviceCpuResultCode();
-		// code.resultCode = device_cpu_ErrorCodeList.FAILURE;
-		// code.functionCode = device_cpu_function.FUNC_GET_CPU_LOAD;
-		
-		// code.load = cpuLoad;
-		// if (cpuLoad == -1 ) {
-		// 	code.resultCode = device_cpu_ErrorCodeList.FAILURE;
-		// }
-		// else {
-		// 	code.resultCode = device_cpu_ErrorCodeList.SUCCESS;
-		// }
-		// Thread.sleep(500);
-		// callback.call(code);
-		// code = null;
 		Thread callbackthread = new Thread(new callbackThread(callback, cpuLoad));
 		callbackthread.start();
 	}
@@ -111,12 +102,13 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 
 			String[] toks = load.split(" +");  // Split on one or more spaces
 
-			long idle1 = Long.parseLong(toks[1]);
-			long cpu1 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3])
-					  + Long.parseLong(toks[4]) + Long.parseLong(toks[5]) + Long.parseLong(toks[6])
-					  + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
+			long idle1 = Long.parseLong(toks[4]) + Long.parseLong(toks[5]);
+			long cpu1 = 0;
+			for(int i = 1; i < toks.length; i++) {
+				cpu1 += Long.parseLong(toks[i]);
+			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (Exception e) {}
 
 			reader.seek(0);
@@ -125,12 +117,12 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 
 			toks = load.split(" +");
 
-			long idle2 = Long.parseLong(toks[1]);
-			long cpu2 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3])
-					+ Long.parseLong(toks[4]) + Long.parseLong(toks[5]) + Long.parseLong(toks[6])
-					+ Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-
-			return 1 - (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
+			long cpu2 = 0;
+			long idle2 = Long.parseLong(toks[4]) + Long.parseLong(toks[5]);
+			for(int i = 1; i < toks.length; i++) {
+				cpu2 += Long.parseLong(toks[i]);
+			}
+			return 1 - (float)(idle2 - idle1) / (cpu2 - cpu1);
 
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -151,7 +143,14 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 			DeviceCpuResultCode code = new DeviceCpuResultCode();
 			code.resultCode = device_cpu_ErrorCodeList.FAILURE;
 			code.functionCode = device_cpu_function.FUNC_GET_CPU_LOAD;
-			
+
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+
 			code.load = cpuLoad;
 			if (cpuLoad == -1 ) {
 				code.resultCode = device_cpu_ErrorCodeList.FAILURE;
@@ -159,15 +158,9 @@ public class DeviceCpuManagerImpl implements DeviceCpuManager {
 			else {
 				code.resultCode = device_cpu_ErrorCodeList.SUCCESS;
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
+
 			callback.call(code);
 			code = null;
-			// callback.call(load);
 		}
 	}
 

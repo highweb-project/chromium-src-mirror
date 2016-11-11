@@ -9,15 +9,16 @@
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "platform/heap/Handle.h"
 #include "wtf/PassOwnPtr.h"
-#include "DeviceSoundListener.h"
 #include "wtf/Deque.h"
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
+#include "device/sound/devicesound_manager.mojom-blink.h"
+#include "device/sound/devicesound_resultData.mojom-blink.h"
 
 namespace blink {
 
 class LocalFrame;
-class DeviceSoundListener;
+class DeviceSoundStatus;
 class DeviceSoundScriptCallback;
 class DeviceVolume;
 
@@ -32,6 +33,7 @@ public:
 		SUCCESS = 0,
 		FAILURE = -1,
 		NOT_ENABLED_PERMISSION = -2,
+		NOT_SUPPORT_API = 9999,
 	};
 
 	enum function {
@@ -63,7 +65,7 @@ public:
 	void outputDeviceType(DeviceSoundScriptCallback* callback);
 	void deviceVolume(DeviceSoundScriptCallback* callback);
 
-	void resultCodeCallback();
+	void resultCodeCallback(DeviceSoundStatus* status);
 	void notifyCallback(DeviceSoundStatus*, DeviceSoundScriptCallback*);
 	void notifyError(int, DeviceSoundScriptCallback*);
 	void continueFunction();
@@ -76,7 +78,10 @@ public:
 private:
 	DeviceSound(LocalFrame& frame);
 
-	Member<DeviceSoundListener> mCallback = nullptr;
+	void outputDeviceTypeInternal();
+	void deviceVolumeInternal();
+
+	void mojoResultCallback(device::blink::DeviceSound_ResultCodePtr result);
 
 	Deque<functionData*> d_functionData;
 	HeapVector<Member<DeviceSoundScriptCallback>> mCallbackList;
@@ -85,6 +90,8 @@ private:
 	WebDeviceApiPermissionCheckClient* mClient;
 
 	bool ViewPermissionState = false;
+
+	device::blink::DeviceSoundManagerPtr soundManager;
 };
 
 } // namespace blink

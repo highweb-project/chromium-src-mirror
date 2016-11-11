@@ -31,6 +31,7 @@
 #include "core/dom/ExceptionCode.h"
 
 #include "modules/webcl/WebCLException.h"
+#include "modules/webvulkan/WebVKCException.h"
 
 namespace blink {
 
@@ -93,6 +94,8 @@ static const struct CoreException {
 
 	// WebCL
 	{ "WebCLError", "The WebCL operation failed for an operation-specific reason", 0 },
+
+    { "WebVulkanError", "The WebVKC operation failed for an operation-specific reason", 0 },
 };
 
 static const CoreException* getErrorEntry(ExceptionCode ec)
@@ -125,6 +128,8 @@ DOMException* DOMException::create(ExceptionCode ec, const String& sanitizedMess
 {
     if(ec >= WebCLError && ec <= (WebCLError+(WebCLException::WebCLExceptionMax-1))) {
     	return new DOMException(ec, WebCLException::getErrorName(ec), WebCLException::getErrorMessage(ec), unsanitizedMessage);
+    } else if(ec >= WebVulkanError && ec <= (WebVulkanError + (WebVKCException::WebVKCExceptionMax - 1))) {
+        return new DOMException(ec, WebVKCException::getErrorName(ec), WebVKCException::getErrorMessage(ec), unsanitizedMessage);
     }
 	
     const CoreException* entry = getErrorEntry(ec);

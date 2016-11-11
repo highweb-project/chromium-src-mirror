@@ -26,7 +26,6 @@
 
 #include "modules/EventTargetModules.h"
 #include "third_party/WebKit/public/platform/Platform.h"
-#include "content/renderer/render_thread_impl.h"
 
 gpu::GpuChannelHost* webcl_channel_ = NULL;
 // void setWebCLChannelHost(gpu::GpuChannelHost* channel_webcl) {
@@ -39,8 +38,7 @@ WebCL::WebCL(ExecutionContext* context)
 	: m_num_platforms(0),
 	  m_cl_platforms(NULL)
 {
-	content::RenderThreadImpl::current()->EstablishGpuChannelSync(content::CAUSE_FOR_GPU_LAUNCH_WEBCL);
-	webcl_channel_ = content::RenderThreadImpl::current()->GetGpuChannel();
+	webcl_channel_ = Platform::current()->createWebCLGPUChannelContext();
 
 	initSupportedExtensionState = WebCLException::SUCCESS;
 
@@ -871,53 +869,6 @@ void WebCL::getOperationResultData(void* resultDataPtr, size_t sizeInBytes)
 
 bool WebCL::isEnableExtension(String extensionName) {
 	return enableExtensionList.contains(extensionName);
-}
-
-void WebCL::initNBody(String filePath) {
-	const char* path = strdup(filePath.utf8().data());
-	webcl_initNBody(webcl_channel_, path);
-}
-
-void WebCL::doNBody() {
-	webcl_doNBody(webcl_channel_);
-}
-
-void WebCL::readNBodyBuffer(unsigned index, unsigned bufferSize, DOMArrayBufferView* hostPtr) {
-	// CLLOG(INFO) << "readNBodyBuffer";
-	// webcl_readNBodyBuffer(webcl_channel_, index, bufferSize, )
-	startHandling();
-
-	WebCL_Operation_VulkanReadBuffer operation = WebCL_Operation_VulkanReadBuffer();
-	operation.index = index;
-	operation.size = bufferSize;
-	setOperationParameter(&operation);
-
-	sendOperationSignal(OPENCL_OPERATION_TYPE::VULKAN_READ_BUFFER);
-
-	WebCL_Result_Base result = WebCL_Result_Base();
-	getOperationResult(&result);
-
-	if(result.result == 0) {
-		getOperationResultData(hostPtr->baseAddress(), hostPtr->byteLength());
-		// CLLOG(INFO) << "result 0";
-	}
-	// CLLOG(INFO) << "end";
-}
-
-void WebCL::setNBodyData(unsigned index, unsigned bufferSize, DOMArrayBufferView* hostPtr) {
-	startHandling();
-
-	WebCL_Operation_VulkanWriteBuffer operation = WebCL_Operation_VulkanWriteBuffer();
-	operation.index = index;
-	operation.size = bufferSize;
-	setOperationParameter(&operation);
-
-	setOperationData(hostPtr->baseAddress(), hostPtr->byteLength());
-
-	sendOperationSignal(OPENCL_OPERATION_TYPE::VULKAN_WRITE_BUFFER);
-
-	WebCL_Result_Base result = WebCL_Result_Base();
-	getOperationResult(&result);
 }
 
 DEFINE_TRACE(WebCL) {

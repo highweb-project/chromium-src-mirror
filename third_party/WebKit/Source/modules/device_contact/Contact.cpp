@@ -17,13 +17,7 @@
 #include "wtf/text/WTFString.h"
 
 #include "public/platform/Platform.h"
-#include "public/platform/WebString.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
-#include "public/platform/modules/device_contact/WebDeviceContactAddress.h"
-#include "public/platform/modules/device_contact/WebDeviceContactFindOptions.h"
-#include "public/platform/modules/device_contact/WebDeviceContactName.h"
-#include "public/platform/modules/device_contact/WebDeviceContactObject.h"
-#include "public/platform/modules/device_contact/WebDeviceContactParameter.h"
 
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "modules/device_contact/ContactAddress.h"
@@ -31,6 +25,9 @@
 #include "modules/device_contact/ContactName.h"
 #include "modules/device_contact/ContactObject.h"
 #include "modules/device_contact/ContactSuccessCallback.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
 
 namespace blink {
 
@@ -52,6 +49,9 @@ Contact::Contact(LocalFrame& frame)
 
 Contact::~Contact()
 {
+	if (contactManager.is_bound()) {
+		contactManager.reset();
+	}
 }
 
 void Contact::onPermissionChecked(PermissionResult result)
@@ -136,44 +136,14 @@ void Contact::findContact(ContactFindOptions findOptions, ContactSuccessCallback
 void Contact::findContactInternal(int requestId)
 {
 	DLOG(INFO) << "Contact::findContactInternal";
+	if (!contactManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&contactManager));
+	}
 
-	WebDeviceContactParameter* parameter = new WebDeviceContactParameter(this);
-	parameter->mRequestId = requestId;
 	ContactFindOptions findOptions = mContactFindOptionsMap.get(requestId);
-	parameter->mFindOptions = new WebDeviceContactFindOptions(
-			getContactFindTarget(findOptions.target()),
-			findOptions.maxItem(),
-			WebString(findOptions.condition()));
-
-	Platform::current()->findContact(parameter);
-}
-
-void Contact::OnContactFindResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results)
-{
-	DLOG(INFO) << "Contact::OnContactFindResult, result size=" << results.size();
-
-	ContactSuccessCallback* successCB = mContactSuccessCBMap.get(requestId);
-	ContactErrorCallback* errorCB = mContactErrorCBMap.get(requestId);
-
-	if(error != Contact::SUCCESS) {
-		errorCB->handleResult((unsigned)error);
-		return;
-	}
-	else {
-		HeapVector<Member<ContactObject>> resultToReturn;
-		ContactObject* tmpObj = nullptr;
-		size_t resultSize = results.size();
-		for(size_t i=0; i<resultSize; i++) {
-			tmpObj = convertToScriptContact(results[i]);
-			resultToReturn.append(tmpObj);
-		}
-
-		successCB->handleResult(resultToReturn);
-	}
-
-	mContactFindOptionsMap.remove(requestId);
-	mContactSuccessCBMap.remove(requestId);
-	mContactErrorCBMap.remove(requestId);
+	contactManager->FindContact(requestId, getContactFindTarget(findOptions.target()),
+		findOptions.maxItem(), findOptions.condition(),
+		createBaseCallback(bind<int, unsigned, mojo::WTFArray<device::blink::ContactObjectPtr>>(&Contact::OnContactResultsWithFindOption, this)));
 }
 
 // findContact -------------------------------------------
@@ -216,39 +186,15 @@ void Contact::addContact(Member<ContactObject> contact, ContactSuccessCallback* 
 
 void Contact::addContactInternal(int requestId)
 {
-	WebDeviceContactParameter* parameter = new WebDeviceContactParameter(this);
-	parameter->mContactObject = convertToBlinkContact(mContactObjectMap.get(requestId));
-	parameter->mRequestId = requestId;
-
-	Platform::current()->addContact(parameter);
-}
-
-void Contact::OnContactAddResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results)
-{
-	DLOG(INFO) << "Contact::OnContactAddResult, result size=" << results.size();
-
-	ContactSuccessCallback* successCB = mContactSuccessCBMap.get(requestId);
-	ContactErrorCallback* errorCB = mContactErrorCBMap.get(requestId);
-
-	if(error != Contact::SUCCESS) {
-		errorCB->handleResult((unsigned)error);
-		return;
-	}
-	else {
-		HeapVector<Member<ContactObject>> resultToReturn;
-		ContactObject* tmpObj = nullptr;
-		size_t resultSize = results.size();
-		for(size_t i=0; i<resultSize; i++) {
-			tmpObj = convertToScriptContact(results[i]);
-			resultToReturn.append(tmpObj);
-		}
-
-		successCB->handleResult(resultToReturn);
+	if (!contactManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&contactManager));
 	}
 
-	mContactObjectMap.remove(requestId);
-	mContactSuccessCBMap.remove(requestId);
-	mContactErrorCBMap.remove(requestId);
+	ContactObject* object = mContactObjectMap.get(requestId);
+	device::blink::ContactObjectPtr parameterPtr(device::blink::ContactObject::New());
+	convertScriptContactToMojo(parameterPtr.get(), object);
+	contactManager->AddContact(requestId, std::move(parameterPtr),
+		createBaseCallback(bind<int, unsigned, mojo::WTFArray<device::blink::ContactObjectPtr>>(&Contact::OnContactResultsWithObject, this)));
 }
 
 // addContact --------------------------------------------
@@ -291,44 +237,13 @@ void Contact::deleteContact(ContactFindOptions findOptions, ContactSuccessCallba
 void Contact::deleteContactInternal(int requestId)
 {
 	DLOG(INFO) << "Contact::deleteContactInternal";
-
-	WebDeviceContactParameter* parameter = new WebDeviceContactParameter(this);
-	parameter->mRequestId = requestId;
+	if (!contactManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&contactManager));
+	}
 	ContactFindOptions findOptions = mContactFindOptionsMap.get(requestId);
-	parameter->mFindOptions = new WebDeviceContactFindOptions(
-			getContactFindTarget(findOptions.target()),
-			findOptions.maxItem(),
-			WebString(findOptions.condition()));
-
-	Platform::current()->deleteContact(parameter);
-}
-
-void Contact::OnContactDeleteResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results)
-{
-	DLOG(INFO) << "Contact::OnContactDeleteResult, error=" << error;
-
-	ContactSuccessCallback* successCB = mContactSuccessCBMap.get(requestId);
-	ContactErrorCallback* errorCB = mContactErrorCBMap.get(requestId);
-
-	if(error != Contact::SUCCESS) {
-		errorCB->handleResult((unsigned)error);
-		return;
-	}
-	else {
-		HeapVector<Member<ContactObject>> resultToReturn;
-		ContactObject* tmpObj = nullptr;
-		size_t resultSize = results.size();
-		for(size_t i=0; i<resultSize; i++) {
-			tmpObj = convertToScriptContact(results[i]);
-			resultToReturn.append(tmpObj);
-		}
-
-		successCB->handleResult(resultToReturn);
-	}
-
-	mContactFindOptionsMap.remove(requestId);
-	mContactSuccessCBMap.remove(requestId);
-	mContactErrorCBMap.remove(requestId);
+	contactManager->DeleteContact(requestId, getContactFindTarget(findOptions.target()),
+		findOptions.maxItem(), findOptions.condition(),
+		createBaseCallback(bind<int, unsigned, mojo::WTFArray<device::blink::ContactObjectPtr>>(&Contact::OnContactResultsWithFindOption, this)));
 }
 
 // deleteContact --------------------------------------------
@@ -371,16 +286,21 @@ void Contact::updateContact(Member<ContactObject> contact, ContactSuccessCallbac
 
 void Contact::updateContactInternal(int requestId)
 {
-	WebDeviceContactParameter* parameter = new WebDeviceContactParameter(this);
-	parameter->mContactObject = convertToBlinkContact(mContactObjectMap.get(requestId));
-	parameter->mRequestId = requestId;
+	if (!contactManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&contactManager));
+	}
 
-	Platform::current()->updateContact(parameter);
+	ContactObject* object = mContactObjectMap.get(requestId);
+	device::blink::ContactObjectPtr parameterPtr(device::blink::ContactObject::New());
+	convertScriptContactToMojo(parameterPtr.get(), object);
+	contactManager->UpdateContact(requestId, std::move(parameterPtr),
+		createBaseCallback(bind<int, unsigned, mojo::WTFArray<device::blink::ContactObjectPtr>>(&Contact::OnContactResultsWithObject, this)));
 }
 
-void Contact::OnContactUpdateResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results)
-{
-	DLOG(INFO) << "Contact::OnContactUpdateResult, result size=" << results.size();
+// updateContact --------------------------------------------
+
+void Contact::OnContactResultsWithObject(int requestId, unsigned error, mojo::WTFArray<device::blink::ContactObjectPtr> result) {
+	DLOG(INFO) << "Contact::OnContactResultsWithObject, result size=" << result.size();
 
 	ContactSuccessCallback* successCB = mContactSuccessCBMap.get(requestId);
 	ContactErrorCallback* errorCB = mContactErrorCBMap.get(requestId);
@@ -392,9 +312,9 @@ void Contact::OnContactUpdateResult(int requestId, unsigned error, std::vector<W
 	else {
 		HeapVector<Member<ContactObject>> resultToReturn;
 		ContactObject* tmpObj = nullptr;
-		size_t resultSize = results.size();
+		size_t resultSize = result.size();
 		for(size_t i=0; i<resultSize; i++) {
-			tmpObj = convertToScriptContact(results[i]);
+			tmpObj = convertMojoToScriptContact(result[i].get());
 			resultToReturn.append(tmpObj);
 		}
 
@@ -406,7 +326,32 @@ void Contact::OnContactUpdateResult(int requestId, unsigned error, std::vector<W
 	mContactErrorCBMap.remove(requestId);
 }
 
-// updateContact --------------------------------------------
+void Contact::OnContactResultsWithFindOption(int requestId, unsigned error, mojo::WTFArray<device::blink::ContactObjectPtr> result) {
+	DLOG(INFO) << "OnContactOnContactResultsWithFindOptionDeleteResults " << requestId << ", " << error;
+
+	ContactSuccessCallback* successCB = mContactSuccessCBMap.get(requestId);
+	ContactErrorCallback* errorCB = mContactErrorCBMap.get(requestId);
+
+	if(error != Contact::SUCCESS) {
+		errorCB->handleResult((unsigned)error);
+		return;
+	}
+	else {
+		HeapVector<Member<ContactObject>> resultToReturn;
+		ContactObject* tmpObj = nullptr;
+		size_t resultSize = result.size();
+		for(size_t i=0; i<resultSize; i++) {
+			tmpObj = convertMojoToScriptContact(result[i].get());
+			resultToReturn.append(tmpObj);
+		}
+
+		successCB->handleResult(resultToReturn);
+	}
+
+	mContactFindOptionsMap.remove(requestId);
+	mContactSuccessCBMap.remove(requestId);
+	mContactErrorCBMap.remove(requestId);
+}
 
 unsigned Contact::getContactFindTarget(WTF::String targetName)
 {
@@ -420,97 +365,93 @@ unsigned Contact::getContactFindTarget(WTF::String targetName)
 		return 99;
 }
 
-WebDeviceContactObject* Contact::convertToBlinkContact(ContactObject* scriptContact)
-{
-	WebDeviceContactObject* blinkContact = new WebDeviceContactObject();
-	if(scriptContact->hasId())
-		blinkContact->mId = WebString(scriptContact->id());
-	if(scriptContact->hasDisplayName())
-			blinkContact->mDisplayName = WebString(scriptContact->displayName());
-	if(scriptContact->hasPhoneNumber())
-			blinkContact->mPhoneNumber = WebString(scriptContact->phoneNumber());
-	if(scriptContact->hasEmails())
-			blinkContact->mEmails = WebString(scriptContact->emails());
-	if(scriptContact->hasAddress())
-			blinkContact->mAddress = WebString(scriptContact->address());
-	if(scriptContact->hasAccountName())
-			blinkContact->mAccountName = WebString(scriptContact->accountName());
-	if(scriptContact->hasAccountType())
-			blinkContact->mAccountType = WebString(scriptContact->accountType());
-	if(scriptContact->hasCategories()) {
-		size_t size = scriptContact->categories().size();
-		for(size_t i=0; i<size; i++)
-			blinkContact->mCategories.push_back(WebString(scriptContact->categories()[i]));
-	}
-
-	if(scriptContact->hasStructuredAddress()) {
-		blinkContact->mStructuredAddress = WebDeviceContactAddress();
-		if(scriptContact->structuredAddress()->hasType())
-			blinkContact->mStructuredAddress.mType = WebString(scriptContact->structuredAddress()->type());
-		if(scriptContact->structuredAddress()->hasStreetAddress())
-			blinkContact->mStructuredAddress.mStreetAddress = scriptContact->structuredAddress()->streetAddress();
-		if(scriptContact->structuredAddress()->hasLocality())
-			blinkContact->mStructuredAddress.mLocality = scriptContact->structuredAddress()->locality();
-		if(scriptContact->structuredAddress()->hasRegion())
-			blinkContact->mStructuredAddress.mRegion = scriptContact->structuredAddress()->region();
-		if(scriptContact->structuredAddress()->hasPostalCode())
-			blinkContact->mStructuredAddress.mPostalcode = scriptContact->structuredAddress()->postalCode();
-		if(scriptContact->structuredAddress()->hasCountry())
-			blinkContact->mStructuredAddress.mCountry = scriptContact->structuredAddress()->country();
-	}
-
-	if(scriptContact->hasStructuredName()) {
-		blinkContact->mStructuredName = WebDeviceContactName();
-		if(scriptContact->structuredName()->hasFamilyName())
-			blinkContact->mStructuredName.mFamilyName = scriptContact->structuredName()->familyName();
-		if(scriptContact->structuredName()->hasGivenName())
-			blinkContact->mStructuredName.mGivenName = scriptContact->structuredName()->givenName();
-		if(scriptContact->structuredName()->hasMiddleName())
-			blinkContact->mStructuredName.mMiddleName = scriptContact->structuredName()->middleName();
-		if(scriptContact->structuredName()->hasPrefix())
-			blinkContact->mStructuredName.mHonorificPrefix = scriptContact->structuredName()->prefix();
-		if(scriptContact->structuredName()->hasSuffix())
-			blinkContact->mStructuredName.mHonorificSuffix = scriptContact->structuredName()->suffix();
-	}
-	return blinkContact;
-}
-
-ContactObject* Contact::convertToScriptContact(WebDeviceContactObject* blinkContact)
-{
+ContactObject* Contact::convertMojoToScriptContact(device::blink::ContactObject* mojoContact) {
+	DLOG(INFO) << "Contact::convertMojoToScriptContact";
 	ContactObject* scriptContact = ContactObject::create();
 	scriptContact->setStructuredAddress(ContactAddress::create());
 	scriptContact->setStructuredName(ContactName::create());
 
-	scriptContact->setId(WTF::String(blinkContact->mId.utf8().c_str()));
-	scriptContact->setDisplayName(WTF::String(blinkContact->mDisplayName.utf8().c_str()));
-	scriptContact->setPhoneNumber(WTF::String(blinkContact->mPhoneNumber.utf8().c_str()));
-	scriptContact->setEmails(WTF::String(blinkContact->mEmails.utf8().c_str()));
-	scriptContact->setAddress(WTF::String(blinkContact->mAddress.utf8().c_str()));
-	scriptContact->setAccountName(WTF::String(blinkContact->mAccountName.utf8().c_str()));
-	scriptContact->setAccountType(WTF::String(blinkContact->mAccountType.utf8().c_str()));
-	size_t size = blinkContact->mCategories.size();
+	scriptContact->setId(mojoContact->id);
+	scriptContact->setDisplayName(mojoContact->displayName);
+	scriptContact->setPhoneNumber(mojoContact->phoneNumber);
+	scriptContact->setEmails(mojoContact->emails);
+	scriptContact->setAddress(mojoContact->address);
+	scriptContact->setAccountName(mojoContact->accountName);
+	scriptContact->setAccountType(mojoContact->accountType);
+	size_t size = mojoContact->categories.size();
 	if(size > 0) {
 		WTF::Vector<WTF::String> categories;
 		for(size_t i=0; i<size; i++)
-			categories.append(blinkContact->mCategories[i]);
+			categories.append(mojoContact->categories[i]);
 
 		scriptContact->setCategories(categories);
 	}
 
-	scriptContact->structuredAddress()->setType(WTF::String(blinkContact->mStructuredAddress.mType.utf8().c_str()));
-	scriptContact->structuredAddress()->setStreetAddress(WTF::String(blinkContact->mStructuredAddress.mStreetAddress.utf8().c_str()));
-	scriptContact->structuredAddress()->setLocality(WTF::String(blinkContact->mStructuredAddress.mLocality.utf8().c_str()));
-	scriptContact->structuredAddress()->setRegion(WTF::String(blinkContact->mStructuredAddress.mRegion.utf8().c_str()));
-	scriptContact->structuredAddress()->setPostalCode(WTF::String(blinkContact->mStructuredAddress.mPostalcode.utf8().c_str()));
-	scriptContact->structuredAddress()->setCountry(WTF::String(blinkContact->mStructuredAddress.mCountry.utf8().c_str()));
+	scriptContact->structuredAddress()->setType(mojoContact->structuredAddress->type);
+	scriptContact->structuredAddress()->setStreetAddress(mojoContact->structuredAddress->streetAddress);
+	scriptContact->structuredAddress()->setLocality(mojoContact->structuredAddress->locality);
+	scriptContact->structuredAddress()->setRegion(mojoContact->structuredAddress->region);
+	scriptContact->structuredAddress()->setPostalCode(mojoContact->structuredAddress->postalCode);
+	scriptContact->structuredAddress()->setCountry(mojoContact->structuredAddress->country);
 
-	scriptContact->structuredName()->setFamilyName(WTF::String(blinkContact->mStructuredName.mFamilyName.utf8().c_str()));
-	scriptContact->structuredName()->setGivenName(WTF::String(blinkContact->mStructuredName.mGivenName.utf8().c_str()));
-	scriptContact->structuredName()->setMiddleName(WTF::String(blinkContact->mStructuredName.mMiddleName.utf8().c_str()));
-	scriptContact->structuredName()->setPrefix(WTF::String(blinkContact->mStructuredName.mHonorificPrefix.utf8().c_str()));
-	scriptContact->structuredName()->setSuffix(WTF::String(blinkContact->mStructuredName.mHonorificSuffix.utf8().c_str()));
+	scriptContact->structuredName()->setFamilyName(mojoContact->structuredName->familyName);
+	scriptContact->structuredName()->setGivenName(mojoContact->structuredName->givenName);
+	scriptContact->structuredName()->setMiddleName(mojoContact->structuredName->middleName);
+	scriptContact->structuredName()->setPrefix(mojoContact->structuredName->honorificPrefix);
+	scriptContact->structuredName()->setSuffix(mojoContact->structuredName->honorificSuffix);
 
 	return scriptContact;
+}
+
+void Contact::convertScriptContactToMojo(device::blink::ContactObject* mojoContact, ContactObject* blinkContact)
+{
+	mojoContact->structuredAddress = device::blink::ContactAddress::New();
+	mojoContact->structuredName = device::blink::ContactName::New();
+
+	mojoContact->id = blinkContact->id();
+	mojoContact->displayName = blinkContact->displayName();
+	mojoContact->phoneNumber = blinkContact->phoneNumber();
+	mojoContact->emails = blinkContact->emails();
+	mojoContact->address = blinkContact->address();
+	mojoContact->accountName = blinkContact->accountName();
+	mojoContact->accountType = blinkContact->accountType();
+	size_t size = blinkContact->categories().size();
+	if(size > 0) {
+		mojoContact->categories = mojo::WTFArray<WTF::String>::New(size);
+		for(size_t i=0; i<size; i++)
+			mojoContact->categories[i] = blinkContact->categories()[i];
+	}
+
+	if (blinkContact->structuredAddress() != nullptr) {
+		mojoContact->structuredAddress->type = blinkContact->structuredAddress()->type();
+		mojoContact->structuredAddress->streetAddress = blinkContact->structuredAddress()->streetAddress();
+		mojoContact->structuredAddress->locality = blinkContact->structuredAddress()->locality();
+		mojoContact->structuredAddress->region = blinkContact->structuredAddress()->region();
+		mojoContact->structuredAddress->country = blinkContact->structuredAddress()->country();
+		mojoContact->structuredAddress->postalCode = blinkContact->structuredAddress()->postalCode();
+	} else {
+		mojoContact->structuredAddress->type = "";
+		mojoContact->structuredAddress->streetAddress = "";
+		mojoContact->structuredAddress->locality = "";
+		mojoContact->structuredAddress->region = "";
+		mojoContact->structuredAddress->country = "";
+		mojoContact->structuredAddress->postalCode = "";
+	}
+
+	if (blinkContact->structuredName() != nullptr) {
+		mojoContact->structuredName->familyName = blinkContact->structuredName()->familyName();
+		mojoContact->structuredName->givenName = blinkContact->structuredName()->givenName();
+		mojoContact->structuredName->middleName = blinkContact->structuredName()->middleName();
+		mojoContact->structuredName->honorificPrefix = blinkContact->structuredName()->prefix();
+		mojoContact->structuredName->honorificSuffix = blinkContact->structuredName()->suffix();
+	} else {
+		mojoContact->structuredName->familyName = "";
+		mojoContact->structuredName->givenName = "";
+		mojoContact->structuredName->middleName = "";
+		mojoContact->structuredName->honorificPrefix = "";
+		mojoContact->structuredName->honorificSuffix = "";
+	}
+
 }
 
 DEFINE_TRACE(Contact) {

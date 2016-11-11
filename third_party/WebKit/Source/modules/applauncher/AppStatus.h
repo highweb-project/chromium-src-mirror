@@ -13,13 +13,12 @@
 #include "public/platform/WebString.h"
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "ApplicationInfo.h"
-#include "platform/applauncher/platform_appstatus.h"
 
 namespace blink {
 
 class ApplicationInfo;
 
-class AppStatus final : public PlatformAppStatus, public ScriptWrappable {
+class AppStatus final : public GarbageCollectedFinalized<AppStatus>, public ScriptWrappable {
 	DEFINE_WRAPPERTYPEINFO();
 public:
 	static AppStatus* create() {return new AppStatus();};
@@ -29,15 +28,17 @@ public:
 	void setAppInfo(ApplicationInfo*);
 	HeapVector<Member<ApplicationInfo>>& appList();
 	int resultCode();
+	void setResultCode(int resultCode);
 
 	DEFINE_INLINE_TRACE() {
 		visitor->trace(mAppList);
 		visitor->trace(mAppInfo);
-		PlatformAppStatus::trace(visitor);
 	};
 
 private:
 	AppStatus();
+
+	int mResultCode;
 
 	HeapVector<Member<ApplicationInfo>> mAppList;
 	Member<ApplicationInfo> mAppInfo;

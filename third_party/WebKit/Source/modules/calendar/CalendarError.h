@@ -27,6 +27,7 @@ public:
   static const unsigned short NOT_SUPPORTED_ERROR = 5;
   static const unsigned short PERMISSION_DENIED_ERROR = 20;
   static const unsigned short SUCCESS = 99;
+	static const unsigned short NOT_SUPPORT_API = 9999;
 
 	unsigned short mCode;
 

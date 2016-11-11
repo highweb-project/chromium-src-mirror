@@ -28,6 +28,13 @@ component("sound") {
   if (is_android) {
     sources -= [ "devicesound_manager_impl_default.cc" ]
   }
+  if (is_linux) {
+    sources -= [ "devicesound_manager_impl_default.cc" ]
+    sources += [
+      "devicesound_manager_linux.cc",
+      "devicesound_manager_linux.h",
+    ]
+  }
 }
 
 mojom("mojo_bindings") {

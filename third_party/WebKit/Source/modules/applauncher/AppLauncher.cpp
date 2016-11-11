@@ -11,13 +11,16 @@
 #include "core/frame/LocalFrame.h"
 #include "core/dom/Document.h"
 #include "public/platform/WebString.h"
-#include "AppLauncherListener.h"
 #include "AppStatus.h"
 #include "AppLauncherScriptCallback.h"
 #include "ApplicationInfo.h"
 
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
+#include "public/platform/Platform.h"
 
 namespace blink {
 
@@ -31,9 +34,12 @@ AppLauncher::AppLauncher(LocalFrame& frame)
 
 AppLauncher::~AppLauncher()
 {
-	dispatcher = nullptr;
 	mCallbackList.clear();
 	d_functionData.clear();
+
+	if (appManager.is_bound()) {
+		appManager.reset();
+	}
 }
 
 void AppLauncher::launchApp(const String packageName, const String activityName, AppLauncherScriptCallback* callback) {
@@ -41,8 +47,8 @@ void AppLauncher::launchApp(const String packageName, const String activityName,
 	//20160419-jphong
 	//data->scriptCallback = callback;
 	mCallbackList.append(callback);
-	data->str1 = packageName;
-	data->str2 = activityName;
+	data->setString(data->str1, packageName);
+	data->setString(data->str2, activityName);
 	d_functionData.append(data);
 	data = nullptr;
 
@@ -60,13 +66,13 @@ void AppLauncher::launchApp() {
 		requestPermission(PermissionOptType::VIEW);
 		return;
 	}
-	if (mCallback == NULL) {
-		mCallback = AppLauncherListener::instance(this);
-	}
 	functionData* data = d_functionData.first();
 
-	dispatcher = new AppLauncherDispatcher();
-	dispatcher->launchApp(data->str1, data->str2, mCallback, mCallback->lastData());
+	if (!appManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&appManager));
+	}
+	appManager->LaunchApp(data->str1, data->str2,
+		createBaseCallback(bind<device::blink::AppLauncher_ResultCodePtr>(&AppLauncher::mojoResultCallback, this)));
 	data = nullptr;
 }
 
@@ -75,7 +81,7 @@ void AppLauncher::removeApp(const String packageName, AppLauncherScriptCallback*
 	//20160419-jphong
 	//data->scriptCallback = callback;
 	mCallbackList.append(callback);
-	data->str1 = packageName;
+	data->setString(data->str1, packageName);
 	d_functionData.append(data);
 	data = nullptr;
 
@@ -93,12 +99,12 @@ void AppLauncher::removeApp() {
 		requestPermission(PermissionOptType::DELETE);
 		return;
 	}
-	if (mCallback == NULL) {
-		mCallback = AppLauncherListener::instance(this);
-	}
 	functionData* data = d_functionData.first();
-	dispatcher = new AppLauncherDispatcher();
-	dispatcher->removeApp(data->str1, mCallback, mCallback->lastData());
+	if (!appManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&appManager));
+	}
+	appManager->RemoveApp(data->str1,
+		createBaseCallback(bind<device::blink::AppLauncher_ResultCodePtr>(&AppLauncher::mojoResultCallback, this)));
 	data = nullptr;
 }
 
@@ -107,7 +113,7 @@ void AppLauncher::getAppList(const String mimeType, AppLauncherScriptCallback* c
 	//20160419-jphong
 	//data->scriptCallback = callback;
 	mCallbackList.append(callback);
-	data->str1 = mimeType;
+	data->setString(data->str1, mimeType);
 	d_functionData.append(data);
 	data = nullptr;
 	if (d_functionData.size() == 1) {
@@ -120,12 +126,13 @@ void AppLauncher::getAppList() {
 		requestPermission(PermissionOptType::VIEW);
 		return;
 	}
-	if (mCallback == NULL) {
-		mCallback = AppLauncherListener::instance(this);
-	}
 	functionData* data = d_functionData.first();
-	dispatcher = new AppLauncherDispatcher();
-	dispatcher->getAppList(data->str1, mCallback, mCallback->lastData());
+
+	if (!appManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&appManager));
+	}
+	appManager->GetAppList(data->str1,
+		createBaseCallback(bind<device::blink::AppLauncher_ResultCodePtr>(&AppLauncher::mojoResultCallback, this)));
 	data = nullptr;
 }
 
@@ -134,19 +141,18 @@ void AppLauncher::getApplicationInfo(const String packageName, const int flags, 
 	//20160419-jphong
 	//data->scriptCallback = callback;
 	mCallbackList.append(callback);
-	data->str1 = packageName;
+	data->setString(data->str1, packageName);
 	data->int1 = flags;
 	d_functionData.append(data);
 	data = nullptr;
-
 	if (packageName.isEmpty()) {
 		notifyError(code_list::INVALID_PACKAGE_NAME, callback);
 		return;
 	}
 	if (flags != 0) {
 		int checkFlag = flags & code_list::FLAG_GET_META_DATA;
-		checkFlag = checkFlag & code_list::FLAG_SHARED_LIBRARY_FILES;
-		checkFlag = checkFlag & code_list::FLAG_GET_UNINSTALLED_PACKAGES;
+		checkFlag |= flags & code_list::FLAG_SHARED_LIBRARY_FILES;
+		checkFlag |= flags & code_list::FLAG_GET_UNINSTALLED_PACKAGES;
 		if (checkFlag <= 0) {
 			notifyError(code_list::INVALID_FLAGS, callback);
 		}
@@ -161,28 +167,74 @@ void AppLauncher::getApplicationInfo() {
 		requestPermission(PermissionOptType::VIEW);
 		return;
 	}
-	if (mCallback == NULL) {
-		mCallback = AppLauncherListener::instance(this);
-	}
 	functionData* data = d_functionData.first();
-	dispatcher = new AppLauncherDispatcher();
-	dispatcher->getApplicationInfo(data->str1, data->int1, mCallback, mCallback->lastData());
+
+	if (!appManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&appManager));
+	}
+	appManager->GetApplicationInfo(data->str1, data->int1,
+		createBaseCallback(bind<device::blink::AppLauncher_ResultCodePtr>(&AppLauncher::mojoResultCallback, this)));
 	data = nullptr;
 }
 
-void AppLauncher::resultCodeCallback() {
-	AppStatus* status = nullptr;
-	if (mCallback != nullptr) {
-		status = mCallback->lastData();
-		mCallback = nullptr;
+void AppLauncher::mojoResultCallback(device::blink::AppLauncher_ResultCodePtr result) {
+	DCHECK(result);
+	AppStatus* status = AppStatus::create();
+	if (result != nullptr) {
+		status->setResultCode(result->resultCode);
+		switch(result->functionCode) {
+			case function::FUNC_GET_APP_LIST:
+			{
+				if (result->resultCode != code_list::SUCCESS){
+					break;
+				}
+				unsigned listSize = result->applist.size();
+				for(unsigned i = 0; i < listSize; i++) {
+					ApplicationInfo* data = new ApplicationInfo();
+					data->setName(result->applist[i]->name);
+					data->setClassName(result->applist[i]->className);
+					data->setDataDir(result->applist[i]->dataDir);
+					data->setEnabled(result->applist[i]->enabled);
+					data->setFlags(result->applist[i]->flags);
+					data->setPermission(result->applist[i]->permission);
+					data->setProcessName(result->applist[i]->processName);
+					data->setTargetSdkVersion(result->applist[i]->targetSdkVersion);
+					data->setTheme(result->applist[i]->theme);
+					data->setUid(result->applist[i]->uid);
+					data->setPackageName(result->applist[i]->packageName);
+					status->appList().append(data);
+				}
+				break;
+			}
+			case function::FUNC_GET_APPLICATION_INFO:
+			{
+				if (result->resultCode != code_list::SUCCESS) {
+					break;
+				}
+				unsigned listSize = result->applist.size();
+				if (listSize >= 1) {
+					ApplicationInfo* data = new ApplicationInfo();
+					data->setName(result->applist[0]->name);
+					data->setClassName(result->applist[0]->className);
+					data->setDataDir(result->applist[0]->dataDir);
+					data->setEnabled(result->applist[0]->enabled);
+					data->setFlags(result->applist[0]->flags);
+					data->setPermission(result->applist[0]->permission);
+					data->setProcessName(result->applist[0]->processName);
+					data->setTargetSdkVersion(result->applist[0]->targetSdkVersion);
+					data->setTheme(result->applist[0]->theme);
+					data->setUid(result->applist[0]->uid);
+					data->setPackageName(result->applist[0]->packageName);
+					status->setAppInfo(data);
+				}
+				break;
+			}
+			default: {
+				break;
+			}
+		}
 	}
-	dispatcher = nullptr;
-	//20160419-jphong
-	if (status != nullptr) {
-		notifyCallback(status, mCallbackList.at(0).get());
-	} else {
-		notifyError(code_list::FAILURE, mCallbackList.at(0).get());
-	}
+	notifyCallback(status, mCallbackList.at(0).get());
 }
 
 void AppLauncher::notifyCallback(AppStatus* status, AppLauncherScriptCallback* callback) {
@@ -280,9 +332,7 @@ void AppLauncher::onPermissionChecked(PermissionResult result)
 
 DEFINE_TRACE(AppLauncher)
 {
-	visitor->trace(mCallback);
 	visitor->trace(mCallbackList);
-	visitor->trace(dispatcher);
 }
 
 } // namespace blink

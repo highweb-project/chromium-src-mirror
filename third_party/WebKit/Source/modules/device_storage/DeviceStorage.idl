@@ -11,6 +11,7 @@ interface DeviceStorage {
 	const long SUCCESS = 0;
 	const long FAILURE = -1;
 	const long NOT_ENABLED_PERMISSION = -2;
+	const long NOT_SUPPORT_API = 9999;
 
 	//function
 	const long FUNC_GET_DEVICE_STORAGE = 1;

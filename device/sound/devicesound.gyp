@@ -21,6 +21,21 @@
       ],
     },
     {
+      # GN version: //device/sound:mojo_bindings_blink
+      'target_name': 'device_sound_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'devicesound_manager.mojom',
+        'devicesound_resultData.mojom',
+      ],
+    },
+    {
       # GN version: //device/sound
       'target_name': 'device_sound',
       'type': '<(component)',
@@ -46,6 +61,15 @@
           ],
           'sources!': [
             'devicesound_manager_impl_default.cc',
+          ],
+        }],
+        ['OS == "linux"', {
+          'sources!': [
+            'devicesound_manager_impl_default.cc',
+          ],
+          'sources': [
+            'devicesound_manager_linux.cc',
+            'devicesound_manager_linux.h',
           ],
         }],
       ],

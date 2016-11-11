@@ -1,0 +1,18 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+typedef long VKCResult;
+typedef unsigned long VKCuint;
+typedef int VKCint;
+typedef unsigned long VKCenum;
+[
+] interface WebVKCDevice {
+	[CallWith=ScriptState, RaisesException] any getInfo(VKCenum name);	
+	[RaisesException] WebVKCBuffer createBuffer(VKCuint sizeInBytes);
+	[RaisesException] WebVKCCommandQueue createCommandQueue();
+	[RaisesException] WebVKCProgram createProgram(DOMString shaderPath, VKCuint useBufferCount);
+	[RaisesException] void submit(WebVKCCommandQueue commandBuffer);
+	[RaisesException] void wait();
+	[RaisesException] void release();
+};

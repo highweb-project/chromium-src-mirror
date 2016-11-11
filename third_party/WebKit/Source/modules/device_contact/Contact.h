@@ -16,18 +16,14 @@
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "platform/heap/Handle.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
-#include "public/platform/modules/device_contact/WebDeviceContactResultListener.h"
 #include "wtf/text/WTFString.h"
 
 #include "modules/device_contact/ContactFindOptions.h"
+#include "device/contact/contact_manager.mojom-blink.h"
 
 namespace blink {
 
 class LocalFrame;
-
-struct WebDeviceContactAddress;
-struct WebDeviceContactName;
-struct WebDeviceContactObject;
 
 class ContactAddress;
 class ContactErrorCallback;
@@ -58,7 +54,7 @@ typedef HeapHashMap<int, Member<ContactObject>> ContactObjectMap;
 typedef HeapHashMap<int, Member<ContactSuccessCallback>> ContactSuccessCBMap;
 typedef HeapHashMap<int, Member<ContactErrorCallback>> ContactErrorCBMap;
 
-class Contact : public GarbageCollectedFinalized<Contact>, public ScriptWrappable, public WebDeviceContactResultListener {
+class Contact : public GarbageCollectedFinalized<Contact>, public ScriptWrappable {
 	DEFINE_WRAPPERTYPEINFO();
 public:
 	static Contact* create(LocalFrame& frame)
@@ -94,12 +90,6 @@ public:
 	// Internal Implementations
 	void onPermissionChecked(PermissionResult result);
 
-	// WebDeviceContactResultListener implements
-	void OnContactFindResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results) override;
-	void OnContactAddResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results) override;
-	void OnContactDeleteResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results) override;
-	void OnContactUpdateResult(int requestId, unsigned error, std::vector<WebDeviceContactObject*> results) override;
-
 	DECLARE_TRACE();
 
 private:
@@ -112,8 +102,12 @@ private:
 
 	unsigned getContactFindTarget(WTF::String targetName);
 
-	WebDeviceContactObject* convertToBlinkContact(ContactObject* scriptContact);
-	ContactObject* convertToScriptContact(WebDeviceContactObject* blinkContact);
+	void OnContactResultsWithFindOption(int requestId, unsigned error, mojo::WTFArray<device::blink::ContactObjectPtr> result);
+	void OnContactResultsWithObject(int requestId, unsigned error, mojo::WTFArray<device::blink::ContactObjectPtr> result);
+
+	//change Mojo location
+	ContactObject* convertMojoToScriptContact(device::blink::ContactObject* mojoContact);
+	void convertScriptContactToMojo(device::blink::ContactObject* mojoContact, ContactObject* blinkContact);
 
 	WebDeviceApiPermissionCheckClient* mClient;
 
@@ -125,6 +119,8 @@ private:
 	ContactFindOptionsMap mContactFindOptionsMap;
 	ContactSuccessCBMap mContactSuccessCBMap;
 	ContactErrorCBMap mContactErrorCBMap;
+
+	device::blink::ContactManagerPtr contactManager;
 };
 
 }

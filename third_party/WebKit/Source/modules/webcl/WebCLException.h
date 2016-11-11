@@ -86,7 +86,7 @@ public:
 	String name() const { return m_name; }
 	String message() const { return m_sanitizedMessage; }
 
-	static bool isWebCLException(ExceptionCode ec) { return ec>=DEVICE_NOT_FOUND?true:false; }
+	static bool isWebCLException(ExceptionCode ec) { return (ec>=DEVICE_NOT_FOUND && ec <= INVALID_GL_SHAREGROUP_REFERENCE_KHR)?true:false; }
 
 	static String getErrorName(int);
 	static String getErrorMessage(int);

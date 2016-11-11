@@ -16,6 +16,7 @@ enum device_gallery_ErrorCodeList{
 	IO_ERROR = 5,
 	NOT_SUPPORTED_ERROR = 6,
 	MEDIA_SIZE_EXCEEDED = 20,
+	NOT_SUPPORT_API = 9999,
 };
 
 enum device_gallery_function {

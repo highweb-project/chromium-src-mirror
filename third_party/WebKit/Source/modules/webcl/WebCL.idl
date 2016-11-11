@@ -24,7 +24,7 @@
 	const long   MAP_FAILURE                              = -12;
 	const long   MISALIGNED_SUB_BUFFER_OFFSET             = -13;
 	const long   EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST = -14;
-	
+
 	const long   INVALID_VALUE                            = -30;
 	const long   INVALID_DEVICE_TYPE                      = -31;
 	const long   INVALID_PLATFORM                         = -32;
@@ -61,7 +61,7 @@
 	const long   INVALID_GLOBAL_WORK_SIZE                 = -63;
 	const long   INVALID_PROPERTY                         = -64;
 	const long   INVALID_GL_SHAREGROUP_REFERENCE_KHR  = -1000;
-	
+
 	/* OpenCL Version */
 	const unsigned long   VERSION_1_0                              = 1;
 	const unsigned long   VERSION_1_1                              = 1;  // sg: ??
@@ -372,7 +372,7 @@
 	const unsigned long   KERNEL_ARG_UINT2                         = 0x2025;
 	const unsigned long   KERNEL_ARG_LONG2                         = 0x2026;
 	const unsigned long   KERNEL_ARG_ULONG2                        = 0x2027;
-	const unsigned long   KERNEL_ARG_FLOAT2                        = 0x2028;		
+	const unsigned long   KERNEL_ARG_FLOAT2                        = 0x2028;
 	const unsigned long   KERNEL_ARG_CHAR3                         = 0x2030;
 	const unsigned long   KERNEL_ARG_UCHAR3                        = 0x2031;
 	const unsigned long   KERNEL_ARG_SHORT3                        = 0x2032;
@@ -381,7 +381,7 @@
 	const unsigned long   KERNEL_ARG_UINT3                         = 0x2035;
 	const unsigned long   KERNEL_ARG_LONG3                         = 0x2036;
 	const unsigned long   KERNEL_ARG_ULONG3                        = 0x2037;
-	const unsigned long   KERNEL_ARG_FLOAT3                        = 0x2038;		
+	const unsigned long   KERNEL_ARG_FLOAT3                        = 0x2038;
 	const unsigned long   KERNEL_ARG_CHAR4                         = 0x2040;
 	const unsigned long   KERNEL_ARG_UCHAR4                        = 0x2041;
 	const unsigned long   KERNEL_ARG_SHORT4                        = 0x2042;
@@ -390,7 +390,7 @@
 	const unsigned long   KERNEL_ARG_UINT4                         = 0x2045;
 	const unsigned long   KERNEL_ARG_LONG4                         = 0x2046;
 	const unsigned long   KERNEL_ARG_ULONG4                        = 0x2047;
-	const unsigned long   KERNEL_ARG_FLOAT4                        = 0x2048;		
+	const unsigned long   KERNEL_ARG_FLOAT4                        = 0x2048;
 	const unsigned long   KERNEL_ARG_CHAR8                         = 0x2080;
 	const unsigned long   KERNEL_ARG_UCHAR8                        = 0x2081;
 	const unsigned long   KERNEL_ARG_SHORT8                        = 0x2082;
@@ -399,7 +399,7 @@
 	const unsigned long   KERNEL_ARG_UINT8                         = 0x2085;
 	const unsigned long   KERNEL_ARG_LONG8                         = 0x2086;
 	const unsigned long   KERNEL_ARG_ULONG8                        = 0x2087;
-	const unsigned long   KERNEL_ARG_FLOAT8                        = 0x2088;		
+	const unsigned long   KERNEL_ARG_FLOAT8                        = 0x2088;
 	const unsigned long   KERNEL_ARG_CHAR16                        = 0x2100;
 	const unsigned long   KERNEL_ARG_UCHAR16                       = 0x2101;
 	const unsigned long   KERNEL_ARG_SHORT16                       = 0x2102;
@@ -415,29 +415,23 @@
 	const unsigned long   KERNEL_ARG_MEM	                     = 0x2203;
 
 	/* cl_gl_texture_info param value */
-    
+
     const unsigned long   GL_OBJECT_BUFFER 	                       = 0x2000;
     const unsigned long   GL_OBJECT_TEXTURE2D 	                       = 0x2001;
     const unsigned long   GL_OBJECT_TEXTURE3D                         = 0x2002;
     const unsigned long   GL_OBJECT_RENDERBUFFER                      = 0x2003;
     const unsigned long   GL_TEXTURE_TARGET                           = 0x2004;
     const unsigned long   GL_MIPMAP_LEVEL    		                   = 0x2005;
-    
+
     const unsigned long   FALSE		    		                   = 0;
     const unsigned long   TRUE		    		                   = 1;
-    
+
     [RaisesException] sequence<WebCLPlatform> getPlatforms();
     [RaisesException] void releaseAll();
-    
+
 	[RaisesException] boolean enableExtension(DOMString extensionName);
 	[RaisesException] sequence<DOMString>? getSupportedExtensions();
 
     [Custom, RaisesException] WebCLContext createContext([Default=Undefined] optional unsigned long deviceType);
     [RaisesException] void waitForEvents(sequence<WebCLEvent> eventWaitList, optional WebCLCallback whenFinished);
-
-    void initNBody(DOMString filePath);
-    void doNBody();
-    
-    void readNBodyBuffer(unsigned long index, unsigned long bufferSize, ArrayBufferView hostPtr);
-    void setNBodyData(unsigned long index, unsigned long BufferSize, ArrayBufferView hostPtr);
 };

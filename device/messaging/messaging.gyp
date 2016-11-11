@@ -19,6 +19,20 @@
       ],
     },
     {
+      # GN version: //device/messaging:mojo_bindings_blink
+      'target_name': 'device_messaging_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'messaging_manager.mojom',
+      ],
+    },
+    {
       'target_name': 'device_messaging',
       'type': '<(component)',
       'dependencies': [

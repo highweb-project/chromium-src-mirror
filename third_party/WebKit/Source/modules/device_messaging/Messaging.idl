@@ -10,6 +10,7 @@
 	const unsigned long PERMISSION_DENIED_ERROR = 20;
 	const unsigned long MESSAGE_SIZE_EXCEEDED = 30;
 	const unsigned long SUCCESS = 40;
+  const unsigned long NOT_SUPPORT_API = 9999;
 
 	attribute EventHandler onmessagereceived;
 

@@ -12,18 +12,16 @@
 #include "core/dom/Document.h"
 #include "core/events/Event.h"
 #include "public/platform/Platform.h"
-#include "public/platform/WebString.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
-#include "public/platform/modules/device_messaging/WebDeviceMessageFindOptions.h"
-#include "public/platform/modules/device_messaging/WebDeviceMessageObject.h"
-#include "public/platform/modules/device_messaging/WebDeviceMessagingParameter.h"
-#include "public/platform/modules/device_messaging/WebDeviceMessagingResultListener.h"
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "modules/device_messaging/MessageObject.h"
 #include "modules/device_messaging/MessagingErrorCallback.h"
 #include "modules/device_messaging/MessagingEvent.h"
 #include "modules/device_messaging/MessagingSuccessCallback.h"
 #include "modules/EventTargetModulesNames.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
 
 namespace blink {
 
@@ -40,7 +38,9 @@ Messaging::Messaging(LocalFrame& frame)
 
 Messaging::~Messaging()
 {
-
+	if (messageManager.is_bound()) {
+		messageManager.reset();
+	}
 }
 
 void Messaging::onPermissionChecked(PermissionResult result)
@@ -80,7 +80,12 @@ void Messaging::sendMessage(Member<MessageObject> message)
 {
 	DLOG(INFO) << "Messaging::sendMessage";
 
-	Platform::current()->sendMessage(convertToBlinkMessage(message.get()));
+	if (!messageManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+	}
+	device::blink::MessageObjectPtr messageObject(device::blink::MessageObject::New());
+	convertBlinkMessageToMojo(message.get(), messageObject.get());
+	messageManager->SendMessage(std::move(messageObject));
 }
 
 void Messaging::findMessage(MessageFindOptions findOptions, MessagingSuccessCallback* successCallback, MessagingErrorCallback* errorCallback)
@@ -119,23 +124,19 @@ void Messaging::findMessageInternal(int requestId)
 {
 	DLOG(INFO) << "Messaging::findMessageInternal";
 
-	WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-	parameter->mRequestId = requestId;
+	if (!messageManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+	}
 	MessageFindOptions findOptions = mMessageFindOptionsMap.get(requestId);
-	parameter->mFindOptions = new WebDeviceMessageFindOptions(
-			getMessageFindTarget(findOptions.target()),
-			findOptions.maxItem(),
-			WebString(findOptions.condition()));
-
-	Platform::current()->findMessage(parameter);
+	messageManager->FindMessage(requestId, getMessageFindTarget(findOptions.target()), findOptions.maxItem(), findOptions.condition(),
+		createBaseCallback(bind<uint32_t, uint32_t, mojo::WTFArray<device::blink::MessageObjectPtr>>(&Messaging::findMessageResult, this)));
 }
 
-void Messaging::OnMessageFindResult(int requestId, unsigned error, std::vector<WebDeviceMessageObject*> results)
-{
-	DLOG(INFO) << "Contact::OnContactFindResult, result size=" << results.size();
+void Messaging::findMessageResult(uint32_t requestID, uint32_t error, mojo::WTFArray<device::blink::MessageObjectPtr> results) {
+	DLOG(INFO) << "Messaging::findMessageResult, result size=" << results.size();
 
-	MessagingSuccessCallback* successCB = mMessagingSuccessCBMap.get(requestId);
-	MessagingErrorCallback* errorCB = mMessagingErrorCBMap.get(requestId);
+	MessagingSuccessCallback* successCB = mMessagingSuccessCBMap.get(requestID);
+	MessagingErrorCallback* errorCB = mMessagingErrorCBMap.get(requestID);
 
 	if(error != Messaging::SUCCESS) {
 		errorCB->handleResult((unsigned)error);
@@ -146,70 +147,36 @@ void Messaging::OnMessageFindResult(int requestId, unsigned error, std::vector<W
 		MessageObject* tmpObj = nullptr;
 		size_t resultSize = results.size();
 		for(size_t i=0; i<resultSize; i++) {
-			tmpObj = convertToScriptMessage(results[i]);
+			tmpObj = convertMojoToScriptMessage(results[i].get());
 			resultToReturn.append(tmpObj);
 		}
 
 		successCB->handleResult(resultToReturn);
 	}
 
-	mMessageFindOptionsMap.remove(requestId);
-	mMessagingSuccessCBMap.remove(requestId);
-	mMessagingErrorCBMap.remove(requestId);
+	mMessageFindOptionsMap.remove(requestID);
+	mMessagingSuccessCBMap.remove(requestID);
+	mMessagingErrorCBMap.remove(requestID);
 }
 
-void Messaging::OnMessageReceived(int observerId, unsigned error, std::vector<WebDeviceMessageObject*> results)
-{
-	DLOG(INFO) << "Messaging::OnMessageReceived";
+void Messaging::messageReceivedCallback(uint32_t observerId, device::blink::MessageObjectPtr message) {
+	DLOG(INFO) << "Messaging::messageReceivedCallback";
 
-	if(error == 40) {
+	if (message.get() != nullptr && mIsListening) {
 		MessagingEvent* event = MessagingEvent::create(EventTypeNames::messagereceived);
-		event->setID(WTF::String(results[0]->mId.utf8().c_str()));
-		event->setType(WTF::String(results[0]->mType.utf8().c_str()));
-		event->setTo(WTF::String(results[0]->mTo.utf8().c_str()));
-		event->setFrom(WTF::String(results[0]->mFrom.utf8().c_str()));
-		event->setTitle(WTF::String(results[0]->mTitle.utf8().c_str()));
-		event->setBody(WTF::String(results[0]->mBody.utf8().c_str()));
-		event->setDate(WTF::String(results[0]->mDate.utf8().c_str()));
+		event->setID(message->id);
+		event->setType(message->type);
+		event->setTo(message->to);
+		event->setFrom(message->from);
+		event->setTitle(message->title);
+		event->setBody(message->body);
+		event->setDate(message->date);
 
 		dispatchEvent(event);
+
+		messageManager->AddMessagingListener(mObserverID,
+			createBaseCallback(bind<uint32_t, device::blink::MessageObjectPtr>(&Messaging::messageReceivedCallback, this)));
 	}
-}
-
-WebDeviceMessageObject* Messaging::convertToBlinkMessage(MessageObject* scriptMessage)
-{
-	WebDeviceMessageObject* blinkMessage = new WebDeviceMessageObject();
-	if(scriptMessage->hasId())
-		blinkMessage->mId = WebString(scriptMessage->id());
-	if(scriptMessage->hasType())
-		blinkMessage->mType = WebString(scriptMessage->type());
-	if(scriptMessage->hasTo())
-		blinkMessage->mTo = WebString(scriptMessage->to());
-	if(scriptMessage->hasFrom())
-		blinkMessage->mFrom = WebString(scriptMessage->from());
-	if(scriptMessage->hasTitle())
-		blinkMessage->mTitle = WebString(scriptMessage->title());
-	if(scriptMessage->hasBody())
-		blinkMessage->mBody = WebString(scriptMessage->body());
-	if(scriptMessage->hasDate())
-		blinkMessage->mDate = WebString(scriptMessage->date());
-
-	return blinkMessage;
-}
-
-MessageObject* Messaging::convertToScriptMessage(WebDeviceMessageObject* blinkMessage)
-{
-	MessageObject* scriptMessage = MessageObject::create();
-
-	scriptMessage->setId(WTF::String(blinkMessage->mId.utf8().c_str()));
-	scriptMessage->setType(WTF::String(blinkMessage->mType.utf8().c_str()));
-	scriptMessage->setTo(WTF::String(blinkMessage->mTo.utf8().c_str()));
-	scriptMessage->setFrom(WTF::String(blinkMessage->mFrom.utf8().c_str()));
-	scriptMessage->setTitle(WTF::String(blinkMessage->mTitle.utf8().c_str()));
-	scriptMessage->setBody(WTF::String(blinkMessage->mBody.utf8().c_str()));
-	scriptMessage->setDate(WTF::String(blinkMessage->mDate.utf8().c_str()));
-
-	return scriptMessage;
 }
 
 unsigned Messaging::getMessageFindTarget(WTF::String targetName)
@@ -248,10 +215,10 @@ void Messaging::suspend()
 	if(mIsListening) {
 		mIsListening = false;
 
-		WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-		parameter->mRequestId = mObserverID;
-
-		Platform::current()->removeMessagingListener(parameter);
+		if (!messageManager.is_bound()) {
+			Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+		}
+		messageManager->RemoveMessagingListener(mObserverID);
 	}
 }
 
@@ -262,25 +229,27 @@ void Messaging::stop()
 	if(mIsListening) {
 		mIsListening = false;
 
-		WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-		parameter->mRequestId = mObserverID;
-
-		Platform::current()->removeMessagingListener(parameter);
+		if (!messageManager.is_bound()) {
+			Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+		}
+		messageManager->RemoveMessagingListener(mObserverID);
 	}
 }
 
 EventListener* Messaging::onmessagereceived()
 {
-	DLOG(INFO) << "Messaging::onmessagereceived";
+	DLOG(INFO) << "Messaging::onmessagereceived " << mIsListening;
 
 	if(!mIsListening) {
 		mIsListening = true;
+		DLOG(INFO) << "Messaging::onmessagereceived set mIsListening " << mIsListening;
 
 		mObserverID = base::RandInt(10000,99999);
-		WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-		parameter->mRequestId = mObserverID;
-
-		Platform::current()->addMessagingListener(parameter);
+		if (!messageManager.is_bound()) {
+			Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+		}
+		messageManager->AddMessagingListener(mObserverID,
+			createBaseCallback(bind<uint32_t, device::blink::MessageObjectPtr>(&Messaging::messageReceivedCallback, this)));
 	}
 
 	return this->getAttributeEventListener(EventTypeNames::messagereceived);
@@ -288,39 +257,90 @@ EventListener* Messaging::onmessagereceived()
 
 void Messaging::setOnmessagereceived(EventListener* listener)
 {
-	DLOG(INFO) << "Messaging::setOnmessagereceived";
+	DLOG(INFO) << "Messaging::setOnmessagereceived " << mIsListening;
 
 	if(!mIsListening) {
 		mIsListening = true;
 
 		mObserverID = base::RandInt(10000,99999);
-		WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-		parameter->mRequestId = mObserverID;
-
-		Platform::current()->addMessagingListener(parameter);
+		if (!messageManager.is_bound()) {
+			Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+		}
+		messageManager->AddMessagingListener(mObserverID,
+			createBaseCallback(bind<uint32_t, device::blink::MessageObjectPtr>(&Messaging::messageReceivedCallback, this)));
 	}
 	else {
 		if(listener != nullptr) {
 			DLOG(INFO) << "null event listener";
 			mIsListening = false;
 
-			WebDeviceMessagingParameter* parameter = new WebDeviceMessagingParameter(this);
-			parameter->mRequestId = mObserverID;
-
-			Platform::current()->removeMessagingListener(parameter);
+			if (!messageManager.is_bound()) {
+				Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&messageManager));
+			}
+			messageManager->RemoveMessagingListener(mObserverID);
 		}
 	}
 
 	this->setAttributeEventListener(EventTypeNames::messagereceived, listener);
 }
 
+void Messaging::convertBlinkMessageToMojo(MessageObject* scriptMessage, device::blink::MessageObject* mojoObject) {
+	if (scriptMessage->hasId()) {
+		mojoObject->id = scriptMessage->id();
+	} else {
+		mojoObject->id = WTF::String("");
+	}
+	if(scriptMessage->hasType()) {
+		mojoObject->type = scriptMessage->type();
+	} else {
+		mojoObject->type = WTF::String("");
+	}
+	if(scriptMessage->hasTo()) {
+		mojoObject->to = scriptMessage->to();
+	} else {
+		mojoObject->to = WTF::String("");
+	}
+	if(scriptMessage->hasFrom()) {
+		mojoObject->from = scriptMessage->from();
+	} else {
+		mojoObject->from = WTF::String("");
+	}
+	if(scriptMessage->hasTitle()) {
+		mojoObject->title = scriptMessage->title();
+	} else {
+		mojoObject->title = WTF::String("");
+	}
+	if(scriptMessage->hasBody()) {
+		mojoObject->body = scriptMessage->body();
+	} else {
+		mojoObject->body = WTF::String("");
+	}
+	if(scriptMessage->hasDate()) {
+		mojoObject->date = scriptMessage->date();
+	} else {
+		mojoObject->date = WTF::String("");
+	}
+}
+
+MessageObject* Messaging::convertMojoToScriptMessage(device::blink::MessageObject* mojoObject) {
+	MessageObject* scriptMessage = MessageObject::create();
+
+	scriptMessage->setId(mojoObject->id);
+	scriptMessage->setType(mojoObject->type);
+	scriptMessage->setTo(mojoObject->to);
+	scriptMessage->setFrom(mojoObject->from);
+	scriptMessage->setTitle(mojoObject->title);
+	scriptMessage->setBody(mojoObject->body);
+	scriptMessage->setDate(mojoObject->date);
+
+	return scriptMessage;
+}
+
 DEFINE_TRACE(Messaging) {
-	//GarbageCollectedFinalized<Messaging>::trace(visitor);
-	//ContextLifecycleObserver::trace(visitor);
 	visitor->trace(mMessagingSuccessCBMap);
 	visitor->trace(mMessagingErrorCBMap);
-    EventTargetWithInlineData::trace(visitor);
-    ActiveDOMObject::trace(visitor);   
+  EventTargetWithInlineData::trace(visitor);
+  ActiveDOMObject::trace(visitor);
 }
 
 }

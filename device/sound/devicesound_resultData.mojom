@@ -10,11 +10,12 @@ enum devicesound_ErrorCodeList{
 	SUCCESS = 0,
 	FAILURE = -1,
 	NOT_ENABLED_PERMISSION = -2,
+	NOT_SUPPORT_API = 9999,
 };
 
 enum devicesound_function {
-	FUNC_OUTPUT_DEVICE_TYPE = 1,
-	FUNC_DEVICE_VOLUME,
+	FUNC_DEVICE_VOLUME = 1,
+	FUNC_OUTPUT_DEVICE_TYPE
 };
 
 enum device_type {

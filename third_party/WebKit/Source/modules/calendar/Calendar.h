@@ -10,12 +10,13 @@
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "platform/heap/Handle.h"
 #include "wtf/text/WTFString.h"
-#include "CalendarListener.h"
 #include "CalendarEventSuccessCallback.h"
 #include "CalendarEventErrorCallback.h"
-#include "platform/calendar/calendar_dispatcher.h"
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h" // permission popup
+
+#include "device/calendar/calendar_manager.mojom-blink.h"
+#include "device/calendar/calendar_ResultCode.mojom-blink.h"
 
 namespace blink {
 
@@ -27,6 +28,13 @@ class CalendarEvent;
 class Calendar : public GarbageCollectedFinalized<Calendar>, public ScriptWrappable {
     DEFINE_WRAPPERTYPEINFO();
 public:
+    enum function {
+      FUNC_FIND_EVENT = 1,
+      FUNC_ADD_EVENT,
+      FUNC_UPDATE_EVENT,
+      FUNC_DELETE_EVENT,
+    };
+
     static Calendar* create(ExecutionContext* context, LocalFrame* frame)
     {
     	Calendar* calendar = new Calendar(context, frame);
@@ -41,7 +49,6 @@ public:
     void addEvent(CalendarEvent* event, CalendarEventSuccessCallback* successCallback, CalendarEventErrorCallback* errorCallback);
     void updateEvent(CalendarEvent* event, CalendarEventSuccessCallback* successCallback, CalendarEventErrorCallback* errorCallback);
     void deleteEvent(const String& id, CalendarEventSuccessCallback* successCallback, CalendarEventErrorCallback* errorCallback);
-    void resultCodeCallback();
 
     struct CallbackData : public GarbageCollectedFinalized<CallbackData>{
       Member<CalendarEventSuccessCallback> successCallback = nullptr;
@@ -68,16 +75,17 @@ private:
     bool isShowingPermissionPopup = false;
     Member<CalendarEventErrorCallback> mPermissionPopupCallback;
 
-    Member<CalendarListener> mCallback;
     HeapDeque<Member<CallbackData>> mCallbackQueue;
-
-    Member<CalendarDispatcher> dispatcher;
 
     String permissionCurrentOperation;
     bool hasFindPermission = false;
     bool hasAddPermission = false;
     bool hasUpdatePermission = false;
     bool hasDeletePermission = false;
+
+    device::blink::CalendarManagerPtr calendarManager;
+    void mojoResultCallback(device::blink::Calendar_ResultCodePtr result);
+    void setString(String& dst, String source);
 };
 
 } // namespace blink

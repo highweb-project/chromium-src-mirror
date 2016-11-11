@@ -69,11 +69,21 @@ public class MessagingObserverAndroid extends BroadcastReceiver implements Messa
             MessageObjectAndroid result = new MessageObjectAndroid();
             result.mType = MessageType.SMS;
             result.mTo = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+            if (result.mTo == null) {
+              result.mTo = "";
+            }
             result.mFrom = currentMessage.getDisplayOriginatingAddress();
+            if (result.mFrom == null) {
+              result.mFrom = "";
+            }
             try {
                 result.mBody = new String(currentMessage.getDisplayMessageBody().replace("\n", "").getBytes(), "utf-8");
+                if (result.mBody == null) {
+                  result.mBody = "";
+                }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
+                result.mBody = "";
             }
             result.mDate = Utils.getDateString(currentMessage.getTimestampMillis());
 

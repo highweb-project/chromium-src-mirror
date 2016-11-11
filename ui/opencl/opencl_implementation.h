@@ -87,117 +87,18 @@ namespace gfx {
 	CL_API_ARGS6(CLEnqueueAcquireGLObjects, cl_int, cl_command_queue, cl_uint, ARG_CONST(ARG_PTR(cl_mem)), cl_uint, ARG_CONST(ARG_PTR(cl_event)), ARG_PTR(cl_event))
 	CL_API_ARGS6(CLEnqueueReleaseGLObjects, cl_int, cl_command_queue, cl_uint, ARG_CONST(ARG_PTR(cl_mem)), cl_uint, ARG_CONST(ARG_PTR(cl_event)), ARG_PTR(cl_event))
 
-	CL_API_ARGS3(VKCreateInstance, VkResult, ARG_CONST(ARG_PTR(VkInstanceCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkInstance));
-	CL_API_ARGS3(VKEnumeratePhysicalDevices, VkResult, VkInstance, ARG_PTR(uint32_t), ARG_PTR(VkPhysicalDevice));
-	CL_API_ARGS2(VKGetPhysicalDeviceProperties, ARG_PTR(void), VkPhysicalDevice, ARG_PTR(VkPhysicalDeviceProperties));
-	CL_API_ARGS3(VKGetPhysicalDeviceQueueFamilyProperties, ARG_PTR(void), VkPhysicalDevice, ARG_PTR(uint32_t), ARG_PTR(VkQueueFamilyProperties));
-	CL_API_ARGS4(VKCreateDevice, VkResult, VkPhysicalDevice, ARG_CONST(ARG_PTR(VkDeviceCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkDevice));
-	CL_API_ARGS4(VKGetDeviceQueue, ARG_PTR(void), VkDevice, uint32_t, uint32_t, ARG_PTR(VkQueue));
-	CL_API_ARGS2(VKGetPhysicalDeviceMemoryProperties, ARG_PTR(void), VkPhysicalDevice, ARG_PTR(VkPhysicalDeviceMemoryProperties));
-	CL_API_ARGS4(VKCreateCommandPool, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkCommandPoolCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkCommandPool));
-	CL_API_ARGS3(VKAllocateCommandBuffers, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkCommandBufferAllocateInfo)), ARG_PTR(VkCommandBuffer));
-	CL_API_ARGS4(VKCreateBuffer, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkBufferCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkBuffer));
-	CL_API_ARGS3(VKGetBufferMemoryRequirements, ARG_PTR(void), VkDevice, VkBuffer, ARG_PTR(VkMemoryRequirements));
-	CL_API_ARGS4(VKAllocateMemory, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkMemoryAllocateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkDeviceMemory));
-	CL_API_ARGS4(VKBindBufferMemory, VkResult, VkDevice, VkBuffer, VkDeviceMemory, VkDeviceSize);
-	CL_API_ARGS6(VKMapMemory, VkResult, VkDevice, VkDeviceMemory, VkDeviceSize, VkDeviceSize, VkMemoryMapFlags, ARG_PTR(ARG_PTR(void)));
-	CL_API_ARGS2(VKUnmapMemory, ARG_PTR(void), VkDevice, VkDeviceMemory);
-	CL_API_ARGS4(VKCreateShaderModule, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkShaderModuleCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkShaderModule));
-	CL_API_ARGS4(VKCreateDescriptorSetLayout, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkDescriptorSetLayoutCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkDescriptorSetLayout));
-	CL_API_ARGS4(VKCreatePipelineLayout, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkPipelineLayoutCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkPipelineLayout));
-	CL_API_ARGS4(VKCreatePipelineCache, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkPipelineCacheCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkPipelineCache));
-	CL_API_ARGS6(VKCreateComputePipelines, VkResult, VkDevice, VkPipelineCache, uint32_t, ARG_CONST(ARG_PTR(VkComputePipelineCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkPipeline));
-	CL_API_ARGS4(VKCreateDescriptorPool, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkDescriptorPoolCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkDescriptorPool));
-	CL_API_ARGS3(VKAllocateDescriptorSets, VkResult, VkDevice, ARG_CONST(ARG_PTR(VkDescriptorSetAllocateInfo)), ARG_PTR(VkDescriptorSet));
-	CL_API_ARGS5(VKUpdateDescriptorSets, ARG_PTR(void), VkDevice, uint32_t, ARG_CONST(ARG_PTR(VkWriteDescriptorSet)), uint32_t, ARG_CONST(ARG_PTR(VkCopyDescriptorSet)));
-	CL_API_ARGS2(VKBeginCommandBuffer, VkResult, VkCommandBuffer, ARG_CONST(ARG_PTR(VkCommandBufferBeginInfo)));
-	CL_API_ARGS8(VKCmdBindDescriptorSets, ARG_PTR(void), VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, ARG_CONST(ARG_PTR(VkDescriptorSet)), uint32_t, ARG_CONST(ARG_PTR(uint32_t)));
-	CL_API_ARGS3(VKCmdBindPipeline, ARG_PTR(void), VkCommandBuffer, VkPipelineBindPoint, VkPipeline);
-	CL_API_ARGS4(VKCmdDispatch, ARG_PTR(void), VkCommandBuffer, uint32_t, uint32_t, uint32_t);
-	CL_API_ARGS10(VKCmdPipelineBarrier, ARG_PTR(void), VkCommandBuffer, VkPipelineStageFlags, VkPipelineStageFlags, VkDependencyFlags, uint32_t, ARG_CONST(ARG_PTR(VkMemoryBarrier)), uint32_t, ARG_CONST(ARG_PTR(VkBufferMemoryBarrier)), uint32_t, ARG_CONST(ARG_PTR(VkImageMemoryBarrier)));
-	CL_API_ARGS1(VKEndCommandBuffer, VkResult, VkCommandBuffer);
-	CL_API_ARGS4(VKQueueSubmit, VkResult, VkQueue, uint32_t, ARG_CONST(ARG_PTR(VkSubmitInfo)), VkFence);
-	CL_API_ARGS1(VKQueueWaitIdle, VkResult, VkQueue);
-	CL_API_ARGS1(VKDeviceWaitIdle, VkResult, VkDevice);
-	CL_API_ARGS5(VKCmdCopyBuffer, ARG_PTR(void), VkCommandBuffer, VkBuffer, VkBuffer, uint32_t, ARG_CONST(ARG_PTR(VkBufferCopy)));
-	CL_API_ARGS3(VKFreeMemory, ARG_PTR(void), VkDevice, VkDeviceMemory, ARG_CONST(ARG_PTR(VkAllocationCallbacks)));
-	CL_API_ARGS3(VKDestroyBuffer, ARG_PTR(void), VkDevice, VkBuffer, ARG_CONST(ARG_PTR(VkAllocationCallbacks)));
-	CL_API_ARGS4(VKFreeDescriptorSets, VkResult, VkDevice, VkDescriptorPool, uint32_t, ARG_CONST(ARG_PTR(VkDescriptorSet)));
-	CL_API_ARGS3(VKDestroyDescriptorPool, ARG_PTR(void), VkDevice, VkDescriptorPool, ARG_CONST(ARG_PTR(VkAllocationCallbacks)));
-	CL_API_ARGS4(VKFreeCommandBuffers, ARG_PTR(void), VkDevice, VkCommandPool, uint32_t, ARG_CONST(ARG_PTR(VkCommandBuffer)));
-	CL_API_ARGS3(VKDestroyCommandPool, ARG_PTR(void), VkDevice, VkCommandPool, ARG_CONST(ARG_PTR(VkAllocationCallbacks)));
-	CL_API_ARGS2(VKDestroyDevice, ARG_PTR(void), VkDevice, ARG_CONST(ARG_PTR(VkAllocationCallbacks)));
-
 	class CLApi {
 	public :
 		CLApi();
 		~CLApi();
 		void InitApi(base::NativeLibrary nativeLib);
 		bool doClTest();
-		
+
 #if defined(OS_LINUX)
 		static gpu::GpuChannel* parent_channel_;
 #elif defined(OS_ANDROID)
 		void setChannel(gpu::GpuChannel* channel);
 #endif
-
-		void InitVulkanApi(base::NativeLibrary vulkanLib);
-
-		VkDevice vkDevice;
-		VkBufferCreateInfo vkBufferInfo[8];
-		VkBuffer vkComputeBuffer[8];
-		VkDeviceMemory vkDeviceMemory[8];
-		VkCommandBuffer vkComputeCmdBuffer;
-		VkQueue vkQueue = NULL;;
-		int bufferCount = 8;
-		int BUFFER_SIZE = 1024 * 4 * 4;
-
-		void initNBody(const char* filePath);
-		void doNBody();
-		void doReadVulkanBuffer();
-		void doWriteVulkanBuffer();
-		unsigned getShaderCodeFromUrl(std::string address, char* sourceData, unsigned maxSourceSize);
-
-		VkResult doVKCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
-		VkResult doVKEnumeratePhysicalDevices(VkInstance pCreateInfo, uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices);
-		void doVKGetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties* pProperties);
-		void doVKGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties);
-		VkResult doVKCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
-		void doVKGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue);
-		void doVKGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties* pMemoryProperties);
-		VkResult doVKCreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCommandPool* pCommandPool);
-		VkResult doVKAllocateCommandBuffers(VkDevice device, const VkCommandBufferAllocateInfo* pAllocateInfo, VkCommandBuffer* pCommandBuffers);
-		VkResult doVKCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer);
-		void doVKGetBufferMemoryRequirements(VkDevice device, VkBuffer buffer, VkMemoryRequirements* pMemoryRequirements);
-		VkResult doVKAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo, const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory);
-		VkResult doVKBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
-		VkResult doVKMapMemory(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData);
-		void doVKUnmapMemory(VkDevice device, VkDeviceMemory memory);
-		VkResult doVKCreateShaderModule(VkDevice device, const VkShaderModuleCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkShaderModule* pShaderModule);
-		VkResult doVKCreateDescriptorSetLayout(VkDevice device, const VkDescriptorSetLayoutCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorSetLayout* pSetLayout);
-		VkResult doVKCreatePipelineLayout(VkDevice device, const VkPipelineLayoutCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkPipelineLayout* pPipelineLayout);
-		VkResult doVKCreatePipelineCache(VkDevice device, const VkPipelineCacheCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkPipelineCache* pPipelineCache);
-		VkResult doVKCreateComputePipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkComputePipelineCreateInfo* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines);
-		VkResult doVKCreateDescriptorPool(VkDevice device, const VkDescriptorPoolCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorPool* pDescriptorPool);
-		VkResult doVKAllocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo* pAllocateInfo, VkDescriptorSet* pDescriptorSets);
-		void doVKUpdateDescriptorSets(VkDevice device, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites, uint32_t descriptorCopyCount, const VkCopyDescriptorSet* pDescriptorCopies);
-		VkResult doVKBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
-		void doVKCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets, uint32_t dynamicOffsetCount, const uint32_t* pDynamicOffsets);
-		void doVKCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
-		void doVKCmdDispatch(VkCommandBuffer commandBuffer, uint32_t x, uint32_t y, uint32_t z);
-		void doVKCmdPipelineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
-		VkResult doVKEndCommandBuffer(VkCommandBuffer commandBuffer);
-		VkResult doVKQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
-		VkResult doVKQueueWaitIdle(VkQueue queue);
-		VkResult doVKDeviceWaitIdle(VkDevice device);
-		void doVKCmdCopyBuffer(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferCopy* pRegions);
-		void doVKFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
-		void doVKDestroyBuffer(VkDevice device, VkBuffer buffer, const VkAllocationCallbacks* pAllocator);
-		VkResult doVKFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets);
-		void doVKDestroyDescriptorPool(VkDevice device, VkDescriptorPool descriptorPool, const VkAllocationCallbacks* pAllocator);
-		void doVKFreeCommandBuffers(VkDevice device, VkCommandPool commandPool, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
-		void doVKDestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks* pAllocator);
-		void doVKDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator);
 
 		cl_int doclGetPlatformIDs(cl_uint num_entries, cl_platform_id* platforms, cl_uint* num_platforms);
 		cl_int doClGetPlatformInfo(
@@ -438,48 +339,6 @@ namespace gfx {
 		bool clLibraryLoaded_ = false;
 
 		base::NativeLibrary opencl_library_ = 0;
-		base::NativeLibrary vulkan_library_ = 0;
-
-		VKCreateInstance vk_create_instance_ = 0;
-		VKEnumeratePhysicalDevices vk_enumerate_physical_device_ = 0;
-		VKGetPhysicalDeviceProperties vk_get_physical_device_properties_ = 0;
-		VKGetPhysicalDeviceQueueFamilyProperties vk_get_physical_device_queue_family_properties_ = 0;
-		VKCreateDevice vk_create_device_ = 0;
-		VKGetDeviceQueue vk_get_device_queue_ = 0;
-		VKGetPhysicalDeviceMemoryProperties vk_get_physical_device_memory_properties_ = 0;
-		VKCreateCommandPool vk_create_command_pool_ = 0;
-		VKAllocateCommandBuffers vk_allocate_command_buffers_ = 0;
-		VKCreateBuffer vk_create_buffer_ = 0;
-		VKGetBufferMemoryRequirements vk_get_buffer_memory_requirements_ = 0;
-		VKAllocateMemory vk_allocate_memory_ = 0;
-		VKBindBufferMemory vk_bind_buffer_memory_ = 0;
-		VKMapMemory vk_map_memory_ = 0;
-		VKUnmapMemory vk_unmap_memory_ = 0;
-		VKCreateShaderModule vk_create_shader_module_ = 0;
-		VKCreateDescriptorSetLayout vk_create_descriptor_set_layout_ = 0;
-		VKCreatePipelineLayout vk_create_pipeline_layout_ = 0;
-		VKCreatePipelineCache vk_create_pipeline_cache_ = 0;
-		VKCreateComputePipelines vk_create_compute_pipelines_ = 0;
-		VKCreateDescriptorPool vk_create_descriptor_pool_ = 0;
-		VKAllocateDescriptorSets vk_allocate_descriptor_sets_ = 0;
-		VKUpdateDescriptorSets vk_update_descriptor_sets_ = 0;
-		VKBeginCommandBuffer vk_begin_command_buffer_ = 0;
-		VKCmdBindDescriptorSets vk_cmd_bind_descriptor_sets_ = 0;
-		VKCmdBindPipeline vk_cmd_bind_pipeline_ = 0;
-		VKCmdDispatch vk_cmd_dispatch_ = 0;
-		VKCmdPipelineBarrier vk_cmd_pipeline_barrier_ = 0;
-		VKEndCommandBuffer vk_end_command_buffer_ = 0;
-		VKQueueSubmit vk_queue_submit_ = 0;
-		VKQueueWaitIdle vk_queue_wait_idle_ = 0;
-		VKDeviceWaitIdle vk_device_wait_idle_ = 0;
-		VKCmdCopyBuffer vk_cmd_copy_buffer_ = 0;
-		VKFreeMemory vk_free_memory_ = 0;
-		VKDestroyBuffer vk_destroy_buffer_ = 0;
-		VKFreeDescriptorSets vk_free_descriptor_sets_ = 0;
-		VKDestroyDescriptorPool vk_destroy_descriptor_pool_ = 0;
-		VKFreeCommandBuffers vk_free_command_buffers_ = 0;
-		VKDestroyCommandPool vk_destroy_command_pool_ = 0;
-		VKDestroyDevice vk_destroy_device_ = 0;
 
 		//API list
 		CLGetPlatformIDs cl_get_platform_ids_ = 0;

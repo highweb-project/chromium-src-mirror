@@ -51,6 +51,7 @@ public class DeviceGalleryManagerImpl implements DeviceGalleryManager {
 		static final int IO_ERROR = 5;
 		static final int NOT_SUPPORTED_ERROR = 6;
 		static final int MEDIA_SIZE_EXCEEDED = 20;
+		static final int NOT_SUPPORT_API = 9999;
 	};
 
 	static class device_gallery_function {

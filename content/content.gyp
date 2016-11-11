@@ -492,7 +492,6 @@
             '../ui/touch_selection/ui_touch_selection.gyp:touch_handle_orientation_java',
             '../device/applauncher/applauncher.gyp:device_applauncher_java',
             '../device/calendar/calendar.gyp:device_calendar_java',
-            '../device/contact/contact.gyp:device_contact_java',
             '../device/cpu/devicecpu.gyp:device_cpu_java',
             '../device/gallery/devicegallery.gyp:device_gallery_java',
             '../device/sound/devicesound.gyp:device_sound_java',

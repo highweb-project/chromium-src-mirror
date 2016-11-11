@@ -18,10 +18,12 @@
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
 
+#include "device/cpu/devicecpu_manager.mojom-blink.h"
+#include "device/cpu/devicecpu_ResultCode.mojom-blink.h"
+
 namespace blink {
 
 class LocalFrame;
-class DeviceCpuListener;
 class DeviceCpuScriptCallback;
 class DeviceCpuStatus;
 
@@ -35,6 +37,7 @@ public:
 		SUCCESS = 0,
 		FAILURE = -1,
 		NOT_ENABLED_PERMISSION = -2,
+		NOT_SUPPORT_API = 9999,
 	};
 
 	enum function {
@@ -81,7 +84,9 @@ public:
 private:
 	DeviceCpu(Document& document);
 
-	Member<DeviceCpuListener> mCallback = nullptr;
+	void loadInternal();
+	void OnLoadCallback(device::blink::DeviceCpu_ResultCodePtr result);
+	void stopOnLoadCallback();
 
 	Deque<functionData*> d_functionData;
 
@@ -94,7 +99,8 @@ private:
 	WTF::String mOrigin;
 	WebDeviceApiPermissionCheckClient* mClient;
 
-	// Document* document;
+	device::blink::DeviceCpuManagerPtr deviceCpuManager;
+	Member<DeviceCpuStatus> mLastLoadData = nullptr;
 
 	bool ViewPermissionState = false;
 	bool isPending = false;

@@ -1,0 +1,16 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+typedef long VKCResult;
+typedef unsigned long VKCuint;
+typedef int VKCint;
+typedef unsigned long VKCenum;
+[
+] interface WebVKCBuffer {
+	[RaisesException] VKCResult readBuffer(VKCuint index, VKCuint bufferByteSize, ArrayBufferView data);
+	[RaisesException] VKCResult writeBuffer(VKCuint index, VKCuint bufferByteSize, ArrayBufferView data);
+	[RaisesException] VKCResult fillBuffer(VKCuint index, VKCuint data);
+	VKCuint getAllocateBufferSize();
+	[RaisesException] void release();
+};

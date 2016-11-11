@@ -19,6 +19,20 @@
       ],
     },
     {
+      # GN version: //device/contact:mojo_bindings_blink
+      'target_name': 'device_contact_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'contact_manager.mojom',
+      ],
+    },
+    {
       'target_name': 'device_contact',
       'type': '<(component)',
       'dependencies': [

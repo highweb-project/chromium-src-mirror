@@ -10,6 +10,7 @@ enum device_cpu_ErrorCodeList{
 	SUCCESS = 0,
 	FAILURE = -1,
 	NOT_ENABLED_PERMISSION = -2,
+	NOT_SUPPORT_API = 9999,
 };
 
 enum device_cpu_function {

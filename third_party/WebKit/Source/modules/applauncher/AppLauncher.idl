@@ -14,6 +14,7 @@ interface AppLauncher {
 	const long INVALID_PACKAGE_NAME = -3;
 	const long NOT_ENABLED_PERMISSION = -4;
 	const long INVALID_FLAGS = -5;
+	const long NOT_SUPPORT_API = 9999;
 
 	//getApplicationInfo flag
 	const long FLAG_GET_META_DATA = 128;

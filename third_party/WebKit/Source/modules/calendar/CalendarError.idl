@@ -8,6 +8,7 @@
   const unsigned short NOT_SUPPORTED_ERROR = 5;
   const unsigned short PERMISSION_DENIED_ERROR = 20;
   const unsigned short SUCCESS = 99;
+  const unsigned short NOT_SUPPORT_API = 9999;
 
   readonly attribute unsigned short code;
 };

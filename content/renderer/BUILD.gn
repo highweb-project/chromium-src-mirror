@@ -47,7 +47,6 @@ source_set("renderer") {
     "//content/public/common:feature_h264_with_openh264_ffmpeg",
     "//content/public/common:features",
     "//crypto:platform",
-    "//device/contact:mojo_bindings",
     "//device/cpu:mojo_bindings",
     "//device/gallery:mojo_bindings",
     "//device/messaging:mojo_bindings",

@@ -37,13 +37,38 @@ public class FindMessageWorker extends AbstractMessagingWorker implements Messag
             do {
                 messageObject = new MessageObjectAndroid();
 
-                messageObject.mID = mCursorHelper.getID();
+                if (mCursorHelper.getID() != null) {
+                  messageObject.mID = mCursorHelper.getID();
+                } else {
+                  messageObject.mID = "";
+                }
                 messageObject.mType = MessageType.SMS;
-                messageObject.mTo = mCursorHelper.getTo();
-                messageObject.mFrom = mCursorHelper.getFrom();
-                messageObject.mTitle = mCursorHelper.getTitle();
-                messageObject.mBody = mCursorHelper.getBody();
-                messageObject.mDate = mCursorHelper.getDate();
+
+                if (mCursorHelper.getTo() != null) {
+                  messageObject.mTo = mCursorHelper.getTo();
+                } else {
+                  messageObject.mTo = "";
+                }
+                if (mCursorHelper.getFrom() != null) {
+                  messageObject.mFrom = mCursorHelper.getFrom();
+                } else {
+                  messageObject.mFrom = "";
+                }
+                if (mCursorHelper.getTitle() != null) {
+                  messageObject.mTitle = mCursorHelper.getTitle();
+                } else {
+                  messageObject.mTitle = "";
+                }
+                if (mCursorHelper.getBody() != null) {
+                  messageObject.mBody = mCursorHelper.getBody();
+                } else {
+                  messageObject.mBody = "";
+                }
+                if (mCursorHelper.getDate() != null) {
+                  messageObject.mDate = mCursorHelper.getDate();
+                } else {
+                  messageObject.mDate = "";
+                }
 
                 results.add(messageObject.copy());
             }while(results.size() < mFindOptions.mMaxItem && mCursorHelper.moveToNext());

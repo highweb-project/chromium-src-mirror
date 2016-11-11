@@ -12,14 +12,16 @@
 #include "core/frame/LocalFrame.h"
 #include "core/dom/Document.h"
 #include "public/platform/Platform.h"
-#include "public/platform/WebString.h"
-#include "DeviceStorageListener.h"
 #include "DeviceStorageStatus.h"
 #include "DeviceStorageScriptCallback.h"
 #include "modules/device_storage/DeviceStorage.h"
 
 #include "modules/device_api/DeviceApiPermissionController.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h"
+
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
+
 namespace blink {
 
 DeviceStorage::DeviceStorage(LocalFrame& frame)
@@ -32,6 +34,9 @@ DeviceStorage::DeviceStorage(LocalFrame& frame)
 
 DeviceStorage::~DeviceStorage()
 {
+	if (storageManager.is_bound()) {
+		storageManager.reset();
+	}
 }
 
 void DeviceStorage::getDeviceStorage(DeviceStorageScriptCallback* callback) {
@@ -46,17 +51,46 @@ void DeviceStorage::getDeviceStorage(DeviceStorageScriptCallback* callback) {
 	}
 }
 
-void DeviceStorage::resultCodeCallback() {
-	DeviceStorageStatus* status = nullptr;
-	if (mCallback != nullptr) {
-		status = mCallback->lastData();
-		mCallback = nullptr;
+void DeviceStorage::getDeviceStorageInternal() {
+	if (!storageManager.is_bound()) {
+		Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&storageManager));
 	}
+	storageManager->getDeviceStorage(
+		createBaseCallback(bind<device::blink::DeviceStorage_ResultCodePtr>(&DeviceStorage::mojoResultCallback, this)));
+}
+
+void DeviceStorage::resultCodeCallback(DeviceStorageStatus* status) {
 	if (status != nullptr) {
 		notifyCallback(status, mCallbackList.at(0).get());
 	} else {
 		notifyError(ErrorCodeList::FAILURE, mCallbackList.at(0).get());
 	}
+}
+
+void DeviceStorage::mojoResultCallback(device::blink::DeviceStorage_ResultCodePtr result) {
+	DCHECK(result.get());
+	DeviceStorageStatus* status = nullptr;
+	if (result.get() != nullptr) {
+		status = DeviceStorageStatus::create();
+		status->setResultCode(result->resultCode);
+		switch(result->functionCode) {
+			case function::FUNC_GET_DEVICE_STORAGE: {
+				if (result->storageList.size() > 0) {
+					size_t size = result->storageList.size();
+					for(size_t i = 0; i < size; i++) {
+						DeviceStorageInfo info = DeviceStorageInfo();
+						info.setAvailableCapacity(result->storageList[i].get()->availableCapacity);
+						info.setCapacity(result->storageList[i].get()->capacity);
+						info.setIsRemovable(result->storageList[i].get()->isRemovable);
+						info.setType(result->storageList[i].get()->type);
+						status->storageList().append(info);
+					}
+				}
+				break;
+			}
+		}
+	}
+	resultCodeCallback(status);
 }
 
 void DeviceStorage::notifyCallback(DeviceStorageStatus* status, DeviceStorageScriptCallback* callback) {
@@ -79,17 +113,14 @@ void DeviceStorage::notifyError(int errorCode, DeviceStorageScriptCallback* call
 }
 
 void DeviceStorage::continueFunction() {
-	if (!ViewPermissionState) {
+	if (!ViewPermissionState && d_functionData.size() > 0) {
 		requestPermission();
 		return;
 	}
 	if (d_functionData.size() > 0) {
-		if (mCallback == NULL) {
-			mCallback = DeviceStorageListener::instance(this);
-		}
 		switch(d_functionData.first()->functionCode) {
 			case function::FUNC_GET_DEVICE_STORAGE : {
-				Platform::current()->getDeviceStorage(mCallback);
+				getDeviceStorageInternal();
 				break;
 			}
 			default: {
@@ -122,7 +153,6 @@ void DeviceStorage::onPermissionChecked(PermissionResult result)
 
 DEFINE_TRACE(DeviceStorage)
 {
-	visitor->trace(mCallback);
 	//visitor->trace(d_functionData);
 	visitor->trace(mCallbackList);
 }

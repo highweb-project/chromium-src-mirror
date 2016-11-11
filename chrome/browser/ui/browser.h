@@ -671,6 +671,11 @@ class Browser : public TabStripModelObserver,
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) override;
+#if defined(OS_LINUX)
+  void RequestDeviceApiPermission(
+      content::WebContents* web_contents,
+      const content::DeviceApiPermissionRequest& request) override;
+#endif
   bool CheckMediaAccessPermission(content::WebContents* web_contents,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;

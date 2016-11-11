@@ -524,11 +524,6 @@ public:
 
 	bool isEnableExtension(String extensionName);
 
-	void initNBody(String filePath);
-	void doNBody();
-	void readNBodyBuffer(unsigned index, unsigned bufferSize, DOMArrayBufferView* hostPtr);
-	void setNBodyData(unsigned index, unsigned BufferSize, DOMArrayBufferView* hostPtr);
-
     DECLARE_TRACE();
 
 private:

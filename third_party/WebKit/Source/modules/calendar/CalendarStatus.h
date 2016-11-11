@@ -12,29 +12,29 @@
 #include "public/platform/WebString.h"
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "modules/calendar/CalendarInfo.h"
-#include "platform/calendar/platform_calendarstatus.h"
 
 namespace blink {
 
 class CalendarInfo;
 
-class CalendarStatus final : public PlatformCalendarStatus, public ScriptWrappable {
+class CalendarStatus final : public GarbageCollectedFinalized<CalendarStatus>, public ScriptWrappable {
 	DEFINE_WRAPPERTYPEINFO();
 public:
 	static CalendarStatus* create() {return new CalendarStatus();};
-	virtual ~CalendarStatus();
+	~CalendarStatus();
 
 	int resultCode();
+	void setResultCode(int code);
 
 	HeapVector<Member<CalendarInfo>>& calendarList();
 
 	DEFINE_INLINE_TRACE() {
 		visitor->trace(mCalendarList);
-		PlatformCalendarStatus::trace(visitor);
 	};
 
 private:
 	CalendarStatus();
+	int mResultCode = -1;
 	HeapVector<Member<CalendarInfo>> mCalendarList;
 };
 

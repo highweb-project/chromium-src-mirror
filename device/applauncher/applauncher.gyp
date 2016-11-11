@@ -21,6 +21,21 @@
       ],
     },
     {
+      # GN version: //device/applauncher:mojo_bindings_blink
+      'target_name': 'device_applauncher_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'applauncher_manager.mojom',
+        'applauncher_ResultCode.mojom',
+      ],
+    },
+    {
       # GN version: //device/applauncher
       'target_name': 'device_applauncher',
       'type': '<(component)',

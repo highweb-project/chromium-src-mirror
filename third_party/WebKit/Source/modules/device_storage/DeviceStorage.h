@@ -9,16 +9,17 @@
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "platform/heap/Handle.h"
 #include "wtf/PassOwnPtr.h"
-#include "DeviceStorageListener.h"
 #include "wtf/Deque.h"
 #include "wtf/text/WTFString.h"
 
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
 
+#include "device/storage/devicestorage_manager.mojom-blink.h"
+#include "device/storage/devicestorage_ResultCode.mojom-blink.h"
+
 namespace blink {
 
 class LocalFrame;
-class DeviceStorageListener;
 class DeviceStorageScriptCallback;
 class DeviceStorageStatus;
 
@@ -33,6 +34,7 @@ public:
 		SUCCESS = 0,
 		FAILURE = -1,
 		NOT_ENABLED_PERMISSION = -2,
+		NOT_SUPPORT_API = 9999,
 	};
 
 	enum function {
@@ -68,7 +70,7 @@ public:
 
 	void getDeviceStorage(DeviceStorageScriptCallback* callback);
 
-	void resultCodeCallback();
+	void resultCodeCallback(DeviceStorageStatus* status);
 	void notifyCallback(DeviceStorageStatus*, DeviceStorageScriptCallback*);
 	void notifyError(int, DeviceStorageScriptCallback*);
 	void continueFunction();
@@ -81,7 +83,8 @@ public:
 private:
 	DeviceStorage(LocalFrame& frame);
 
-	Member<DeviceStorageListener> mCallback = nullptr;
+	void getDeviceStorageInternal();
+	void mojoResultCallback(device::blink::DeviceStorage_ResultCodePtr result);
 
 	Deque<functionData*> d_functionData;
 	HeapVector<Member<DeviceStorageScriptCallback>> mCallbackList;
@@ -90,6 +93,8 @@ private:
 	WebDeviceApiPermissionCheckClient* mClient;
 
 	bool ViewPermissionState = false;
+
+	device::blink::DeviceStorageManagerPtr storageManager;
 };
 
 } // namespace blink

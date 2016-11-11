@@ -58,7 +58,7 @@ static void SetRuntimeFeatureDefaultsForPlatform() {
 
 void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
     const base::CommandLine& command_line) {
-  if (command_line.HasSwitch(switches::kEnableExperimentalWebPlatformFeatures))
+  // if (command_line.HasSwitch(switches::kEnableExperimentalWebPlatformFeatures))
     WebRuntimeFeatures::enableExperimentalFeatures(true);
 
   WebRuntimeFeatures::enableOriginTrials(
@@ -91,7 +91,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   if (command_line.HasSwitch(switches::kDisableFileSystem))
     WebRuntimeFeatures::enableFileSystem(false);
 
-  if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
+  // if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
     WebRuntimeFeatures::enableExperimentalCanvasFeatures(true);
 
   if (!command_line.HasSwitch(switches::kDisableAcceleratedJpegDecoding))
@@ -165,10 +165,10 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   else
     WebRuntimeFeatures::enableV8IdleTasks(true);
 
-  if (command_line.HasSwitch(switches::kEnableUnsafeES3APIs))
+  //if (command_line.HasSwitch(switches::kEnableUnsafeES3APIs))
     WebRuntimeFeatures::enableUnsafeES3APIs(true);
 
-  if (command_line.HasSwitch(switches::kEnableWebVR))
+  //if (command_line.HasSwitch(switches::kEnableWebVR))
     WebRuntimeFeatures::enableWebVR(true);
 
   if (command_line.HasSwitch(switches::kDisablePresentationAPI))
@@ -224,10 +224,10 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   WebRuntimeFeatures::enableMediaDocumentDownloadButton(
       base::FeatureList::IsEnabled(features::kMediaDocumentDownloadButton));
 
-  if (base::FeatureList::IsEnabled(features::kPointerEvents)) {
+  //if (base::FeatureList::IsEnabled(features::kPointerEvents)) {
     WebRuntimeFeatures::enableFeatureFromString(
         std::string("PointerEvent"), true);
-  }
+  //}
 
   WebRuntimeFeatures::enableFeatureFromString(
       "FontCacheScaling",

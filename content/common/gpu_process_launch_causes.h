@@ -33,6 +33,7 @@ enum CauseForGpuLaunch {
   CAUSE_FOR_GPU_LAUNCH_DISPLAY_COMPOSITOR_CONTEXT,
   CAUSE_FOR_GPU_LAUNCH_MEDIA_CONTEXT,
   CAUSE_FOR_GPU_LAUNCH_WEBCL,
+  CAUSE_FOR_GPU_LAUNCH_WEBVULKAN,
 
   // All new values should be inserted above this point so that
   // existing values continue to match up with those in histograms.xml.

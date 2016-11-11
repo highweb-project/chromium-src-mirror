@@ -12,6 +12,10 @@ int CalendarStatus::resultCode() {
 	return mResultCode;
 }
 
+void CalendarStatus::setResultCode(int code) {
+	mResultCode = code;
+}
+
 HeapVector<Member<CalendarInfo>>& CalendarStatus::calendarList() {
 	return mCalendarList;
 }

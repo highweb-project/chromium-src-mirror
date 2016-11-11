@@ -21,6 +21,21 @@
       ],
     },
     {
+      # GN version: //device/contact:mojo_bindings_blink
+      'target_name': 'device_gallery_for_blink',
+      'type': 'static_library',
+      'variables': {
+        'for_blink': 'true',
+      },
+      'includes': [
+        '../../mojo/mojom_bindings_generator.gypi',
+      ],
+      'sources': [
+        'devicegallery_manager.mojom',
+        'devicegallery_ResultCode.mojom',
+      ],
+    },
+    {
       # GN version: //device/gallery
       'target_name': 'device_gallery',
       'type': '<(component)',

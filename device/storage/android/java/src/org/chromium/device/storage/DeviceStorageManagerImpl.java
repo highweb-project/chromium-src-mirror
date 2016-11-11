@@ -37,6 +37,7 @@ public class DeviceStorageManagerImpl implements DeviceStorageManager {
 		static final int SUCCESS = 0;
 		static final int FAILURE = -1;
 		static final int NOT_ENABLED_PERMISSION = -2;
+		static final int NOT_SUPPORT_API = 9999;
 	};
 
 	static class device_storage_function {
@@ -146,7 +147,7 @@ public class DeviceStorageManagerImpl implements DeviceStorageManager {
 					info.availableCapacity = (long)fs.getAvailableBlocks() * (long)fs.getBlockSize();
 				} else {
 					info.capacity = fs.getTotalBytes();
-					info.availableCapacity = fs.getAvailableBytes();	
+					info.availableCapacity = fs.getAvailableBytes();
 				}
 				list.add(info);
 			}

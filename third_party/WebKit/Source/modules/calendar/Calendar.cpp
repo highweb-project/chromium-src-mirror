@@ -26,6 +26,8 @@
 #include "CalendarEvent.h"
 
 #include "public/platform/Platform.h"
+#include "platform/mojo/MojoHelper.h"
+#include "public/platform/ServiceRegistry.h"
 
 namespace blink {
 
@@ -43,7 +45,9 @@ Calendar::Calendar(ExecutionContext* context, LocalFrame* frame)
 
 Calendar::~Calendar() {
   mCallbackQueue.clear();
-  dispatcher = nullptr;
+  if (calendarManager.is_bound()) {
+    calendarManager.reset();
+  }
 }
 
 void Calendar::addEvent(CalendarEvent* event, CalendarEventSuccessCallback* successCallback, CalendarEventErrorCallback* errorCallback) {
@@ -68,24 +72,25 @@ void Calendar::addEvent(CalendarEvent* event, CalendarEventSuccessCallback* succ
     DLOG(INFO) << "event.start() : " << event->start().utf8().data();
     DLOG(INFO) << "event.end() : " << event->end().utf8().data();
 
-    CalendarInfo* calendarInfo = new CalendarInfo();
-    calendarInfo->setDescription(event->description());
-    calendarInfo->setLocation(event->location());
-    calendarInfo->setSummary(event->summary());
-    calendarInfo->setStart(event->start());
-    calendarInfo->setEnd(event->end());
-
-    if(mCallback == nullptr) {
-        mCallback = CalendarListener::instance(this);
-    }
-
     CallbackData* data = new CallbackData(successCallback, errorCallback);
     mCallbackQueue.append(data);
 
-    DLOG(INFO) << "mCallback : " << mCallback << ", data : " << data;
-    dispatcher = new CalendarDispatcher();
-    dispatcher->calendarDeviceApiAddEvent((PlatformCalendarInfo*)calendarInfo, mCallback, (PlatformCalendarStatus*)mCallback->lastData());
-    calendarInfo = nullptr;
+    if (!calendarManager.is_bound()) {
+      Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&calendarManager));
+    }
+    device::blink::Calendar_CalendarInfoPtr ptr(device::blink::Calendar_CalendarInfo::New());
+    setString(ptr.get()->id, event->id());
+    setString(ptr.get()->description, event->description());
+    setString(ptr.get()->location, event->location());
+    setString(ptr.get()->summary, event->summary());
+    setString(ptr.get()->start, event->start());
+    setString(ptr.get()->end, event->end());
+    setString(ptr.get()->status, event->status());
+    setString(ptr.get()->transparency, event->transparency());
+    setString(ptr.get()->reminder, event->reminder());
+
+    calendarManager->CalendarDeviceApiAddEvent(std::move(ptr),
+      createBaseCallback(bind<device::blink::Calendar_ResultCodePtr>(&Calendar::mojoResultCallback, this)));
   }
 }
 
@@ -112,25 +117,27 @@ void Calendar::updateEvent(CalendarEvent* event, CalendarEventSuccessCallback* s
     DLOG(INFO) << "event.start() : " << event->start().utf8().data();
     DLOG(INFO) << "event.end() : " << event->end().utf8().data();
 
-    CalendarInfo* calendarInfo = new CalendarInfo();
-    calendarInfo->setId(event->id());
-    calendarInfo->setDescription(event->description());
-    calendarInfo->setLocation(event->location());
-    calendarInfo->setSummary(event->summary());
-    calendarInfo->setStart(event->start());
-    calendarInfo->setEnd(event->end());
-
-    if(mCallback == nullptr) {
-        mCallback = CalendarListener::instance(this);
-    }
-
     CallbackData* data = new CallbackData(successCallback, errorCallback);
     mCallbackQueue.append(data);
 
-    DLOG(INFO) << "mCallback : " << mCallback << ", data : " << data;
-    dispatcher = new CalendarDispatcher();
-    dispatcher->calendarDeviceApiUpdateEvent((PlatformCalendarInfo*)calendarInfo, mCallback, (PlatformCalendarStatus*)mCallback->lastData());
-    calendarInfo = nullptr;
+    if (!calendarManager.is_bound()) {
+      Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&calendarManager));
+    }
+
+    device::blink::Calendar_CalendarInfoPtr ptr(device::blink::Calendar_CalendarInfo::New());
+
+    setString(ptr.get()->id, event->id());
+    setString(ptr.get()->description, event->description());
+    setString(ptr.get()->location, event->location());
+    setString(ptr.get()->summary, event->summary());
+    setString(ptr.get()->start, event->start());
+    setString(ptr.get()->end, event->end());
+    setString(ptr.get()->status, event->status());
+    setString(ptr.get()->transparency, event->transparency());
+    setString(ptr.get()->reminder, event->reminder());
+
+    calendarManager->CalendarDeviceApiUpdateEvent(std::move(ptr),
+      createBaseCallback(bind<device::blink::Calendar_ResultCodePtr>(&Calendar::mojoResultCallback, this)));
   }
 }
 
@@ -149,16 +156,15 @@ void Calendar::deleteEvent(const String& id, CalendarEventSuccessCallback* succe
     return;
   }
 
-  if(mCallback == nullptr) {
-      mCallback = CalendarListener::instance(this);
-  }
-
   CallbackData* data = new CallbackData(successCallback, errorCallback);
   mCallbackQueue.append(data);
 
-  DLOG(INFO) << "mCallback : " << mCallback << ", data : " << data;
-  dispatcher = new CalendarDispatcher();
-  dispatcher->calendarDeviceApiDeleteEvent(id, mCallback, (PlatformCalendarStatus*)mCallback->lastData());
+  if (!calendarManager.is_bound()) {
+    Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&calendarManager));
+  }
+
+  calendarManager->CalendarDeviceApiDeleteEvent(id,
+    createBaseCallback(bind<device::blink::Calendar_ResultCodePtr>(&Calendar::mojoResultCallback, this)));
 }
 
 void Calendar::findEvent(CalendarEventSuccessCallback* successCallback, CalendarEventErrorCallback* errorCallback, CalendarFindOptions* options) {
@@ -186,50 +192,65 @@ void Calendar::findEvent(CalendarEventSuccessCallback* successCallback, Calendar
   DLOG(INFO) << "==========================================";
 
   if(filter != nullptr) {
-    String startBefore = filter->startBefore();
-    String startAfter = filter->startAfter();
-    String endBefore = filter->endBefore();
-    String endAfter = filter->endAfter();
+    String startBefore, startAfter, endBefore, endAfter;
+    setString(startBefore, filter->startBefore());
+    setString(startAfter, filter->startAfter());
+    setString(endBefore, filter->endBefore());
+    setString(endAfter, filter->endAfter());
 
     DLOG(INFO) << "======== DUMP CalendarEventFilter ========";
     DLOG(INFO) << "CalendarEventFilter  startBefore : " << startBefore.utf8().data() << ", startAfter : " << startAfter.utf8().data();
     DLOG(INFO) << "CalendarEventFilter  endBefore : " << endBefore.utf8().data() << ", endAfter : " << endAfter.utf8().data();
     DLOG(INFO) << "==========================================";
 
-    if(mCallback == nullptr) {
-        mCallback = CalendarListener::instance(this);
-    }
-
     CallbackData* data = new CallbackData(successCallback, errorCallback);
     mCallbackQueue.append(data);
 
-    DLOG(INFO) << "mCallback : " << mCallback << ", data : " << data;
-    dispatcher = new CalendarDispatcher();
-    dispatcher->calendarDeviceApiFindEvent(startBefore, startAfter, endBefore, endAfter, multiple, mCallback, (PlatformCalendarStatus*)mCallback->lastData());
+    if (!calendarManager.is_bound()) {
+      Platform::current()->serviceRegistry()->connectToRemoteService(mojo::GetProxy(&calendarManager));
+    }
+
+    calendarManager->CalendarDeviceApiFindEvent(startBefore, startAfter, endBefore, endAfter, multiple,
+      createBaseCallback(bind<device::blink::Calendar_ResultCodePtr>(&Calendar::mojoResultCallback, this)));
   }
 }
 
-void Calendar::resultCodeCallback() {
-  DLOG(INFO) << "Calendar::resultCodeCallback(), mCallback : " << mCallback;
-
-	CalendarStatus* status = nullptr;
-	if (mCallback != nullptr) {
-		status = mCallback->lastData();
-		mCallback = nullptr;
-
-    DLOG(INFO) << "Calendar::resultCodeCallback(), status : " << status;
-
-    if (status != nullptr) {
-      CalendarEventSuccessCallback* successCallback = mCallbackQueue.first()->successCallback;
-      DLOG(INFO) << "Calendar::resultCodeCallback(), successCallback : " << successCallback;
-
-      if(successCallback != nullptr) {
-        successCallback->handleEvent(status);
-        mCallbackQueue.removeFirst();
+void Calendar::mojoResultCallback(device::blink::Calendar_ResultCodePtr result) {
+  DCHECK(result);
+  DLOG(INFO) << "Calendar::mojoResultCallback";
+  CalendarStatus* status = CalendarStatus::create();
+  if (result != nullptr && status != nullptr) {
+    status->setResultCode(result->resultCode);
+    switch(result->functionCode) {
+      case function::FUNC_FIND_EVENT:
+      {
+        unsigned listSize = result->calendarlist.size();
+        DLOG(INFO) << "Calendar::mojoResultCallback, listSize : " << listSize;
+        for(unsigned i = 0; i < listSize; i++) {
+          CalendarInfo* data = new CalendarInfo();
+          data->setId(result->calendarlist[i].get()->id);
+          data->setDescription(result->calendarlist[i].get()->description);
+          data->setLocation(result->calendarlist[i].get()->location);
+          data->setSummary(result->calendarlist[i].get()->summary);
+          data->setStart(result->calendarlist[i].get()->start);
+          data->setEnd(result->calendarlist[i].get()->end);
+          data->setStatus(result->calendarlist[i].get()->status);
+          data->setTransparency(result->calendarlist[i].get()->transparency);
+          data->setReminder(result->calendarlist[i].get()->reminder);
+          status->calendarList().append(data);
+          DLOG(INFO) << "result->calendarlist[" << i << "]->start.get() : " << result->calendarlist[i].get()->start;
+        }
       }
-  	}
-	}
-  dispatcher = nullptr;
+      break;
+    }
+  }
+  CalendarEventSuccessCallback* successCallback = mCallbackQueue.first()->successCallback;
+  DLOG(INFO) << "Calendar::resultCodeCallback(), successCallback : " << successCallback;
+
+  if(successCallback != nullptr) {
+    successCallback->handleEvent(status);
+    mCallbackQueue.removeFirst();
+  }
 }
 
 void Calendar::acquirePermission(const String& operationType, CalendarEventErrorCallback* permissionCallback) {
@@ -303,12 +324,18 @@ void Calendar::onPermissionChecked(PermissionResult result)
   }
 }
 
+void Calendar::setString(String& dst, String source) {
+  if (source.isEmpty()) {
+    dst = "";
+  } else {
+    dst = source;
+  }
+}
+
 DEFINE_TRACE(Calendar) {
-  visitor->trace(mCallback);
   visitor->trace(mPermissionPopupCallback);
   visitor->trace(mCallbackQueue);
   visitor->trace(mFrame);
-  visitor->trace(dispatcher);
 }
 
 } // namespace blink

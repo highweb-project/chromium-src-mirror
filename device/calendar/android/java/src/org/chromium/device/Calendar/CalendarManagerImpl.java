@@ -48,6 +48,7 @@ public class CalendarManagerImpl implements CalendarManager {
 		static final int INVALID_PACKAGE_NAME = -3;
 		static final int NOT_ENABLED_PERMISSION = -4;
 		static final int INVALID_FLAGS = -5;
+		static final int NOT_SUPPORT_API = 9999;
 	};
 
 	static class function {

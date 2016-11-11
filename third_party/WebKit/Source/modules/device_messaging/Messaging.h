@@ -18,12 +18,13 @@
 #include "core/events/EventTarget.h"
 #include "platform/heap/Handle.h"
 #include "public/platform/modules/device_api/WebDeviceApiPermissionCheckClient.h"
-#include "public/platform/modules/device_messaging/WebDeviceMessagingResultListener.h"
 #include "wtf/text/WTFString.h"
 #include "core/dom/ActiveDOMObject.h"
 #include "core/dom/ContextLifecycleObserver.h"
 
 #include "modules/device_messaging/MessageFindOptions.h"
+
+#include "device/messaging/messaging_manager.mojom-blink.h"
 
 namespace blink {
 
@@ -63,8 +64,7 @@ typedef HeapHashMap<int, Member<MessagingErrorCallback>> MessagingErrorCBMap;
 class Messaging
 		: public EventTargetWithInlineData
 		, public ActiveScriptWrappable
-		, public ActiveDOMObject
-		, public WebDeviceMessagingResultListener {
+		, public ActiveDOMObject {
     USING_GARBAGE_COLLECTED_MIXIN(Messaging);
 	DEFINE_WRAPPERTYPEINFO();
 public:
@@ -89,7 +89,8 @@ public:
 		NOT_SUPPORTED_ERROR = 6,
 		PERMISSION_DENIED_ERROR = 20,
 		MESSAGE_SIZE_EXCEEDED = 30,
-		SUCCESS = 40
+		SUCCESS = 40,
+		NOT_SUPPORT_API = 9999,
 	};
 
     // EventTarget implementation.
@@ -106,10 +107,6 @@ public:
 	void sendMessage(Member<MessageObject> message);
 	void findMessage(MessageFindOptions findOptions, MessagingSuccessCallback* successCallback, MessagingErrorCallback* errorCallback);
 
-	// WebDeviceContactResultListener implements
-	void OnMessageFindResult(int requestId, unsigned error, std::vector<WebDeviceMessageObject*> results) override;
-	void OnMessageReceived(int observerId, unsigned error, std::vector<WebDeviceMessageObject*> results) override;
-
 	// Internal Implementations
 	void onPermissionChecked(PermissionResult result);
 
@@ -120,11 +117,15 @@ public:
 private:
 	Messaging(LocalFrame& frame);
 
-	WebDeviceMessageObject* convertToBlinkMessage(MessageObject* scriptMessage);
-	MessageObject* convertToScriptMessage(WebDeviceMessageObject* blinkMessage);
+	void convertBlinkMessageToMojo(MessageObject* scriptMessage, device::blink::MessageObject* mojoObject);
+	MessageObject* convertMojoToScriptMessage(device::blink::MessageObject* mojoObject);
 
 	void findMessageInternal(int requestId);
-	void sendMessageInternal(int requestId);
+	// void sendMessageInternal(int requestId);
+	void findMessageResult(uint32_t requestID, uint32_t error, mojo::WTFArray<device::blink::MessageObjectPtr> results);
+	void messageReceivedCallback(uint32_t observerId, device::blink::MessageObjectPtr message);
+
+	device::blink::MessagingManagerPtr messageManager;
 
 	unsigned getMessageFindTarget(WTF::String targetName);
 

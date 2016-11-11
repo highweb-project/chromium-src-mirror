@@ -17,6 +17,7 @@ interface DeviceGallery {
 	const long IO_ERROR = 5;
 	const long NOT_SUPPORTED_ERROR = 6;
 	const long MEDIA_SIZE_EXCEEDED = 20;
+	const long NOT_SUPPORT_API = 9999;
 
 	void findMedia(GalleryFindOptions findOptions, GallerySuccessCallback successCallback, GalleryErrorCallback errorCallback);
 	void getMedia(GalleryMediaObject media, GallerySuccessCallback successCallback, GalleryErrorCallback errorCallback);
