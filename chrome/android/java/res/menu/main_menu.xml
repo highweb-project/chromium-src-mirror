@@ -63,10 +63,10 @@
             android:icon="@drawable/reader_mode_prefs_icon" />
         <item android:id="@+id/preferences_id"
             android:title="@string/menu_preferences" />
-        <item android:id="@+id/help_id"
-            android:title="@string/menu_help" />
         <item android:id="@+id/webd2d_id"
             android:title="WebD2D Share..." />
+        <item android:id="@+id/help_id"
+            android:title="@string/menu_help" />
     </group>
 
     <!-- Items shown only in the tab switcher -->

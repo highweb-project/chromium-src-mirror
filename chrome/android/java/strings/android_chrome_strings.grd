@@ -2440,6 +2440,20 @@ You can control the Physical Web in Chrome Settings.
       <message name="IDS_TAB_SWITCHER_CALLOUT_BODY" desc="Indicates that clicking the tab switcher button gives you quick access to your tabs.">
         Tap this button for quick access to your tabs.
       </message>
+
+      <!-- WebD2D Command strings -->
+      <message name="IDS_WEBD2D_TITLE" desc="WebD2D Command title.">
+        WebD2D Commands
+      </message>
+      <message name="IDS_WEBD2D_COMMANDS" desc="WebD2D Command lists.">
+        URL Share
+      </message>
+      <message name="IDS_WEBD2D_SERVER" desc="WebD2D Server Address.">
+        file:///sdcard/webd2d/webd2dURLshare.html?url=
+        <!-- http://129.254.180.119/webd2d/webd2dtest.html?url= -->
+        <!-- http://localhost:9000/webd2dtest.html?url=http://localhost:9000/webd2dtest.html?url= -->
+      </message>
+
     </messages>
   </release>
 </grit>
