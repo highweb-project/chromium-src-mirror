@@ -182,69 +182,69 @@ WTF::Vector<WTF::String> WebCLPlatform::getSupportedExtensions(ExceptionState& e
 }
 
 int WebCLPlatform::initSupportedExtension(ExceptionState& ec) {
-	CLLOG(INFO) << "CL::" << "WebCLPlatform::initSupportedExtension";
+	// CLLOG(INFO) << "CL::" << "WebCLPlatform::initSupportedExtension";
 
-	if (WebCLException::SUCCESS != initSupportedExtensionState) {
-		ec.throwDOMException(initSupportedExtensionState, WebCLException::getErrorName(initSupportedExtensionState));
-	}
+	// if (WebCLException::SUCCESS != initSupportedExtensionState) {
+	// 	ec.throwDOMException(initSupportedExtensionState, WebCLException::getErrorName(initSupportedExtensionState));
+	// }
 
-	WTF::Vector<WTF::String> result = WTF::Vector<WTF::String>();
+	// WTF::Vector<WTF::String> result = WTF::Vector<WTF::String>();
 
-	char platform_string[1024] = "";
-	char extensions[16][64];
-	int count = 0;
-	int word_length = 0;
-	int i =0;
-	int j = 0;
-	HashSet<WTF::String> data;
-	HeapVector<Member<WebCLDevice>> deviceList;
-	HashSet<WTF::String>::iterator data_iterator;
-	supportedExtensionList.clear();
+	// char platform_string[1024] = "";
+	// char extensions[16][64];
+	// int count = 0;
+	// int word_length = 0;
+	// int i =0;
+	// int j = 0;
+	// HashSet<WTF::String> data;
+	// HeapVector<Member<WebCLDevice>> deviceList;
+	// HashSet<WTF::String>::iterator data_iterator;
+	// supportedExtensionList.clear();
 
-	if (m_cl_platform_id == NULL) {
-		printf("Error: Invalid Platform ID\n");
-		initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
-		supportedExtensionList = result;
-		return -1;
-	}
-	cl_int err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, WebCL::PLATFORM_EXTENSIONS, sizeof(platform_string), platform_string, NULL);
-	CLLOG(INFO) << "CL::" << ">>" << platform_string;
-	if (err != CL_SUCCESS) {
-		initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
-		supportedExtensionList = result;
-		return -1;
-	}
+	// if (m_cl_platform_id == NULL) {
+	// 	printf("Error: Invalid Platform ID\n");
+	// 	initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
+	// 	supportedExtensionList = result;
+	// 	return -1;
+	// }
+	// cl_int err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, WebCL::PLATFORM_EXTENSIONS, sizeof(platform_string), platform_string, NULL);
+	// CLLOG(INFO) << "CL::" << ">>" << platform_string;
+	// if (err != CL_SUCCESS) {
+	// 	initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
+	// 	supportedExtensionList = result;
+	// 	return -1;
+	// }
 
-	while(platform_string[i] != '\0')
-	{
-		while(platform_string[i] == ' ')
-			++i;
-		while(platform_string[i] !=  ' ' && platform_string[i] != '\0')
-		extensions[count][word_length++] = platform_string[i++];
-		extensions[count++][word_length] = '\0';  /* Append terminator         */
-		word_length = 0;
-	}
-	for(i = 0 ; i<count ; i++) {
-		printf("CL_PLATFORM_EXTENSIONS: %s\n",extensions[i]);
-		data.add(String(extensions[i]));
-	}
+	// while(platform_string[i] != '\0')
+	// {
+	// 	while(platform_string[i] == ' ')
+	// 		++i;
+	// 	while(platform_string[i] !=  ' ' && platform_string[i] != '\0')
+	// 	extensions[count][word_length++] = platform_string[i++];
+	// 	extensions[count++][word_length] = '\0';  /* Append terminator         */
+	// 	word_length = 0;
+	// }
+	// for(i = 0 ; i<count ; i++) {
+	// 	printf("CL_PLATFORM_EXTENSIONS: %s\n",extensions[i]);
+	// 	data.add(String(extensions[i]));
+	// }
 
-	deviceList = getDevices(ec);
+	// deviceList = getDevices(ec);
 
-	CLLOG(INFO) << "deviceList Size : " << deviceList.size();
+	// CLLOG(INFO) << "deviceList Size : " << deviceList.size();
 
-	for(i = 0; i < (int)deviceList.size(); i++) {
-		WebCLDevice *device = deviceList[i].get();
-		WTF::Vector<WTF::String> device_extensions = device->getSupportedExtensions(ec);
-		CLLOG(INFO) << "device_extensions.size : " << device_extensions.size();
-		for(j = 0; j < (int)device_extensions.size(); j++) {
-			CLLOG(INFO) << "device_extensions[" << j  << "] : " << &device_extensions[j];
-			data.add(device_extensions[j]);
-		}
-	}
-	for(data_iterator = data.begin(); data_iterator != data.end(); ++data_iterator) {
-		supportedExtensionList.append(*data_iterator);
-	}
+	// for(i = 0; i < (int)deviceList.size(); i++) {
+	// 	WebCLDevice *device = deviceList[i].get();
+	// 	WTF::Vector<WTF::String> device_extensions = device->getSupportedExtensions(ec);
+	// 	CLLOG(INFO) << "device_extensions.size : " << device_extensions.size();
+	// 	for(j = 0; j < (int)device_extensions.size(); j++) {
+	// 		CLLOG(INFO) << "device_extensions[" << j  << "] : " << &device_extensions[j];
+	// 		data.add(device_extensions[j]);
+	// 	}
+	// }
+	// for(data_iterator = data.begin(); data_iterator != data.end(); ++data_iterator) {
+	// 	supportedExtensionList.append(*data_iterator);
+	// }
     return 0;
 }
 
