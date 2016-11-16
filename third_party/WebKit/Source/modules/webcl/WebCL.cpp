@@ -154,7 +154,7 @@ CLboolean WebCL::enableExtension(const String& extensionName, ExceptionState& ec
 
 	CLLOG(INFO) << "WebCL::enableExtension, deviceName : " << deviceName.utf8().data();
 	String extensionNameLocal = extensionName;
-	if(deviceName == "Nexus 7" && extensionName == "KHR_gl_sharing") {
+	if(/*deviceName == "Nexus 7" && */extensionName == "KHR_gl_sharing") {
 		extensionNameLocal = "cl_khr_gl_sharing";
 		CLLOG(INFO) << "WebCL::enableExtension, adjust extensionName : " << extensionNameLocal.utf8().data();
 	}
@@ -203,8 +203,8 @@ CLboolean WebCL::enableExtension(const String& extensionName, ExceptionState& ec
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl;
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
@@ -216,8 +216,8 @@ WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, ExceptionState& ec
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, unsigned int deviceType, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl << ", deviceType : " << deviceType;
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
@@ -230,8 +230,8 @@ WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, unsigned int devic
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLPlatform* platform, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl << ", platform : " << platform;
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
@@ -243,8 +243,8 @@ WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLPlatform* pla
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLPlatform* platform, unsigned int deviceType, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl << ", platform : " << platform << ", deviceType : " << deviceType;
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
@@ -257,8 +257,8 @@ WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLPlatform* pla
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLDevice* device, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl << ", device : " << device;
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
@@ -271,8 +271,8 @@ WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, WebCLDevice* devic
 WebCLContext* WebCL::createContext(WebGLRenderingContext* gl, HeapVector<Member<WebCLDevice>> devices, ExceptionState& ec) {
 	CLLOG(INFO) << "WebCL::createContext, gl : " << gl << ", devices.size() : " << devices.size();
 
-	String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
-	// String extensionName = "cl_khr_gl_sharing";
+	// String extensionName = deviceName == "Nexus 7" ? "cl_khr_gl_sharing" : "KHR_gl_sharing";
+	String extensionName = "cl_khr_gl_sharing";
 	if(!enableExtensionList.contains(extensionName)) {
 		ec.throwDOMException(WebCLException::WEBCL_EXTENSION_NOT_ENABLED, "WebCLException::WEBCL_EXTENSION_NOT_ENABLED");
 		return NULL;
