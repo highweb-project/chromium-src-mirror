@@ -28,7 +28,7 @@ namespace gpu {
 	class GpuChannelHost;
 
 	cl_int webcl_getPlatformIDs(GpuChannelHost*, cl_uint, cl_platform_id*, cl_uint*);
-	cl_int webcl_clGetPlatformInfo(GpuChannelHost*, cl_platform_id, cl_platform_info, size_t, char*, size_t*);
+	cl_int webcl_clGetPlatformInfo(GpuChannelHost*, cl_platform_id, cl_platform_info, size_t, std::string*, size_t*);
 	cl_int webcl_clGetDeviceIDs(GpuChannelHost*, cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*);
 	cl_int webcl_clGetDeviceInfo(GpuChannelHost*, cl_device_id, cl_device_info, size_t, void*, size_t*);
 	cl_context webcl_clCreateContextFromType(GpuChannelHost*, cl_context_properties*, cl_device_type, void(CL_CALLBACK*)(const char*, const void*, size_t, void*), void*, cl_int*);

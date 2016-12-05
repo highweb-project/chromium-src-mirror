@@ -419,7 +419,7 @@ cl_int webcl_clGetPlatformInfo(
 		cl_platform_id platform,
 		cl_platform_info param_name,
 		size_t param_value_size,
-		char* param_value,
+		std::string* param_value,
 		size_t* param_value_size_ret)
 {
 	return channel_webcl->webcl_clGetPlatformInfo(platform, param_name, param_value_size, param_value, param_value_size_ret);
@@ -946,14 +946,13 @@ cl_int GpuChannelHost::webcl_clGetPlatformInfo(
 		cl_platform_id platform,
 		cl_platform_info param_name,
 		size_t param_value_size,
-		char* param_value,
+		std::string* param_value,
 		size_t* param_value_size_ret
 )
 {
 	cl_int errcode_ret;
 	size_t param_value_size_ret_inter = (size_t) -1;
 	std::vector<bool> return_variable_null_status;
-	std::string param_value_inter(param_value, 0, param_value_size);
 
 	return_variable_null_status.resize(2);
 	return_variable_null_status[0] = return_variable_null_status[1] = false;
@@ -969,13 +968,11 @@ cl_int GpuChannelHost::webcl_clGetPlatformInfo(
 			param_value_size,
 			return_variable_null_status,
 			&errcode_ret,
-			&param_value_inter,
+			param_value,
 			param_value_size_ret
 		))) {
 		return -1;
 	}
-
-	strcpy(param_value, param_value_inter.c_str());
 
 	return errcode_ret;
 }
@@ -1045,7 +1042,6 @@ cl_int GpuChannelHost::webcl_clGetDeviceInfo(
 	  std::vector<size_t> size_t_list_ret;
 	  size_t size_t_ret;
 	  cl_ulong cl_ulong_ret;
-	  std::string string_ret;
 	  std::vector<intptr_t> intptr_t_list_ret;
 	  std::vector<bool> return_variable_null_status;
     cl_point cl_point_ret;
@@ -1212,15 +1208,11 @@ cl_int GpuChannelHost::webcl_clGetDeviceInfo(
 	               param_name,
 	               param_value_size,
 	               return_variable_null_status,
-	               &string_ret,
+                (std::string*)param_value,
 	               param_value_size_ret,
 	               &errcode_ret))) {
 	        return CL_SEND_IPC_MESSAGE_FAILURE;
 	      }
-
-	      // Dump the results of the Sync IPC Message calling.
-	      if (CL_SUCCESS == errcode_ret)
-	        strcpy((char*)param_value,string_ret.c_str());
 
 	      return errcode_ret;
 	    }

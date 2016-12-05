@@ -73,7 +73,7 @@ class GPU_EXPORT GpuChannelHost
 			cl_platform_id,
 			cl_platform_info,
 			size_t,
-			char*,
+			std::string*,
 			size_t*
 	);
 	cl_int webcl_clGetDeviceIDs(

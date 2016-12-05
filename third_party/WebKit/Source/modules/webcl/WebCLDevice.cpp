@@ -26,7 +26,7 @@ WebCLDevice::WebCLDevice(WebCL* context, cl_device_id device_id)
 	initSupportedExtensionState = WebCLException::SUCCESS;
 }
 
-WebCLDevice::~WebCLDevice() 
+WebCLDevice::~WebCLDevice()
 {
 }
 
@@ -34,9 +34,10 @@ ScriptValue WebCLDevice::getInfo(ScriptState* scriptState, unsigned device_type,
 {
 	v8::Handle<v8::Object> creationContext = scriptState->context()->Global();
 	v8::Isolate* isolate = scriptState->isolate();
- 	
+
  	cl_int err = 0;
- 	char device_string[1024];
+  std::string device_string;
+	size_t string_max_size = 1024;
  	cl_uint uint_units = 0;
  	size_t sizet_units = 0;
  	size_t sizet_array[1024] = {0};
@@ -58,14 +59,14 @@ ScriptValue WebCLDevice::getInfo(ScriptState* scriptState, unsigned device_type,
  	{
 
  		case WebCL::DEVICE_EXTENSIONS:
- 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_EXTENSIONS, sizeof(device_string), &device_string, NULL);
+ 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_EXTENSIONS, string_max_size, &device_string, NULL);
  			if (err == CL_SUCCESS)
- 				return ScriptValue(scriptState, v8String(isolate, String(device_string)));
+ 				return ScriptValue(scriptState, v8String(isolate, String(device_string.data())));
  			break;
  		case WebCL::DEVICE_NAME:
- 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_NAME, sizeof(device_string), &device_string, NULL);
+ 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_NAME, string_max_size, &device_string, NULL);
  			if (err == CL_SUCCESS)
- 				return ScriptValue(scriptState, v8String(isolate, String(device_string)));
+ 				return ScriptValue(scriptState, v8String(isolate, String(device_string.data())));
  			break;
  		case WebCL::DEVICE_OPENCL_C_VERSION:
  			return ScriptValue(scriptState, v8String(isolate, String("WebCL C 1.0")));
@@ -77,14 +78,14 @@ ScriptValue WebCLDevice::getInfo(ScriptState* scriptState, unsigned device_type,
  			return ScriptValue(scriptState, v8String(isolate, String("WEBCL_PROFILE")));
  			break;
  		case WebCL::DEVICE_VENDOR:
- 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_VENDOR, sizeof(device_string), &device_string, NULL);
+ 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_VENDOR, string_max_size, &device_string, NULL);
  			if (err == CL_SUCCESS)
- 				return ScriptValue(scriptState, v8String(isolate, String(device_string)));
+ 				return ScriptValue(scriptState, v8String(isolate, String(device_string.data())));
  			break;
  		case WebCL::DRIVER_VERSION:
- 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DRIVER_VERSION, sizeof(device_string), &device_string, NULL);
+ 			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DRIVER_VERSION, string_max_size, &device_string, NULL);
  			if (err == CL_SUCCESS)
- 				return ScriptValue(scriptState, v8String(isolate, String(device_string)));
+ 				return ScriptValue(scriptState, v8String(isolate, String(device_string.data())));
  			break;
  		case WebCL::DEVICE_ADDRESS_BITS:
  			err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_ADDRESS_BITS , sizeof(cl_uint), &uint_units, NULL);
@@ -396,39 +397,25 @@ WTF::Vector<WTF::String> WebCLDevice::getSupportedExtensions(ExceptionState& ec)
 
 }
 
-int WebCLDevice::initSupportedExtensions() 
+int WebCLDevice::initSupportedExtensions()
 {
-	char device_string[1024] = "";
-	char extensions[16][64];	
-	int count = 0;
-	int word_length = 0;
-	int i =0;
+	std::string device_string;
+	size_t string_max_size = 1024;
+	supportedExtensionList.clear();
 
 	if (m_cl_device_id == NULL) {
 		initSupportedExtensionState = WebCLException::INVALID_DEVICE;
 		return -1;
 	}
-	cl_int err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_EXTENSIONS, sizeof(device_string), &device_string, NULL);
+	cl_int err = webcl_clGetDeviceInfo(webcl_channel_, m_cl_device_id, CL_DEVICE_EXTENSIONS, string_max_size, &device_string, NULL);
 	if (err != CL_SUCCESS) {
 		initSupportedExtensionState = WebCLException::INVALID_DEVICE;
 		return -1;
 	}
 
-	while(device_string[i] != '\0')
-	{
-		while(device_string[i] == ' ')
-			++i;
-		while(device_string[i] !=  ' ' && device_string[i] != '\0')
-		extensions[count][word_length++] = device_string[i++];
-		extensions[count++][word_length] = '\0';  /* Append terminator         */
-		word_length = 0;
-	}
-	CLLOG(INFO) << "CL::CONSOLE::getSupportedExtensions count : " << count;
-	supportedExtensionList.clear();
-	for(i = 0 ; i<count ; i++) {
-		CLLOG(INFO) << "CL::CONSOLE::CL_DEVICE_EXTENSIONS : " << extensions[i];
-		supportedExtensionList.append(String(extensions[i]));
-	}
+	WTF::String device_data = WTF::String(device_string.data());
+	device_data.split(" ", false, supportedExtensionList);
+
 	CLLOG(INFO) << "errCode : " << initSupportedExtensionState;
 	return 0;
 }
@@ -467,7 +454,7 @@ CLboolean WebCLDevice::enableExtension(const String& extensionName, ExceptionSta
 		}
 		return true;
 	} else {
-		CLLOG(INFO) << "CL::enableExtension count : " << supportedExtensionList.size();	
+		CLLOG(INFO) << "CL::enableExtension count : " << supportedExtensionList.size();
 		if (supportedExtensionList.contains(interExtensionName)) {
 			CLLOG(INFO) << "CL::enableExtension diff true " << &interExtensionName;
 			if (!enableExtensionList.contains(interExtensionName)) {
@@ -584,4 +571,3 @@ size_t WebCLDevice::getMaxWorkGroupSize() {
 }
 
 }
-

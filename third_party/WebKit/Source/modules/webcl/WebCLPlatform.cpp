@@ -122,7 +122,8 @@ ScriptValue WebCLPlatform::getInfo (ScriptState* scriptState, int platform_info,
 			return ScriptValue(scriptState, v8::Null(isolate));
 	}
 
-	char platform_string[1024];
+	std::string platform_string;
+	size_t string_max_size = 1024;
 	switch(platform_info)
 	{
 		case WebCL::PLATFORM_PROFILE:
@@ -138,19 +139,19 @@ ScriptValue WebCLPlatform::getInfo (ScriptState* scriptState, int platform_info,
 			return ScriptValue(scriptState, v8String(isolate, String("WebCL 1.0")));
 			break;
 		case WebCL::PLATFORM_NAME:
-			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_NAME, sizeof(platform_string), platform_string, NULL);
+			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_NAME, string_max_size, &platform_string, NULL);
 			if (err == CL_SUCCESS)
-				return ScriptValue(scriptState, v8String(isolate, String(platform_string)));
+				return ScriptValue(scriptState, v8String(isolate, String(platform_string.data())));
 			break;
 		case WebCL::PLATFORM_VENDOR:
-			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_VENDOR, sizeof(platform_string), platform_string, NULL);
+			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_VENDOR, string_max_size, &platform_string, NULL);
 			if (err == CL_SUCCESS)
-				return ScriptValue(scriptState, v8String(isolate, String(platform_string)));
+				return ScriptValue(scriptState, v8String(isolate, String(platform_string.data())));
 			break;
 		case WebCL::PLATFORM_EXTENSIONS:
-			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_EXTENSIONS, sizeof(platform_string), platform_string, NULL);
+			err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, CL_PLATFORM_EXTENSIONS, string_max_size, &platform_string, NULL);
 			if (err == CL_SUCCESS)
-				return ScriptValue(scriptState, v8String(isolate, String(platform_string)));
+				return ScriptValue(scriptState, v8String(isolate, String(platform_string.data())));
 			break;
 		default:
 			printf("Error: Unsupported Platform Info type = %d ",platform_info);
@@ -188,64 +189,47 @@ int WebCLPlatform::initSupportedExtension(ExceptionState& ec) {
 		ec.throwDOMException(initSupportedExtensionState, WebCLException::getErrorName(initSupportedExtensionState));
 	}
 
-	WTF::Vector<WTF::String> result = WTF::Vector<WTF::String>();
-
-	char platform_string[1024] = "";
-	char extensions[16][64];
-	int count = 0;
-	int word_length = 0;
-	int i =0;
-	int j = 0;
-	HashSet<WTF::String> data;
+	std::string platform_string;
+	size_t string_max_size = 1024;
+	size_t i =0;
+	size_t j = 0;
 	HeapVector<Member<WebCLDevice>> deviceList;
-	HashSet<WTF::String>::iterator data_iterator;
 	supportedExtensionList.clear();
 
 	if (m_cl_platform_id == NULL) {
 		printf("Error: Invalid Platform ID\n");
 		initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
-		supportedExtensionList = result;
+		supportedExtensionList.clear();
 		return -1;
 	}
-	cl_int err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, WebCL::PLATFORM_EXTENSIONS, sizeof(platform_string), platform_string, NULL);
+	cl_int err = webcl_clGetPlatformInfo(webcl_channel_, m_cl_platform_id, WebCL::PLATFORM_EXTENSIONS, string_max_size, &platform_string, NULL);
 	CLLOG(INFO) << "CL::" << ">>" << platform_string;
 	if (err != CL_SUCCESS) {
 		initSupportedExtensionState = WebCLException::INVALID_PLATFORM;
-		supportedExtensionList = result;
+		supportedExtensionList.clear();
 		return -1;
 	}
 
-	while(platform_string[i] != '\0')
-	{
-		while(platform_string[i] == ' ')
-			++i;
-		while(platform_string[i] !=  ' ' && platform_string[i] != '\0')
-		extensions[count][word_length++] = platform_string[i++];
-		extensions[count++][word_length] = '\0';  /* Append terminator         */
-		word_length = 0;
-	}
-	for(i = 0 ; i<count ; i++) {
-		printf("CL_PLATFORM_EXTENSIONS: %s\n",extensions[i]);
-		data.add(String(extensions[i]));
-	}
+	WTF::String platform_data = WTF::String(platform_string.data());
+	platform_data.split(" ", false, supportedExtensionList);
 
 	deviceList = getDevices(ec);
 
 	CLLOG(INFO) << "deviceList Size : " << deviceList.size();
 
-	for(i = 0; i < (int)deviceList.size(); i++) {
+	for(i = 0; i < deviceList.size(); i++) {
 		WebCLDevice *device = deviceList[i].get();
 		WTF::Vector<WTF::String> device_extensions = device->getSupportedExtensions(ec);
 		CLLOG(INFO) << "device_extensions.size : " << device_extensions.size();
-		for(j = 0; j < (int)device_extensions.size(); j++) {
+		for(j = 0; j < device_extensions.size(); j++) {
 			CLLOG(INFO) << "device_extensions[" << j  << "] : " << &device_extensions[j];
-			data.add(device_extensions[j]);
+			if (!supportedExtensionList.contains(device_extensions[j])) {
+				supportedExtensionList.append(device_extensions[j]);
+			}
 		}
 	}
-	for(data_iterator = data.begin(); data_iterator != data.end(); ++data_iterator) {
-		supportedExtensionList.append(*data_iterator);
-	}
-    return 0;
+
+  return 0;
 }
 
 CLboolean WebCLPlatform::enableExtension(const String& extensionName, ExceptionState& ec)
