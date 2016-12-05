@@ -63,6 +63,15 @@
             'applauncher_manager_impl_default.cc',
           ],
         }],
+        ['OS == "linux"', {
+          'sources!': [
+            'applauncher_manager_impl_default.cc',
+          ],
+          'sources': [
+            'applauncher_manager_linux.cc',
+            'applauncher_manager_linux.h',
+          ],
+        }],
       ],
     },
   ],

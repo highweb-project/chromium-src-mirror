@@ -63,6 +63,15 @@
             'devicestorage_manager_impl_default.cc',
           ],
         }],
+        ['OS == "linux"', {
+          'sources!': [
+            'devicestorage_manager_impl_default.cc',
+          ],
+          'sources': [
+            'devicestorage_manager_linux.cc',
+            'devicestorage_manager_linux.h',
+          ],
+        }],
       ],
     },
   ],

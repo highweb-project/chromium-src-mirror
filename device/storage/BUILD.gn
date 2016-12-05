@@ -28,6 +28,13 @@ component("storage") {
   if (is_android) {
     sources -= [ "devicestorage_manager_impl_default.cc" ]
   }
+  if (is_linux) {
+    sources -= [ "devicestorage_manager_impl_default.cc" ]
+    sources += [
+      "devicestorage_manager_linux.cc",
+      "devicestorage_manager_linux.h",
+    ]
+  }
 }
 
 mojom("mojo_bindings") {

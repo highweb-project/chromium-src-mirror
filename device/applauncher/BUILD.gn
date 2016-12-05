@@ -28,6 +28,13 @@ component("applauncher") {
   if (is_android) {
     sources -= [ "applauncher_manager_impl_default.cc" ]
   }
+  if (is_linux) {
+    sources -= [ "applauncher_manager_impl_default.cc" ]
+    sources += [
+      "applauncher_manager_linux.cc",
+      "applauncher_manager_linux.h",
+    ]
+  }
 }
 
 mojom("mojo_bindings") {
