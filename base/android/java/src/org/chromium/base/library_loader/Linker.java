@@ -240,7 +240,8 @@ public abstract class Linker {
         synchronized (sSingletonLock) {
             if (sSingleton == null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    sSingleton = ModernLinker.create();
+                    // sSingleton = ModernLinker.create();
+                    sSingleton = LegacyLinker.create();
                 } else {
                     sSingleton = LegacyLinker.create();
                 }
