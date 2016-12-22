@@ -27,7 +27,7 @@
 #include "url/gurl.h"
 
 // gl/cl sharing
-#include "ui/opencl/opencl_include.h"
+#include "gpu/opencl/opencl_include.h"
 namespace base {
 class WaitableEvent;
 }

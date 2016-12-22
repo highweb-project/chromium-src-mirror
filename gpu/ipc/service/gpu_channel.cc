@@ -51,10 +51,11 @@
 #include "gpu/command_buffer/service/renderbuffer_manager.h"
 #include "gpu/command_buffer/service/texture_manager.h"
 
-#include "ui/opencl/opencl_implementation.h"
+#include "gpu/opencl/opencl_implementation.h"
+#include "gpu/ipc/service/gpu_channel_opencl_proxy.h"
 
 //vulkan implementation
-#include "ui/native_vulkan/vulkan_implementation.h"
+#include "gpu/native_vulkan/vulkan_implementation.h"
 
 #if defined(OS_POSIX)
 #include "ipc/ipc_channel_posix.h"
@@ -740,22 +741,24 @@ GpuChannel::GpuChannel(GpuChannelManager* gpu_channel_manager,
   scoped_refptr<GpuChannelMessageQueue> control_queue =
       CreateStream(GPU_STREAM_DEFAULT, GpuStreamPriority::HIGH);
   AddRouteToStream(MSG_ROUTING_CONTROL, GPU_STREAM_DEFAULT);
-  clApiImpl = new gfx::CLApi();
-  vkcApiImpl = new gfx::VKCApi();
+  clApiImpl = new gpu::CLApi();
+  vkcApiImpl = new gpu::VKCApi();
+  opencl_proxy = new OpenCLProxy(this);
 #if defined(OS_LINUX)
-  gfx::CLApi::parent_channel_ = this;
-  gfx::VKCApi::parent_channel_ = this;
+  gpu::CLApi::parent_proxy_ = opencl_proxy;
+  // gfx::VKCApi::parent_channel_ = this;
 #elif defined(OS_ANDROID)
-  clApiImpl->setChannel(this);
-  vkcApiImpl->setChannel(this);
+  // clApiImpl->setChannel(this);
+  clApiImpl->setProxy(opencl_proxy);
+  // vkcApiImpl->setChannel(this);
 #endif
   filter_->setCLApi(clApiImpl);
   filter_->setVKCApi(vkcApiImpl);
 
   CLLOG(INFO) << "client_id_ : " << client_id_ << "channel_id_ : " << channel_id_ << ", clApiImpl : " << clApiImpl << ", GpuChannel : " << this;
 
-  gfx::InitializeStaticCLBindings(clApiImpl);
-  gfx::InitializeStaticVKCBindings(vkcApiImpl);
+  gpu::InitializeStaticCLBindings(clApiImpl);
+  gpu::InitializeStaticVKCBindings(vkcApiImpl);
 }
 
 GpuChannel::~GpuChannel() {

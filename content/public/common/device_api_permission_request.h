@@ -39,7 +39,7 @@ enum DeviceApiPermissionRequestResult {
 
 typedef base::Callback<void(content::DeviceApiPermissionRequestResult result)> DeviceApiPermissionCallback;
 
-struct DeviceApiPermissionRequest {
+struct CONTENT_EXPORT DeviceApiPermissionRequest {
 	DeviceApiPermissionRequest(const DeviceApiPermissionRequest& other);
 	DeviceApiPermissionRequest(const DeviceApiPermissionCallback& callback);
 	~DeviceApiPermissionRequest();

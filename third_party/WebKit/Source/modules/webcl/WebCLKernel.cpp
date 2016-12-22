@@ -11,7 +11,6 @@
 #include "WebCLKernel.h"
 #include "WebCL.h"
 #include "WebCLDevice.h"
-#include "WebCLException.h"
 #include "WebCLSampler.h"
 #include "WebCLMemoryObject.h"
 #include "modules/webcl/WebCLKernelArgInfo.h"
@@ -21,6 +20,7 @@
 #include "WebCLProgram.h"
 #include "WebCLKernelArgInfoProvider.h"
 #include "WebCLInputChecker.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "bindings/modules/v8/V8WebCLBuffer.h"
 #include "bindings/modules/v8/V8WebCLImage.h"
@@ -34,7 +34,7 @@
 
 namespace blink {
 
-WebCLKernel::WebCLKernel(WebCL* compute_context, cl_kernel kernel, WebCLProgram* program, String kernelName) 
+WebCLKernel::WebCLKernel(WebCL* compute_context, cl_kernel kernel, WebCLProgram* program, String kernelName)
 							: mContext(compute_context), mClProgram(program), mClKernel(kernel)
 {
 	if (!kernelName.isEmpty()) {
@@ -65,7 +65,7 @@ ScriptValue WebCLKernel::getInfo (ScriptState* scriptState, CLenum kernelInfo, E
 		ec.throwDOMException(WebCLException::INVALID_KERNEL, "WebCLException::INVALID_KERNEL");
 		return ScriptValue(scriptState, v8::Null(isolate));
 	}
-	
+
 	switch(kernelInfo)
 	{
 		case WebCL::KERNEL_FUNCTION_NAME:
@@ -523,7 +523,7 @@ void WebCLKernel::setArg(CLuint index, DOMArrayBufferView* value, ExceptionState
 	}
 	if (err_status) {
 		ec.throwDOMException(WebCLException::INVALID_ARG_VALUE, "WebCLException::INVALID_ARG_VALUE");
-		return;	
+		return;
 	}
 
 	mContext->startHandling();
@@ -621,7 +621,7 @@ void WebCLKernel::setDevice(WebCLDevice* m_device_id_)
 	mDeviceId = m_device_id_;
 }
 
-void WebCLKernel::setCLContext(WebCLContext* context) 
+void WebCLKernel::setCLContext(WebCLContext* context)
 {
 	mClContext = context;
 }
@@ -649,7 +649,7 @@ String WebCLKernel::getKernelName(ExceptionState& ec) {
 		ec.throwDOMException(WebCLException::INVALID_KERNEL, "WebCLException::INVALID_KERNEL");
 		return String("");
 	}
-	
+
 	err = webcl_clGetKernelInfo(webcl_channel_, mClKernel, CL_KERNEL_FUNCTION_NAME, sizeof(function_name), &function_name, NULL);
 	if (err == CL_SUCCESS) {
 		return String(function_name);
@@ -669,8 +669,8 @@ size_t WebCLKernel::associatedArgsNum() {
 	return associatedArgNum;
 }
 
-void WebCLKernel::setKernelName(String kernelName) { 
-	mKernelName = kernelName; 
+void WebCLKernel::setKernelName(String kernelName) {
+	mKernelName = kernelName;
 	mArgInfoProvider = new WebCLKernelArgInfoProvider(this);
 	mAssociatedArgsMarking.resize(mArgInfoProvider->numberOfArguments());
 	for(size_t i=0; i<mArgInfoProvider->numberOfArguments(); i++)
@@ -706,7 +706,7 @@ Vector<unsigned> WebCLKernel::getCompileWorkGroupSizeVector(WebCLDevice* device,
 		for(int i=0; i<3; i++)
 		{
 			sizeUnsignedVector.append(sizetArrayUnit[i]);
-		}	
+		}
 	}
 	else {
 		WebCLException::throwException(err, ec);
@@ -724,7 +724,7 @@ size_t WebCLKernel::getKernelNumArgs(ExceptionState& ec) {
 		ec.throwDOMException(WebCLException::INVALID_KERNEL, "WebCLException::INVALID_KERNEL");
 		return uint_units;
 	}
-	
+
 	err = webcl_clGetKernelInfo(webcl_channel_, mClKernel, CL_KERNEL_NUM_ARGS , sizeof(cl_uint), &uint_units, NULL);
 	if (err != CL_SUCCESS)
 		WebCLException::throwException(err, ec);
@@ -741,4 +741,3 @@ DEFINE_TRACE(WebCLKernel) {
 }
 
 } // namespace blink
-

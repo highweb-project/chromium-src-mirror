@@ -9,8 +9,8 @@
 #include "WebCLSampler.h"
 
 #include "WebCL.h"
-#include "WebCLException.h"
 #include "WebCLContext.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink {
 
@@ -18,7 +18,7 @@ WebCLSampler::~WebCLSampler()
 {
 }
 
-WebCLSampler::WebCLSampler(WebCL* context, cl_sampler sampler) 
+WebCLSampler::WebCLSampler(WebCL* context, cl_sampler sampler)
 		:mClSampler(sampler)
 {
 	mContext = context;
@@ -58,7 +58,7 @@ ScriptValue WebCLSampler::getInfo(ScriptState* scriptState, CLenum name, Excepti
 			err = gpu::webcl_clGetSamplerInfo(webcl_channel_, mClSampler, samplerInfo, sizeof(cl_context), &clContextId, NULL);
 			CLLOG(INFO) << "WebCLSampler::getInfo:SAMPLER_CONTEXT";
 			CLLOG(INFO) << "WebCLSampler::getInfo:err : " << err << " : " << contextObj;
-			
+
 			if (err == CL_SUCCESS)
 			{
 				Persistent<WebCLContext> savedContext = mContext->findCLContext((cl_obj_key)clContextId);

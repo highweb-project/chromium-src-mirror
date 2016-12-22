@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_NATIVE_VULKAN_INCLUDE_H_
-#define UI_NATIVE_VULKAN_INCLUDE_H_
+#ifndef GPU_NATIVE_VULKAN_INCLUDE_H_
+#define GPU_NATIVE_VULKAN_INCLUDE_H_
 
 #include "base/logging.h"
 
@@ -130,4 +130,4 @@ struct WebVKC_Result_Base {
 	VKCResult result;
 };
 
-#endif  // UI_NATIVE_VULKAN_INCLUDE_H_
+#endif  // GPU_NATIVE_VULKAN_INCLUDE_H_

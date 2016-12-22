@@ -41,6 +41,7 @@
 #include "content/browser/vr/android/cardboard/cardboard_vr_device.h"
 #include "content/browser/web_contents/web_contents_android.h"
 #include "mojo/android/system/core_impl.h"
+#include "content/browser/device_api/third_party_broadcast_android.h"
 
 namespace {
 base::android::RegistrationMethod kContentRegisteredMethods[] = {
@@ -97,6 +98,7 @@ base::android::RegistrationMethod kContentRegisteredMethods[] = {
     {"WebContentsAndroid", content::WebContentsAndroid::Register},
     {"WebContentsObserver", content::RegisterWebContentsObserverProxy},
     {"WebViewStatics", content::RegisterWebViewStatics},
+    {"ThirdPartyBroadcastAndroid", content::ThirdPartyBroadcastAndroid::Register},
 };
 
 }  // namespace

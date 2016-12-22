@@ -10,9 +10,9 @@
 #include "WebCLMemoryObject.h"
 
 #include "WebCL.h"
-#include "WebCLException.h"
 #include "WebCLContext.h"
 #include "WebCLBuffer.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "modules/webcl/WebCLGLObjectInfo.h"
 #include "bindings/modules/v8/V8WebCLGLObjectInfo.h"
@@ -186,7 +186,7 @@ ScriptValue WebCLMemoryObject::getGLObjectInfo(ScriptState* scriptState, Excepti
 
 		WebCL_Result_getGLObjectInfo result = WebCL_Result_getGLObjectInfo();
 		mContext->getOperationResult(&result);
-		CLLOG(INFO) << "WebCLContext::getGLObjectInfo, result.result : " << result.result << ", result.glObjectType : " << result.glObjectType 
+		CLLOG(INFO) << "WebCLContext::getGLObjectInfo, result.result : " << result.result << ", result.glObjectType : " << result.glObjectType
 		<< ", glObjectName : " << result.glObjectName << ", clglTextureTarget : " << result.clGLTextureTarget << ", clclGLMipMapLevel : " << result.clGLMipMapLevel;
 
 		if (result.result != CL_SUCCESS) {
@@ -197,7 +197,7 @@ ScriptValue WebCLMemoryObject::getGLObjectInfo(ScriptState* scriptState, Excepti
 		switch(result.glObjectType) {
 			case CL_GL_OBJECT_BUFFER: {
 				WebGLBuffer* glBuffer = (WebGLBuffer*)mClContext->findGLBuffer((cl_obj_key)result.glObjectName);
-				info.setGlObject(ScriptValue(scriptState, toV8(glBuffer, creationContext, isolate)));	
+				info.setGlObject(ScriptValue(scriptState, toV8(glBuffer, creationContext, isolate)));
 				break;
 			}
 			case CL_GL_OBJECT_RENDERBUFFER: {
@@ -289,7 +289,3 @@ DEFINE_TRACE(WebCLMemoryObject) {
 }
 
 }
-
-
-
-

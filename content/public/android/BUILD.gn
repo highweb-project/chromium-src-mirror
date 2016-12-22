@@ -224,6 +224,7 @@ android_library("content_java") {
     "java/src/org/chromium/content_public/common/MediaMetadata.java",
     "java/src/org/chromium/content_public/common/Referrer.java",
     "java/src/org/chromium/content_public/common/ScreenOrientationConstants.java",
+    "java/src/org/chromium/content/browser/ThirdPartyBroadcast.java",
   ]
 
   if (enable_webvr) {

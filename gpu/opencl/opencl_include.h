@@ -4,8 +4,8 @@
  *  Created on: 2015. 6. 5.
  *      Author: jphofasb
  */
-#ifndef UI_OPENCL_OPENCL_INCLUDE_H_
-#define UI_OPENCL_OPENCL_INCLUDE_H_
+#ifndef GPU_OPENCL_OPENCL_INCLUDE_H_
+#define GPU_OPENCL_OPENCL_INCLUDE_H_
 
 #include "third_party/opencl/cl.h"
 // gl/cl sharing

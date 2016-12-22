@@ -5,20 +5,19 @@
  *      Author: jphofasb
  */
 
-#ifndef UI_OPENCL_OPENCL_IMPLEMENTATION_H_
-#define UI_OPENCL_OPENCL_IMPLEMENTATION_H_
+#ifndef GPU_OPENCL_OPENCL_IMPLEMENTATION_H_
+#define GPU_OPENCL_OPENCL_IMPLEMENTATION_H_
 
 #include "base/native_library.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/shared_memory.h"
 
-#include "ui/opencl/opencl_include.h"
+#include "opencl_gpu_manager_proxy.h"
+#include "opencl_include.h"
+#include "gpu/gpu_export.h"
 
 namespace gpu {
 class GpuChannel;
-}
-
-namespace gfx {
 
 	//define OpenCL function pointer type
 	CL_API_ARGS3(CLGetPlatformIDs, cl_int, cl_uint, ARG_PTR(cl_platform_id), ARG_PTR(cl_uint))
@@ -95,9 +94,9 @@ namespace gfx {
 		bool doClTest();
 
 #if defined(OS_LINUX)
-		static gpu::GpuChannel* parent_channel_;
+		static gpu::CLGpuManagerProxy* parent_proxy_;
 #elif defined(OS_ANDROID)
-		void setChannel(gpu::GpuChannel* channel);
+		void setProxy(gpu::CLGpuManagerProxy* proxy);
 #endif
 
 		cl_int doclGetPlatformIDs(cl_uint num_entries, cl_platform_id* platforms, cl_uint* num_platforms);
@@ -334,7 +333,7 @@ namespace gfx {
 		bool clearSharedMemory();
 
 	private:
-		gpu::GpuChannel* gpu_channel_;
+		gpu::CLGpuManagerProxy* gpu_proxy_;
 
 		bool clLibraryLoaded_ = false;
 
@@ -429,4 +428,4 @@ namespace gfx {
 	void InitializeStaticCLBindings(CLApi* apiImpl);
 }
 
-#endif  // UI_OPENCL_OPENCL_IMPLEMENTATION_H_
+#endif  // GPU_OPENCL_OPENCL_IMPLEMENTATION_H_

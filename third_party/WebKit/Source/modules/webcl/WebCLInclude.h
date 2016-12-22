@@ -4,7 +4,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ui/opencl/opencl_include.h"
+#include "gpu/opencl/opencl_include.h"
 
 #include "base/memory/shared_memory.h"
 

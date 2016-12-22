@@ -7,13 +7,13 @@
 #include "wtf/build_config.h"
 #include "WebCLException.h"
 
-#include "WebCLInclude.h"
+#include "gpu/opencl/opencl_include.h"
 
 namespace blink {
 
 // This should be an array of structs to pair the names and descriptions. ??
 static const char* const exceptionNames[] = {
-   "SUCCESS", 
+   "SUCCESS",
 	"DEVICE_NOT_FOUND",
 	"DEVICE_NOT_AVAILABLE",
 	"COMPILER_NOT_AVAILABLE",

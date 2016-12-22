@@ -28,8 +28,8 @@
 #include "bindings/core/v8/V8Binding.h"
 #include "bindings/core/v8/V8DOMException.h"
 #include "core/dom/DOMException.h"
-#include "modules/webcl/WebCLException.h"
-#include "modules/webvulkan/WebVKCException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
 #include "core/dom/ExceptionCode.h"
 
 namespace blink {
@@ -77,13 +77,13 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     }
 
     v8::TryCatch tryCatch(isolate);
-	
+
     //check is WebCLException!
     v8::Local<v8::Value> exception;
     DOMException* domException = nullptr;
     WebCLException* webclException = nullptr;
     WebVKCException* webvkcException = nullptr;
-	
+
     if(WebCLException::isWebCLException(ec)) {
     	webclException = WebCLException::create(ec, sanitizedMessage, unsanitizedMessage);
     	exception = toV8(webclException, sanitizedCreationContext, isolate);
@@ -112,7 +112,7 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(v8::Isolate* isolate, 
     else {
     	error = v8::Exception::Error(v8String(isolate, domException->message()));
     }
-	
+
     ASSERT(!error.IsEmpty());
     v8::Local<v8::Object> exceptionObject = exception.As<v8::Object>();
     v8::Maybe<bool> result = exceptionObject->SetAccessor(isolate->GetCurrentContext(), v8AtomicString(isolate, "stack"), domExceptionStackGetter, domExceptionStackSetter, v8::MaybeLocal<v8::Value>(error));

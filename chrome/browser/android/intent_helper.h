@@ -9,9 +9,6 @@
 
 #include "base/strings/string16.h"
 
-// sendAndroidBroadcast
-#include "third_party/WebKit/public/platform/WebString.h"
-
 namespace chrome {
 namespace android {
 
@@ -24,9 +21,6 @@ void SendEmail(const base::string16& data_email,
 
 // Triggers an intent to open the date and time settings.
 void OpenDateAndTimeSettings();
-
-// sendAndroidBroadcast
-void SendAndroidBroadcastJNI(const base::string16& data_action, int process_id_, int routing_id_);
 
 bool RegisterIntentHelper(JNIEnv* env);
 

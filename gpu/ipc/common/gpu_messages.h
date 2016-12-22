@@ -34,8 +34,8 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/swap_result.h"
 #include "url/ipc/url_param_traits.h"
-#include "ui/opencl/opencl_include.h"
-#include "ui/native_vulkan/vulkan_include.h"
+#include "gpu/opencl/opencl_include.h"
+#include "gpu/native_vulkan/vulkan_include.h"
 #if defined(OS_ANDROID)
 #include "gpu/ipc/common/android/surface_texture_peer.h"
 #elif defined(OS_MACOSX)
@@ -717,11 +717,7 @@ IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelArgInfo_cl_ulong,
 							cl_int)
 
 IPC_MESSAGE_ROUTED3(OpenCLChannelMsg_Callback,
-#if defined(OS_ANDROID)
-              unsigned,
-#elif defined(OS_LINUX)
               cl_point,
-#endif
 							unsigned,
 							unsigned)
 

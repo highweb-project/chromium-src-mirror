@@ -10,7 +10,7 @@
 #include "platform/heap/Handle.h"
 
 #include "WebCLInclude.h"
-#include "WebCLException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink {
 

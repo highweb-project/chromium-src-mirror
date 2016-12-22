@@ -8,6 +8,7 @@
 #ifndef WebVKCException_h
 #define WebVKCException_h
 
+#include "core/CoreExport.h"
 #include "wtf/build_config.h"
 #include "bindings/core/v8/ExceptionState.h"
 #include "bindings/core/v8/ScriptWrappable.h"
@@ -15,12 +16,12 @@
 #include "core/dom/DOMException.h"
 #include "wtf/text/WTFString.h"
 
-#include "WebVKCInclude.h"
+#include "gpu/native_vulkan/vulkan_include.h"
 
 
 namespace blink {
 
-class WebVKCException final : public GarbageCollectedFinalized<WebVKCException>, public ScriptWrappable {
+class CORE_EXPORT WebVKCException final : public GarbageCollectedFinalized<WebVKCException>, public ScriptWrappable {
 	DEFINE_WRAPPERTYPEINFO();
 public:
 	static const int WebVKCExceptionOffset = WebVulkanError;
@@ -61,7 +62,7 @@ public:
 	String name() const { return m_name; }
 	String message() const { return m_sanitizedMessage; }
 
-	static bool isWebVKCException(ExceptionCode ec) { 
+	static bool isWebVKCException(ExceptionCode ec) {
 		return ec>=VK_NOT_READY_ECODE && ec <= WebVKCExceptionOffset + WebVKCExceptionMax?true:false; }
 
 	static String getErrorName(int);

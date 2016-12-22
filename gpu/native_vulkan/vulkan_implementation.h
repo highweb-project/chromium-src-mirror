@@ -2,20 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_NATIVE_VULKAN_IMPLEMENTATION_H_
-#define UI_NATIVE_VULKAN_IMPLEMENTATION_H_
+#ifndef GPU_NATIVE_VULKAN_IMPLEMENTATION_H_
+#define GPU_NATIVE_VULKAN_IMPLEMENTATION_H_
 
 #include "base/native_library.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/shared_memory.h"
 
-#include "ui/native_vulkan/vulkan_include.h"
+#include "gpu/native_vulkan/vulkan_include.h"
 
 namespace gpu {
 class GpuChannel;
-}
-
-namespace gfx {
 
 	//define Vulkan function pointer type
 	VK_API_ARGS3(VKCreateInstance, VKCResult, ARG_CONST(ARG_PTR(VkInstanceCreateInfo)), ARG_CONST(ARG_PTR(VkAllocationCallbacks)), ARG_PTR(VkInstance));
@@ -74,12 +71,6 @@ namespace gfx {
 		VKCApi();
 		~VKCApi();
 		void InitApi(base::NativeLibrary nativeLib);
-
-#if defined(OS_LINUX)
-		static gpu::GpuChannel* parent_channel_;
-#elif defined(OS_ANDROID)
-		void setChannel(gpu::GpuChannel* channel);
-#endif
 
 		VKCResult doVKCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
 		VKCResult doVKEnumeratePhysicalDevices(VkInstance pCreateInfo, uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices);
@@ -174,10 +165,6 @@ namespace gfx {
 
 		VKCuint getShaderCode(std::string shaderPath, char* shaderCode, VKCuint maxSourceLength);
 
-		#if defined(OS_ANDROID)
-		gpu::GpuChannel* gpu_channel_;
-		#endif
-
 		bool vkcLibraryLoaded_ = false;
 
 		base::NativeLibrary vulkan_library_ = 0;
@@ -246,4 +233,4 @@ namespace gfx {
 	void InitializeStaticVKCBindings(VKCApi* apiImpl);
 }
 
-#endif  // UI_NATIVE_VULKAN_IMPLEMENTATION_H_
+#endif  // GPU_NATIVE_VULKAN_IMPLEMENTATION_H_

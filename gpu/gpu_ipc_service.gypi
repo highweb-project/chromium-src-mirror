@@ -23,6 +23,8 @@
       'ipc/service/gpu_channel_manager.cc',
       'ipc/service/gpu_channel_manager.h',
       'ipc/service/gpu_channel_manager_delegate.h',
+      'ipc/service/gpu_channel_opencl_proxy.cc',
+      'ipc/service/gpu_channel_opencl_proxy.h',
       'ipc/service/gpu_command_buffer_stub.cc',
       'ipc/service/gpu_command_buffer_stub.h',
       'ipc/service/gpu_config.h',

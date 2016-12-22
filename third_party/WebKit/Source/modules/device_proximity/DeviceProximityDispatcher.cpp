@@ -35,12 +35,16 @@ DEFINE_TRACE(DeviceProximityDispatcher)
 
 void DeviceProximityDispatcher::startListening()
 {
+#if defined(OS_ANDROID)
     Platform::current()->startListening(WebPlatformEventTypeDeviceProximity, this);
+#endif
 }
 
 void DeviceProximityDispatcher::stopListening()
 {
+#if defined(OS_ANDROID)
     Platform::current()->stopListening(WebPlatformEventTypeDeviceProximity);
+#endif
     m_lastDeviceProximityData = -1;
 }
 
@@ -56,5 +60,3 @@ double DeviceProximityDispatcher::latestDeviceProximityData() const
 }
 
 } // namespace blink
-
-

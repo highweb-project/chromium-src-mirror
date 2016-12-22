@@ -1,4 +1,4 @@
-#include "ui/native_vulkan/vulkan_implementation.h"
+#include "vulkan_implementation.h"
 
 #include "base/files/file_path.h"
 #include "gpu/ipc/service/gpu_channel.h"
@@ -12,11 +12,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#if defined(OS_LINUX)
-gpu::GpuChannel* gfx::VKCApi::parent_channel_;
-#endif
-
-namespace gfx {
+namespace gpu {
 
 void InitializeStaticVKCBindings(VKCApi* apiImpl) {
 	VKCLOG(INFO) << "InitializeStaticVKCBindings";
@@ -543,13 +539,6 @@ static void* handleFuncLookupFail(std::string api_name) {
 
 	return nullptr;
 }
-
-#if defined(OS_ANDROID)
-void VKCApi::setChannel(gpu::GpuChannel* channel) {
-	VKCLOG(INFO) << "VKCApi::setChannel, VKCApi : " << this << ", channel : " << channel;
-	gpu_channel_ = channel;
-};
-#endif
 
 void VKCApi::InitApi(base::NativeLibrary vulkanLib) {
 	VKCLOG(INFO) << "CLApi::InitVulkanApi";
@@ -1715,4 +1704,4 @@ VKCuint VKCApi::getShaderCode(std::string shaderPath, char* shaderCode, VKCuint 
 	}
 }
 
-} // namesapce gfx
+} // namesapce gpu

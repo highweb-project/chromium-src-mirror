@@ -8,7 +8,7 @@
 #include "WebCLImage.h"
 
 #include "WebCL.h"
-#include "WebCLException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 
 namespace blink {

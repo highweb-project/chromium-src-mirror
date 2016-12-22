@@ -603,6 +603,8 @@
       'browser/device_sensors/device_orientation_message_filter.h',
       'browser/device_api/device_api_permission_check_message_filter.cc',
       'browser/device_api/device_api_permission_check_message_filter.h',
+      'browser/device_api/third_party_broadcast_android.cc',
+      'browser/device_api/third_party_broadcast_android.h',
       'browser/device_sensors/device_proximity_message_filter.cc',
       'browser/device_sensors/device_proximity_message_filter.h',
       'browser/device_sensors/device_sensor_message_filter.cc',

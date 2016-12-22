@@ -11,7 +11,7 @@
 #include "bindings/core/v8/V8Binding.h"
 #include "bindings/modules/v8/V8WebCLPlatform.h"
 
-#include "WebCLException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink {
 

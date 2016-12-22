@@ -9,7 +9,7 @@
 #include "WebCL.h"
 
 #include "WebCLUserEvent.h"
-#include "WebCLException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink{
 
@@ -38,9 +38,9 @@ void WebCLUserEvent::setStatus(CLint executionStatus, ExceptionState& ec){
 		return;
 	}
 
-	// TODO (siba samal) To be uncommented for  OpenCL 1.1	
+	// TODO (siba samal) To be uncommented for  OpenCL 1.1
 	// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetUserEventStatus.html
-	if(executionStatus == WebCL::COMPLETE)	{   
+	if(executionStatus == WebCL::COMPLETE)	{
 		err = webcl_clSetUserEventStatus(webcl_channel_, mClEvent , executionStatus);
 	}
 	else if (executionStatus < 0) {

@@ -8,7 +8,7 @@
 #include "modules/webcl/WebCLPlatform.h"
 
 #include "WebCL.h"
-#include "WebCLException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "bindings/core/v8/V8Binding.h"
 

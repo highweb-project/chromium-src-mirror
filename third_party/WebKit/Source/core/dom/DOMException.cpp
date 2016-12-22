@@ -30,8 +30,8 @@
 
 #include "core/dom/ExceptionCode.h"
 
-#include "modules/webcl/WebCLException.h"
-#include "modules/webvulkan/WebVKCException.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
 
 namespace blink {
 
@@ -131,7 +131,7 @@ DOMException* DOMException::create(ExceptionCode ec, const String& sanitizedMess
     } else if(ec >= WebVulkanError && ec <= (WebVulkanError + (WebVKCException::WebVKCExceptionMax - 1))) {
         return new DOMException(ec, WebVKCException::getErrorName(ec), WebVKCException::getErrorMessage(ec), unsanitizedMessage);
     }
-	
+
     const CoreException* entry = getErrorEntry(ec);
     DCHECK(entry);
     return new DOMException(entry->code,

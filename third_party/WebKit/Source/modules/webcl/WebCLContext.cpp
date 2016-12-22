@@ -16,7 +16,6 @@
 
 #include "WebCL.h"
 #include "WebCLBuffer.h"
-#include "WebCLException.h"
 #include "WebCLSampler.h"
 #include "WebCLImage.h"
 #include "WebCLDevice.h"
@@ -31,6 +30,7 @@
 #include "WebCLAPIBlocker.h"
 #include "WebCLMemoryUtil.h"
 #include "modules/webgl/WebGLRenderingContext.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 // gl/cl sharing
 #include "Source/modules/webgl/WebGLBuffer.h"
@@ -713,7 +713,7 @@ WebCLSampler* WebCLContext::createSampler(CLboolean normalizedCoords, CLenum add
 			return NULL;
 	}
 
-	if (WebCL::ADDRESS_CLAMP != addressingMode && WebCL::ADDRESS_CLAMP_TO_EDGE != addressingMode && WebCL::ADDRESS_REPEAT != addressingMode 
+	if (WebCL::ADDRESS_CLAMP != addressingMode && WebCL::ADDRESS_CLAMP_TO_EDGE != addressingMode && WebCL::ADDRESS_REPEAT != addressingMode
 		&& WebCL::ADDRESS_MIRRORED_REPEAT != addressingMode)
 	{
 		CLLOG(INFO) << "WebCLSampler::WebCLSampler : addressingMode not match";
@@ -735,7 +735,7 @@ WebCLSampler* WebCLContext::createSampler(CLboolean normalizedCoords, CLenum add
 
 		m_cl_sampler = webcl_clCreateSampler(webcl_channel_, mClContext, normalizedCoords, addressingMode, filterMode, &errcode_ret);
 
-		if (NULL == m_cl_sampler) 
+		if (NULL == m_cl_sampler)
 		{
 			CLLOG(INFO) << "WebCLSampler::WebCLSampler : m_cl_sampler is null";
 			WebCLException::throwException(errcode_ret, ec);
@@ -752,7 +752,7 @@ WebCLSampler* WebCLContext::createSampler(CLboolean normalizedCoords, CLenum add
 
 WebCLUserEvent* WebCLContext::createUserEvent(ExceptionState& ec)
 {
-	cl_int err = -1;	
+	cl_int err = -1;
 	cl_event event = NULL;
 	if (mClContext == NULL) {
 			printf("Error: Invalid CL Context\n");
@@ -1265,7 +1265,7 @@ void WebCLContext::OnCallback(cl_point eventKey, unsigned callbackKey, unsigned 
 		default:
 		break;
 	}
-	
+
 }
 
 void  WebCLContext::addCLEvent(WebCLEvent* event)
@@ -1415,7 +1415,7 @@ WebCLProgram* WebCLContext::createProgram(const String& kernelSource, ExceptionS
 	}
 
 	const char* source = strdup(kernelSource.utf8().data());
-	cl_program_id = webcl_clCreateProgramWithSource(webcl_channel_, mClContext, 1, (const char**)&source, 
+	cl_program_id = webcl_clCreateProgramWithSource(webcl_channel_, mClContext, 1, (const char**)&source,
 					NULL, &err);
 	if (err != CL_SUCCESS) {
 		WebCLException::throwException(err, ec);
@@ -1734,7 +1734,7 @@ WebCLImage* WebCLContext::createFromGLTexture(int memFlags, int textureTarget, i
 	if(result.result == CL_SUCCESS && result.image) {
 		CLLOG(INFO) << "WebCLContext::createFromGLTexture, CL_SUCCESS";
 
-		cl_mem cl_mem_id = (cl_mem)result.image;		
+		cl_mem cl_mem_id = (cl_mem)result.image;
 		WebCLImage* image = WebCLImage::create(mContext.get(), this, cl_mem_id, false);
 		// WebCLMemObjMap::AddResult result = mMemObjMap.set((cl_obj_key)cl_mem_id, (WebCLMemoryObject*)image);
 		mMemObjMap.set((cl_obj_key)cl_mem_id, (WebCLMemoryObject*)image);

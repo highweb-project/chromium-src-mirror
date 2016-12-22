@@ -11,7 +11,6 @@
 
 #include "WebCLContext.h"
 #include "WebCLPlatform.h"
-#include "WebCLException.h"
 #include "WebCLValueChecker.h"
 #include "WebCLDevice.h"
 #include "WebCLCommandQueue.h"
@@ -19,6 +18,8 @@
 #include "WebCLAPIBlocker.h"
 #include "WebCLOperationHandler.h"
 #include "modules/webgl/WebGLRenderingContext.h"
+
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "core/dom/ExecutionContext.h"
 #include "core/events/Event.h"

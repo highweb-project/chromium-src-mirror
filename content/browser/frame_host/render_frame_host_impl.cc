@@ -87,7 +87,7 @@
 
 // sendAndroidBroadcast
 #if defined(OS_ANDROID)
-#include "chrome/browser/android/intent_helper.h"
+#include "content/browser/device_api/third_party_broadcast_android.h"
 #endif
 
 #if defined(OS_ANDROID)
@@ -530,7 +530,7 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
     #if defined(OS_ANDROID)
     IPC_MESSAGE_HANDLER(FrameHostMsg_SendAndroidBroadcast, OnSendAndroidBroadcast)
     #endif
-    
+
     IPC_MESSAGE_HANDLER(FrameHostMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(FrameHostMsg_FrameFocused, OnFrameFocused)
     IPC_MESSAGE_HANDLER(FrameHostMsg_DidStartProvisionalLoad,
@@ -858,7 +858,7 @@ void RenderFrameHostImpl::Init() {
 #if defined(OS_ANDROID)
 void RenderFrameHostImpl::OnSendAndroidBroadcast(const base::string16& action) {
   int process_id_ = GetProcess()->GetID();
-  chrome::android::SendAndroidBroadcastJNI(action, process_id_, routing_id_);
+  content::ThirdPartyBroadcastAndroid::SendAndroidBroadcast(action, process_id_, routing_id_);
 }
 #endif
 

@@ -15,7 +15,6 @@
 #include "core/html/ImageData.h"
 
 #include "WebCL.h"
-#include "WebCLException.h"
 #include "WebCLValueChecker.h"
 #include "WebCLContext.h"
 #include "WebCLDevice.h"
@@ -28,6 +27,7 @@
 #include "WebCLKernel.h"
 #include "WebCLDevice.h"
 #include "WebCLHTMLUtil.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "bindings/modules/v8/V8WebCLMemoryObject.h"
 

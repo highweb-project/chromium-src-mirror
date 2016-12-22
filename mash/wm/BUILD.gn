@@ -118,8 +118,6 @@ mojo_native_application("wm") {
     ":lib",
     ":resources",
     "//services/shell/public/cpp",
-    "//ui/opencl",
-    "//ui/native_vulkan",
   ]
 
   # TODO(beng): This target relies on //mash/session, but there is a cycle so we

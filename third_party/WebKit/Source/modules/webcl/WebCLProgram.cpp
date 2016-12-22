@@ -11,10 +11,10 @@
 #include "WebCLProgram.h"
 #include "WebCLKernel.h"
 #include "WebCL.h"
-#include "WebCLException.h"
 #include "WebCLCallback.h"
 #include "WebCLPlatform.h"
 #include "WebCLContext.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink {
 

@@ -4,7 +4,19 @@
 
 import("//build/config/ui.gni")
 
-component("native_vulkan") {
+group("native_vulkan") {
+  if (is_component_build) {
+    public_deps = [
+      "//gpu",
+    ]
+  } else {
+    public_deps = [
+      ":native_vulkan_sources",
+    ]
+  }
+}
+
+source_set("native_vulkan_sources") {
   sources = [
     "vulkan_implementation.cc",
     "vulkan_implementation.h",
@@ -15,8 +27,7 @@ component("native_vulkan") {
 
   deps = [
     "//base",
-    "//ui/accessibility",
   ]
 
-  defines = [ "NATIVE_VULKAN_IMPLMENTATION" ]
+  defines = [ "NATIVE_VULKAN_IMPLMENTATION", "GPU_IMPLEMENTATION" ]
 }

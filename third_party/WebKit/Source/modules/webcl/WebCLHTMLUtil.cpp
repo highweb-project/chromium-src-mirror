@@ -15,8 +15,8 @@
 #include "platform/graphics/Image.h"
 #include "platform/geometry/IntSize.h"
 #include "WebCL.h"
-#include "WebCLException.h"
 #include "WebCLHTMLUtil.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 namespace blink {
 
@@ -183,4 +183,3 @@ ImageBuffer* WebCLHTMLUtil::ImageBufferCache::imageBuffer(const IntSize& size)
 }
 
 }
-

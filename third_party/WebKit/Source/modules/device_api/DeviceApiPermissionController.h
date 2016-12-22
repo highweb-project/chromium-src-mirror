@@ -8,6 +8,7 @@
 #ifndef DeviceApiPermissionController_h
 #define DeviceApiPermissionController_h
 
+#include "modules/ModulesExport.h"
 #include "core/frame/LocalFrame.h"
 #include "platform/Supplementable.h"
 #include "wtf/PassOwnPtr.h"
@@ -15,7 +16,7 @@
 
 namespace blink {
 
-class DeviceApiPermissionController final : public GarbageCollectedFinalized<DeviceApiPermissionController>, public Supplement<LocalFrame> {
+class MODULES_EXPORT DeviceApiPermissionController final : public GarbageCollectedFinalized<DeviceApiPermissionController>, public Supplement<LocalFrame> {
 	USING_GARBAGE_COLLECTED_MIXIN(DeviceApiPermissionController);
 public:
 	~DeviceApiPermissionController();// override;

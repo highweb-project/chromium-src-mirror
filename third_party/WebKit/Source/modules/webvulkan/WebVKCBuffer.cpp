@@ -6,7 +6,7 @@
 
 #include "WebVKCBuffer.h"
 #include "WebVKCDevice.h"
-#include "WebVKCException.h"
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
 
 namespace blink {
 

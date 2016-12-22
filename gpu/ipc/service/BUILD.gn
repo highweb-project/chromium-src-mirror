@@ -28,6 +28,8 @@ source_set("ipc_service_sources") {
     "gpu_channel_manager.cc",
     "gpu_channel_manager.h",
     "gpu_channel_manager_delegate.h",
+    "gpu_channel_opencl_proxy.cc",
+    "gpu_channel_opencl_proxy.h",
     "gpu_command_buffer_stub.cc",
     "gpu_command_buffer_stub.h",
     "gpu_config.h",
@@ -58,6 +60,8 @@ source_set("ipc_service_sources") {
     "//gpu/command_buffer/service:service_sources",
     "//gpu/config:config_sources",
     "//gpu/ipc/common:ipc_common_sources",
+    "//gpu/opencl:opencl_sources",
+    "//gpu/native_vulkan:native_vulkan_sources",
   ]
   libs = []
   if (is_win) {

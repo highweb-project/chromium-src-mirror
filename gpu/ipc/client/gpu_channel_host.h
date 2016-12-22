@@ -28,8 +28,8 @@
 #include "ipc/message_router.h"
 #include "ui/events/latency_info.h"
 #include "ui/gfx/gpu_memory_buffer.h"
-#include "ui/opencl/opencl_include.h"
-#include "ui/native_vulkan/vulkan_include.h"
+#include "gpu/opencl/opencl_include.h"
+#include "gpu/native_vulkan/vulkan_include.h"
 
 namespace base {
 class WaitableEvent;

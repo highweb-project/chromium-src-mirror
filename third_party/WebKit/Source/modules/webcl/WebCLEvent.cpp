@@ -11,9 +11,9 @@
 #include "WebCLEvent.h"
 #include "WebCL.h"
 #include "WebCLContext.h"
-#include "WebCLException.h"
 #include "WebCLCallback.h"
 #include "WebCLCommandQueue.h"
+#include "core/dom/custom/WebCL/WebCLException.h"
 
 #include "base/rand_util.h"
 
@@ -37,11 +37,11 @@ WebCLEvent::WebCLEvent(WebCL* context, cl_event clEvent) : mContext(context), mC
 
 
 ScriptValue WebCLEvent::getInfo(ScriptState* scriptState, int paramName, ExceptionState& ec)
-{  
+{
 	v8::Handle<v8::Object> creationContext = scriptState->context()->Global();
 	v8::Isolate* isolate = scriptState->isolate();
 
-	printf("getInfo Called = %d\n", paramName); 
+	printf("getInfo Called = %d\n", paramName);
 	cl_int err = WebCL::FAILURE;
 	cl_uint clUInt = 0;
 	cl_int clInt = 0;
@@ -57,7 +57,7 @@ ScriptValue WebCLEvent::getInfo(ScriptState* scriptState, int paramName, Excepti
 	}
 
 	switch(paramName)
-	{   
+	{
 		case WebCL::EVENT_COMMAND_EXECUTION_STATUS :
 			err = webcl_clGetEventInfo(webcl_channel_, mClEvent, paramName  , sizeof(clInt), &clInt, NULL);
 			if (err == CL_SUCCESS)
@@ -68,12 +68,12 @@ ScriptValue WebCLEvent::getInfo(ScriptState* scriptState, int paramName, Excepti
 			if (err == CL_SUCCESS)
 				return ScriptValue(scriptState, v8::Integer::NewFromUnsigned(isolate, static_cast<unsigned int>(clUInt)));
 			break;
-		case WebCL::EVENT_COMMAND_TYPE:			
+		case WebCL::EVENT_COMMAND_TYPE:
 			err = webcl_clGetEventInfo(webcl_channel_, mClEvent, paramName , sizeof(cl_command_type), &commandType, NULL);
 			if (err == CL_SUCCESS)
 				return ScriptValue(scriptState, v8::Integer::NewFromUnsigned(isolate, static_cast<unsigned int>(commandType)));
 			break;
-		case WebCL::EVENT_COMMAND_QUEUE:			
+		case WebCL::EVENT_COMMAND_QUEUE:
 		{
 			err = webcl_clGetEventInfo(webcl_channel_, mClEvent, paramName , sizeof(cl_command_queue), &commandQueue, NULL);
 			Persistent<WebCLCommandQueue> cqObj = mClContext->findCLCommandQueue((cl_obj_key)commandQueue);
@@ -147,7 +147,7 @@ ScriptValue WebCLEvent::getProfilingInfo(ScriptState* scriptState, int paramName
 		return ScriptValue(scriptState, v8::Null(isolate));
 	}
 	switch(paramName)
-	{   
+	{
 		case WebCL::PROFILING_COMMAND_QUEUED:
 			CLLOG(INFO) << "WebCLEvent::getProfilingInfo:param : PROFILING_COMMAND_QUEUED";
 			err = webcl_clGetEventProfilingInfo(webcl_channel_, mClEvent, paramName, sizeof(cl_ulong), &clULong, NULL);
@@ -193,7 +193,7 @@ void WebCLEvent::setCallback(CLenum commandExecCallbackType, WebCLCallback* noti
 		ec.throwDOMException(WebCLException::INVALID_EVENT, "WebCLException::INVALID_EVENT");
 		return;
 	}
-	
+
 	if (commandExecCallbackType != WebCL::COMPLETE){
 		CLLOG(INFO) << "WebCLEvent::setCallback commandExecCallbackType is not COMPLETE : " << commandExecCallbackType;
 		ec.throwDOMException(WebCLException::INVALID_VALUE, "WebCLException::INVALID_VALUE");
@@ -205,7 +205,7 @@ void WebCLEvent::setCallback(CLenum commandExecCallbackType, WebCLCallback* noti
 
 	if (err != CL_SUCCESS) {
 		WebCLException::throwException(err, ec);
-	} 
+	}
 	return;
 }
 
@@ -236,7 +236,7 @@ void WebCLEvent::release(ExceptionState& ec)
 	}
 
 	mClEvent = NULL;
-	
+
 	mCompleteCallback = nullptr;
 	mRunningCallback = nullptr;
 	mSubmittedCallback = nullptr;
@@ -332,5 +332,3 @@ DEFINE_TRACE(WebCLEvent) {
 }
 
 }
-
-

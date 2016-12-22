@@ -99,8 +99,6 @@ source_set("lib") {
     "//ui/gl:gl",
     "//ui/platform_window:platform_impls",
     "//ui/platform_window:platform_window",
-    "//ui/opencl",
-    "//ui/native_vulkan",
   ]
 
   if (use_x11) {

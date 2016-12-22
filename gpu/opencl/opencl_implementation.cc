@@ -5,22 +5,19 @@
  *      Author: jphofasb
  */
 
-#include "ui/opencl/opencl_implementation.h"
+#include "opencl_implementation.h"
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
-#include "gpu/ipc/service/gpu_channel.h"
-#include "gpu/ipc/common/gpu_messages.h"
 #include "dirent.h"
-#include "gpu/ipc/service/gpu_channel_manager.h"
 
 #include <array>
 
 #if defined(OS_LINUX)
-gpu::GpuChannel* gfx::CLApi::parent_channel_;
+gpu::CLGpuManagerProxy* gpu::CLApi::parent_proxy_;
 #endif
 
-namespace gfx {
+namespace gpu {
 
 void InitializeStaticCLBindings(CLApi* apiImpl) {
 	DLOG(INFO) << "InitializeStaticCLBindings";
@@ -108,9 +105,9 @@ static void* handleFuncLookupFail(std::string api_name) {
 }
 
 #if defined(OS_ANDROID)
-void CLApi::setChannel(gpu::GpuChannel* channel) {
-	DLOG(INFO) << "CLApi::setChannel, CLApi : " << this << ", channel : " << channel;
-	gpu_channel_ = channel;
+void CLApi::setProxy(gpu::CLGpuManagerProxy* proxy) {
+	DLOG(INFO) << "CLApi::setChannel, CLApi : " << this << ", channel : " << proxy;
+	gpu_proxy_ = proxy;
 };
 #endif
 
@@ -451,9 +448,9 @@ cl_int CLApi::doClSetEventCallback (
 		void *user_data)
 {
 	CLLOG(INFO) << "doClSetEventCallback";
-	CLLOG(INFO) << "CLApi::doClSetEventCallback, CLApi : " << this << ", gpu_channel_ : " << gpu_channel_;
+	CLLOG(INFO) << "CLApi::doClSetEventCallback, CLApi : " << this << ", gpu_channel_ : " << gpu_proxy_;
 #if defined(OS_ANDROID)
-	((unsigned*)user_data)[4] = reinterpret_cast<unsigned>(gpu_channel_);
+	((unsigned*)user_data)[4] = reinterpret_cast<unsigned>(gpu_proxy_);
 #endif
 	cl_int err = cl_set_event_callback_(event, command_exec_callback_type, &this->WebCLCallbackPtr, user_data);
 	CLLOG(INFO) << ">>err=" << err;
@@ -1257,11 +1254,11 @@ cl_int CLApi::doClGetProgramInfo(
 void CLApi::WebCLCallbackPtr(cl_event event, cl_int cmd_sts, void* userData)
 {
 #if defined(OS_ANDROID)
-	gpu::GpuChannel* parent_channel_ = reinterpret_cast<gpu::GpuChannel*>(((cl_point*)userData)[4]);
-	CLLOG(INFO) << "CLApi::WebCLCallbackPtr, parentGpuChannel : " << parent_channel_;
+	gpu::CLGpuManagerProxy* parent_proxy_ = reinterpret_cast<gpu::CLGpuManagerProxy*>(((cl_point*)userData)[4]);
+	CLLOG(INFO) << "CLApi::WebCLCallbackPtr, parentGpuChannel : " << parent_proxy_;
 #endif
 
-	if(parent_channel_ != nullptr) {
+	if(parent_proxy_ != nullptr) {
 #if defined(OS_ANDROID)
 		unsigned* keyArr = (unsigned*) userData;
 #elif defined(OS_LINUX)
@@ -1269,7 +1266,7 @@ void CLApi::WebCLCallbackPtr(cl_event event, cl_int cmd_sts, void* userData)
 #endif
 		CLLOG(INFO) << "routeId=" << keyArr[2] << ", event key=" << keyArr[0] << ", callback key=" << keyArr[1] << ", object_type=" << keyArr[3];
 
-		parent_channel_->Send(new OpenCLChannelMsg_Callback((int)keyArr[2], keyArr[0], keyArr[1], keyArr[3]));
+		parent_proxy_->Send((int)keyArr[2], keyArr[0], keyArr[1], keyArr[3]);
 	}
 	else
 		CLLOG(INFO) << "can't find GpuChannel ptr.";
@@ -1281,11 +1278,11 @@ void CLApi::WebCLCallbackPtrProgram(cl_program program, void* userData)
 		return;
 
 #if defined(OS_ANDROID)
-	gpu::GpuChannel* parent_channel_ = (gpu::GpuChannel*)((cl_point*)userData)[4];
-	CLLOG(INFO) << "CLApi::WebCLCallbackPtrProgram, parent_channel_ : " << parent_channel_;
+	gpu::CLGpuManagerProxy* parent_proxy_ = (gpu::CLGpuManagerProxy*)((cl_point*)userData)[4];
+	CLLOG(INFO) << "CLApi::WebCLCallbackPtrProgram, parent_proxy_ : " << parent_proxy_;
 #endif
 
-	if(parent_channel_ != nullptr) {
+	if(parent_proxy_ != nullptr) {
 #if defined(OS_ANDROID)
 		unsigned* keyArr = (unsigned*) userData;
 #elif defined(OS_LINUX)
@@ -1293,7 +1290,7 @@ void CLApi::WebCLCallbackPtrProgram(cl_program program, void* userData)
 #endif
 
 		CLLOG(INFO) << "WebCLCallbackPtrProgram routeId=" << keyArr[2] << ", event key=" << keyArr[0] << ", callback key=" << keyArr[1] << ", object_type=" << keyArr[3];
-		parent_channel_->Send(new OpenCLChannelMsg_Callback(keyArr[2], keyArr[0], keyArr[1], keyArr[3]));
+		parent_proxy_->Send(keyArr[2], keyArr[0], keyArr[1], keyArr[3]);
 	}
 	else
 		CLLOG(INFO) << "can't find GpuChannel ptr.";
@@ -1343,10 +1340,8 @@ cl_int CLApi::doClBuildProgram(
 	}
 	else {
 		CLLOG(INFO) << "handler id not null";
-		CLLOG(INFO) << "nDebug, CLApi::doClBuildProgram, CLApi : " << this << ", gpu_channel_ : " << gpu_channel_;
-#if defined(OS_ANDROID)
-		((unsigned*)user_data)[4] = (cl_point)gpu_channel_;
-#endif
+		CLLOG(INFO) << "nDebug, CLApi::doClBuildProgram, CLApi : " << this << ", gpu_proxy_ : " << gpu_proxy_;
+		((unsigned*)user_data)[4] = (cl_point)gpu_proxy_;
 		err = cl_build_program_(program, num_devices, device_list, options, &this->WebCLCallbackPtrProgram, user_data);
 	}
 	CLLOG(INFO) << ">>err=" << err;
@@ -1422,9 +1417,8 @@ void CLApi::doClCreateBufferFromGLBuffer()
 	GLuint bufobj = mSharedOperationPtr->uint_01;
 	GLuint serviceId = 0;
 
-	gpu::GpuChannelManager* gpuChannelManager = gpu_channel_->gpu_channel_manager();
-	if(gpuChannelManager) {
-		serviceId = gpuChannelManager->LookupGLServiceId(bufobj, GLResourceType::BUFFER);
+	if(gpu_proxy_) {
+		serviceId = gpu_proxy_->LookupGLServiceId(bufobj, GLResourceType::BUFFER);
 	}
 
 	CLLOG(INFO) << "doClCreateBufferFromGLBuffer, findServiceId, serviceId : " << serviceId;
@@ -1452,10 +1446,9 @@ void CLApi::doClCreateImageFromGLRenderbuffer()
 	GLuint renderbuffer = mSharedOperationPtr->uint_01;
 	GLuint serviceId = 0;
 
-	gpu::GpuChannelManager* gpuChannelManager = gpu_channel_->gpu_channel_manager();
-	if(gpuChannelManager) {
+	if(gpu_proxy_) {
 		for(; renderbuffer > 0; renderbuffer--) {
-			serviceId = gpuChannelManager->LookupGLServiceId(renderbuffer, GLResourceType::RENDERBUFFER);
+			serviceId = gpu_proxy_->LookupGLServiceId(renderbuffer, GLResourceType::RENDERBUFFER);
 
 			if(serviceId != 0) {
 				break;
@@ -1489,9 +1482,8 @@ void CLApi::doClCreateImageFromGLTexture()
 	GLuint texture = mSharedOperationPtr->uint_01;
 	GLuint serviceId = 0;
 
-	gpu::GpuChannelManager* gpuChannelManager = gpu_channel_->gpu_channel_manager();
-	if(gpuChannelManager) {
-		serviceId = gpuChannelManager->LookupGLServiceId(texture, GLResourceType::TEXTURE);
+	if(gpu_proxy_) {
+		serviceId = gpu_proxy_->LookupGLServiceId(texture, GLResourceType::TEXTURE);
 	}
 
 	CLLOG(INFO) << "doClCreateImageFromGLTexture, findServiceId, serviceId : " << serviceId;

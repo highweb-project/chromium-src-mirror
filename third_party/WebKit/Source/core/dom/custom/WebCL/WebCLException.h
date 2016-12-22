@@ -8,6 +8,7 @@
 #ifndef WebCLException_h
 #define WebCLException_h
 
+#include "core/CoreExport.h"
 #include "wtf/build_config.h"
 #include "bindings/core/v8/ExceptionState.h"
 #include "bindings/core/v8/ScriptWrappable.h"
@@ -16,7 +17,7 @@
 
 namespace blink {
 
-class WebCLException final : public GarbageCollectedFinalized<WebCLException>, public ScriptWrappable {
+class CORE_EXPORT WebCLException final : public GarbageCollectedFinalized<WebCLException>, public ScriptWrappable {
 	DEFINE_WRAPPERTYPEINFO();
 public:
 	static const int WebCLExceptionOffset = WebCLError;

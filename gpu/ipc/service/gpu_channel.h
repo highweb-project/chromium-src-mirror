@@ -30,18 +30,13 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gl/gl_share_group.h"
 #include "ui/gl/gpu_preference.h"
+#include "gpu/opencl/opencl_include.h"
+#include "gpu/native_vulkan/vulkan_include.h"
 
-#include "ui/opencl/opencl_include.h"
-#include "ui/native_vulkan/vulkan_include.h"
 struct GPUCreateCommandBufferConfig;
 
 namespace base {
 class WaitableEvent;
-}
-
-namespace gfx {
-class CLApi;
-class VKCApi;
 }
 
 namespace IPC {
@@ -57,6 +52,9 @@ class GpuChannelManager;
 class GpuChannelMessageFilter;
 class GpuChannelMessageQueue;
 class GpuWatchdog;
+class CLApi;
+class OpenCLProxy;
+class VKCApi;
 
 // Encapsulates an IPC channel between the GPU process and one renderer
 // process. On the renderer side there's a corresponding GpuChannelHost.
@@ -946,8 +944,9 @@ class GPU_EXPORT GpuChannel
   // Can real time streams be created on this channel.
   const bool allow_real_time_streams_;
 
-  gfx::CLApi* clApiImpl;
-  gfx::VKCApi* vkcApiImpl;
+  gpu::CLApi* clApiImpl;
+  gpu::VKCApi* vkcApiImpl;
+  gpu::OpenCLProxy* opencl_proxy;
   // Member variables should appear before the WeakPtrFactory, to ensure
   // that any WeakPtrs to Controller are invalidated before its members
   // variable's destructors are executed, rendering them invalid.
@@ -988,8 +987,8 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
 
   bool Send(IPC::Message* message);
 
-  void setCLApi(gfx::CLApi* api) { cl_api_ = api; };
-  void setVKCApi(gfx::VKCApi* api) { vkc_api_ = api; };
+  void setCLApi(gpu::CLApi* api) { cl_api_ = api; };
+  void setVKCApi(gpu::VKCApi* api) { vkc_api_ = api; };
 
  protected:
   ~GpuChannelMessageFilter() override;
@@ -1006,8 +1005,8 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
   IPC::Sender* sender_;
   base::ProcessId peer_pid_;
   std::vector<scoped_refptr<IPC::MessageFilter>> channel_filters_;
-  gfx::CLApi* cl_api_;
-  gfx::VKCApi* vkc_api_;
+  gpu::CLApi* cl_api_;
+  gpu::VKCApi* vkc_api_;
 
   DISALLOW_COPY_AND_ASSIGN(GpuChannelMessageFilter);
 };

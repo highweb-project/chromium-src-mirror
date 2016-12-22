@@ -9,7 +9,7 @@
 #include "bindings/core/v8/ExceptionState.h"
 #include "WebVKCOperationHandler.h"
 #include "WebVKCDevice.h"
-#include "WebVKCException.h"
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
 #include "third_party/WebKit/public/platform/Platform.h"
 
 #include <wtf/Vector.h>

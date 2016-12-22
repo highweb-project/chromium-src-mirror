@@ -1,0 +1,35 @@
+# Copyright 2014 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/ui.gni")
+
+group("opencl") {
+  if (is_component_build) {
+    public_deps = [
+      "//gpu",
+    ]
+  } else {
+    public_deps = [
+      ":opencl_sources",
+    ]
+  }
+}
+
+source_set("opencl_sources") {
+  sources = [
+    "opencl_gpu_manager_proxy.h",
+    "opencl_implementation.cc",
+    "opencl_implementation.h",
+    "opencl_include.h",
+  ]
+  configs += [ "//build/config:precompiled_headers", "//gpu:gpu_implementation", ]
+
+  public_configs = [ "//third_party/khronos:khronos_headers", ]
+
+  deps = [
+    "//base",
+  ]
+
+  defines = [ "OPENCL_IMPLMENTATION", "GPU_IMPLEMENTATION" ]
+}
