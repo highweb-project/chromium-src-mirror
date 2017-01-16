@@ -872,6 +872,11 @@
   function CreateIterResultObject(value, done) { return {value, done}; }
 
 
+  class DummyObject {
+    constructor() {
+    }
+  }
+
   //
   // Additions to the global
   //
@@ -881,6 +886,34 @@
     enumerable: false,
     configurable: true,
     writable: true
+  });
+
+  defineProperty(global, 'WriteableStream', {
+    value: DummyObject,
+    enumerable: false,
+    configurable: false,
+    writable: false
+  });
+
+  defineProperty(global, 'webauthn', {
+    value: DummyObject,
+    enumerable: false,
+    configurable: false,
+    writable: false
+  });
+
+  defineProperty(global, 'msCredentials', {
+    value: DummyObject,
+    enumerable: false,
+    configurable: false,
+    writable: false
+  });
+
+  defineProperty(global, 'SpeechRecognition', {
+    value: DummyObject,
+    enumerable: false,
+    configurable: false,
+    writable: false
   });
 
   //

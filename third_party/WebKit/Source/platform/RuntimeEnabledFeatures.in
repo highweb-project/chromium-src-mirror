@@ -153,7 +153,7 @@ MemoryInfoInWorkers status=experimental
 // "experimental" is the support on other platforms.
 MiddleClickAutoscroll status=experimental
 MobileLayoutTheme
-ModuleScripts status=test
+ModuleScripts
 NavigatorContentUtils
 WebNFC status=experimental
 NetworkInformation status=stable

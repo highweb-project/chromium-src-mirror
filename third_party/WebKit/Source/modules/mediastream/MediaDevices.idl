@@ -18,4 +18,5 @@
      RaisesException,
      MeasureAs=GetUserMediaPromise
     ] Promise<MediaStream> getUserMedia(optional MediaStreamConstraints constraints);
+    [RuntimeEnabled=GetUserMedia, ImplementedAs=getUserMedia, CallWith=ScriptState, RaisesException] Promise<MediaStream> getDisplayMedia(MediaStreamConstraints options);
 };

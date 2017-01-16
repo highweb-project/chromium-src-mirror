@@ -30,9 +30,9 @@ static void SetRuntimeFeatureDefaultsForPlatform() {
   // No plan to support complex UI for date/time INPUT types.
   WebRuntimeFeatures::enableInputMultipleFieldsUI(false);
   // Android does not yet support SharedWorker. crbug.com/154571
-  WebRuntimeFeatures::enableSharedWorker(false);
+  WebRuntimeFeatures::enableSharedWorker(true);
   // Android does not yet support NavigatorContentUtils.
-  WebRuntimeFeatures::enableNavigatorContentUtils(false);
+  WebRuntimeFeatures::enableNavigatorContentUtils(true);
   WebRuntimeFeatures::enableOrientationEvent(true);
   WebRuntimeFeatures::enableFastMobileScrolling(true);
   WebRuntimeFeatures::enableMediaCapture(true);
@@ -72,8 +72,10 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
     const base::CommandLine& command_line) {
   bool enableExperimentalWebPlatformFeatures = command_line.HasSwitch(
       switches::kEnableExperimentalWebPlatformFeatures);
-  if (enableExperimentalWebPlatformFeatures)
+  // if (enableExperimentalWebPlatformFeatures)
     WebRuntimeFeatures::enableExperimentalFeatures(true);
+  WebRuntimeFeatures::enableTestOnlyFeatures(true);
+  WebRuntimeFeatures::enableCanvas2dFixedRenderingMode(false);
 
   WebRuntimeFeatures::enableOriginTrials(
       base::FeatureList::IsEnabled(features::kOriginTrials));
@@ -117,7 +119,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   if (command_line.HasSwitch(switches::kDisableFileSystem))
     WebRuntimeFeatures::enableFileSystem(false);
 
-  if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
+  // if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
     WebRuntimeFeatures::enableExperimentalCanvasFeatures(true);
 
   if (!command_line.HasSwitch(switches::kDisableAcceleratedJpegDecoding))
@@ -202,7 +204,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   else
     WebRuntimeFeatures::enableV8IdleTasks(true);
 
-  if (command_line.HasSwitch(switches::kEnableWebVR))
+  // if (command_line.HasSwitch(switches::kEnableWebVR))
     WebRuntimeFeatures::enableWebVR(true);
 
   if (command_line.HasSwitch(switches::kDisablePresentationAPI))
@@ -304,6 +306,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   WebRuntimeFeatures::enablePaymentRequest(
       base::FeatureList::IsEnabled(features::kWebPayments));
 #endif
+  WebRuntimeFeatures::enablePaymentRequest(true);
 
   if (base::FeatureList::IsEnabled(features::kServiceWorkerNavigationPreload))
     WebRuntimeFeatures::enableServiceWorkerNavigationPreload(true);

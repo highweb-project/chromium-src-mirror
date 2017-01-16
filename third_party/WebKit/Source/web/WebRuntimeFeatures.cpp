@@ -368,4 +368,8 @@ void WebRuntimeFeatures::enableVideoFullscreenOrientationLock(bool enable) {
   RuntimeEnabledFeatures::setVideoFullscreenOrientationLockEnabled(enable);
 }
 
+void WebRuntimeFeatures::enableCanvas2dFixedRenderingMode(bool enable) {
+  RuntimeEnabledFeatures::setCanvas2dFixedRenderingModeEnabled(enable);
+}
+
 }  // namespace blink
