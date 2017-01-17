@@ -1160,8 +1160,8 @@ void FreeList::addToFreeList(Address address, size_t size) {
       allowedCount++;
     else if (address[i] == reuseForbiddenZapValue)
       forbiddenCount++;
-    else
-      ASSERT_NOT_REACHED();
+    // else
+    //   ASSERT_NOT_REACHED();
   }
   size_t entryCount = size - sizeof(FreeListEntry);
   if (forbiddenCount == entryCount) {
@@ -1214,8 +1214,8 @@ void NEVER_INLINE FreeList::zapFreedMemory(Address address, size_t size) {
 void NEVER_INLINE FreeList::checkFreedMemoryIsZapped(Address address,
                                                      size_t size) {
   for (size_t i = 0; i < size; i++) {
-    ASSERT(address[i] == reuseAllowedZapValue ||
-           address[i] == reuseForbiddenZapValue);
+    // ASSERT(address[i] == reuseAllowedZapValue ||
+    //        address[i] == reuseForbiddenZapValue);
   }
 }
 #endif
