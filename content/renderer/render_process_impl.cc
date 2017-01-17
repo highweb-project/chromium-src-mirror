@@ -190,6 +190,10 @@ RenderProcessImpl::RenderProcessImpl()
   SetV8FlagIfFeature(features::kSharedArrayBuffer,
                      "--harmony-sharedarraybuffer");
 
+  std::string harmony_async_flag("--harmony-async-await");
+  v8::V8::SetFlagsFromString(harmony_async_flag.c_str(),
+                               static_cast<int>(harmony_async_flag.size()));
+
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
 
