@@ -1329,4 +1329,19 @@ base::SharedMemory* RendererBlinkPlatformImpl::getSharedMemoryForWebCL(int size)
 
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+gpu::GpuChannelHost* RendererBlinkPlatformImpl::createWebVKCGPUChannelContext() {
+  RenderThreadImpl* thread = RenderThreadImpl::current();
+  thread->EstablishGpuChannelSync();
+  return thread->GetGpuChannel();
+}
+
+#if defined(OS_LINUX)
+base::SharedMemory* RendererBlinkPlatformImpl::getSharedMemoryForWebVKC(int size) {
+  return content::RenderThread::Get()->HostAllocateSharedMemoryBuffer(size).release();
+}
+#endif
+
+#endif
+
 }  // namespace content

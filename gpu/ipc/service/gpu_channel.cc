@@ -56,6 +56,11 @@
 #include "gpu/ipc/service/gpu_channel_opencl_proxy.h"
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+//vulkan implementation
+#include "gpu/native_vulkan/vulkan_implementation.h"
+#endif
+
 namespace gpu {
 namespace {
 
@@ -646,6 +651,26 @@ bool GpuChannelMessageFilter::OnMessageReceived(const IPC::Message& message) {
 	}
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  //vulkan
+  bool isNeedFastReplyWebVKCMsg = false;
+  switch(message.type()) {
+    case VulkanComputeChannelMsg_Trigger_WriteBuffer::ID:
+      isNeedFastReplyWebVKCMsg = true;
+      vkc_api_->vkcWriteBuffer();
+      break;
+    case VulkanComputeChannelMsg_Trigger_ReadBuffer::ID:
+      isNeedFastReplyWebVKCMsg = true;
+      vkc_api_->vkcReadBuffer();
+      break;
+  }
+  if(isNeedFastReplyWebVKCMsg) {
+    IPC::Message* reply = IPC::SyncMessage::GenerateReply(&message);
+    Send(reply);
+    return true;
+  }
+#endif
+
   scoped_refptr<GpuChannelMessageQueue> message_queue =
       LookupStreamByRoute(message.routing_id());
 
@@ -728,6 +753,11 @@ GpuChannel::GpuChannel(GpuChannelManager* gpu_channel_manager,
   gpu::InitializeStaticCLBindings(clApiImpl);
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  vkcApiImpl = new gpu::VKCApi();
+  filter_->setVKCApi(vkcApiImpl);
+  gpu::InitializeStaticVKCBindings(vkcApiImpl);
+#endif
 }
 
 GpuChannel::~GpuChannel() {
@@ -1162,6 +1192,81 @@ bool GpuChannel::OnControlMessageReceived(const IPC::Message& msg) {
                   OnCallGetGLContext)
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+   //Vulkan IPC Message Received
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_SetSharedHandles,
+                  OnCallVKCSetSharedHandles)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ClearSharedHandles,
+                  OnCallVKCClearSharedHandles)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateInstance,
+        OnCallVKCCreateInstance)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyInstance,
+        OnCallVKCDestroyInstance)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_EnumeratePhysicalDevice,
+        OnCallVKCEnumeratePhysicalDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyPhysicalDevice,
+        OnCallVKCDestroyPhysicalDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDevice,
+        OnCallVKCCreateDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DestroyDevice,
+        OnCallVKCDestroyDevice)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_uint,
+        OnCallVKCGetDeviceInfoUint)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_array,
+        OnCallVKCGetDeviceInfoArray)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_GetDeviceInfo_string,
+        OnCallVKCGetDeviceInfoString)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateBuffer,
+        OnCallVKCCreateBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseBuffer,
+        OnCallVKCReleaseBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_FillBuffer,
+        OnCallVKCFillBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateCommandQueue,
+        OnCallVKCCreateCommandQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseCommandQueue,
+        OnCallVKCReleaseCommandQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorSetLayout,
+        OnCallVKCCreateDescriptorSetLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorSetLayout,
+        OnCallVKCReleaseDescriptorSetLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorPool,
+        OnCallVKCCreateDescriptorPool)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorPool,
+        OnCallVKCReleaseDescriptorPool)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateDescriptorSet,
+        OnCallVKCCreateDescriptorSet)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseDescriptorSet,
+        OnCallVKCReleaseDescriptorSet)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreatePipelineLayout,
+        OnCallVKCCreatePipelineLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleasePipelineLayout,
+        OnCallVKCReleasePipelineLayout)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreateShaderModule,
+        OnCallVKCCreateShaderModule)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleaseShaderModule,
+        OnCallVKCReleaseShaderModule)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CreatePipeline,
+        OnCallVKCCreatePipeline)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_ReleasePipeline,
+        OnCallVKCReleasePipeline)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_UpdateDescriptorSets,
+        OnCallVKCUpdateDescriptorSets)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_BeginQueue,
+        OnCallVKCBeginQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_EndQueue,
+        OnCallVKCEndQueue)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_Dispatch,
+        OnCallVKCDispatch)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_PipelineBarrier,
+        OnCallVKCPipelineBarrier)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_CmdCopyBuffer,
+        OnCallVKCCmdCopyBuffer)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_QueueSubmit,
+        OnCallVKCQueueSubmit)
+  IPC_MESSAGE_HANDLER(VulkanComputeChannelMsg_DeviceWaitIdle,
+        OnCallVKCDeviceWaitIdle)
+#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -3350,6 +3455,211 @@ void GpuChannel::OnCallCtrlClearSharedHandles(
 	CLLOG(INFO) << "GpuChannel::OnCallCtrlClearSharedHandles";
 
 	*result = clApiImpl->clearSharedMemory();
+}
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+//Vulkan Function
+void GpuChannel::OnCallVKCSetSharedHandles(
+  const base::SharedMemoryHandle& data_handle,
+  const base::SharedMemoryHandle& operation_handle,
+  const base::SharedMemoryHandle& result_handle,
+  bool* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCSetSharedHandles";
+
+  *result = vkcApiImpl->setSharedMemory(data_handle, operation_handle, result_handle);
+}
+
+void GpuChannel::OnCallVKCClearSharedHandles(bool* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCClearSharedHandles";
+
+  *result = vkcApiImpl->clearSharedMemory();
+}
+
+void GpuChannel::OnCallVKCCreateInstance(
+  const std::vector<std::string>& names,
+  const std::vector<uint32_t>& versions,
+  const std::vector<std::string>& enabledLayerNames,
+  const std::vector<std::string>& enabledExtensionNames,
+  VKCPoint* vkcInstance,
+  int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCCreateInstance";
+
+  *result = vkcApiImpl->vkcCreateInstance(names, versions, enabledLayerNames, enabledExtensionNames, vkcInstance);
+}
+
+void GpuChannel::OnCallVKCDestroyInstance(const VKCPoint& vkcInstance, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCDestroyInstance " << vkcInstance;
+
+  *result = vkcApiImpl->vkcDestroyInstance(vkcInstance);
+}
+
+void GpuChannel::OnCallVKCEnumeratePhysicalDevice(const VKCPoint& vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCEnumeratePhysicalDevice " << vkcInstance;
+  *result = vkcApiImpl->vkcEnumeratePhysicalDevice(vkcInstance, physicalDeviceCount, physicalDeviceList);
+}
+
+void GpuChannel::OnCallVKCDestroyPhysicalDevice(const VKCPoint& physicalDeviceList, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCDestroyPhysicalDevice " << physicalDeviceList;
+  *result = vkcApiImpl->vkcDestroyPhysicalDevice(physicalDeviceList);
+}
+
+void GpuChannel::OnCallVKCCreateDevice(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue, int* result) {
+  VKCLOG(INFO) << "GpuCHannel::OnCallVKCCreateDevice " << vdIndex << ", " << physicalDeviceList;
+  *result = vkcApiImpl->vkcCreateDevice(vdIndex, physicalDeviceList, vkcDevice, vkcQueue);
+}
+
+void GpuChannel::OnCallVKCDestroyDevice(const VKCPoint& vkcDevice, const VKCPoint& vkcQueue, int* result) {
+  VKCLOG(INFO) << "GpuCHannel::OnCallVKCDestroyDevice";
+
+  *result = vkcApiImpl->vkcDestroyDevice(vkcDevice, vkcQueue);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoUint(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, VKCuint* data_uint, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoUint " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_uint);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoArray(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::vector<VKCuint>* data_array, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoArray " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_array);
+}
+
+void GpuChannel::OnCallVKCGetDeviceInfoString(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::string* data_string, int* result) {
+  VKCLOG(INFO) << "GpuChannel::OnCallVKCGetDeviceInfoString " << vdIndex << ", " << name;
+
+  *result = vkcApiImpl->vkcGetDeviceInfo(vdIndex, physicalDeviceList, name, data_string);
+}
+
+void GpuChannel::OnCallVKCCreateBuffer(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, const VKCuint& sizeInBytes, VKCPoint* vkcBuffer, VKCPoint* vkcMemory, int* result) {
+  VKCLOG(INFO) << "createBuffer : " << vkcDevice << ", " << sizeInBytes;
+
+  *result = vkcApiImpl->vkcCreateBuffer(vkcDevice, physicalDeviceList, vdIndex, sizeInBytes, vkcBuffer, vkcMemory);
+}
+
+void GpuChannel::OnCallVKCReleaseBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcBuffer, const VKCPoint& vkcMemory, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseBuffer : " << vkcDevice << ", " << vkcBuffer << ", " << vkcMemory;
+
+  *result = vkcApiImpl->vkcReleaseBuffer(vkcDevice, vkcBuffer, vkcMemory);
+}
+
+void GpuChannel::OnCallVKCFillBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcMemory, const std::vector<VKCuint>& uintVector, int* result) {
+  VKCLOG(INFO) << "OnCallVKCFillBuffer : " << vkcDevice << ", " << vkcMemory << ", " << uintVector[0] << ", " << uintVector[1];
+
+  *result = vkcApiImpl->vkcFillBuffer(vkcDevice, vkcMemory, uintVector);
+}
+
+void GpuChannel::OnCallVKCCreateCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, VKCPoint* vkcCMDBuffer, VKCPoint* vkcCMDPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateCommandQueue : " << vkcDevice << ", " << physicalDeviceList << ", " << vdIndex;
+
+  *result = vkcApiImpl->vkcCreateCommandQueue(vkcDevice, physicalDeviceList, vdIndex, vkcCMDBuffer, vkcCMDPool);
+}
+
+void GpuChannel::OnCallVKCReleaseCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcCMDPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseCommandQueue : " << vkcDevice << ", " << vkcCMDBuffer << ", " << vkcCMDPool;
+
+  *result = vkcApiImpl->vkcReleaseCommandQueue(vkcDevice, vkcCMDBuffer, vkcCMDPool);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorSetLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorSetLayout : " << vkcDevice << ", " << useBufferCount;
+  *result = vkcApiImpl->vkcCreateDescriptorSetLayout(vkcDevice, useBufferCount, vkcDescriptorSetLayout);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorSetLayout : " << vkcDevice << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcReleaseDescriptorSetLayout(vkcDevice, vkcDescriptorSetLayout);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorPool(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorPool : " << vkcDevice << ", " << useBufferCount;
+  *result = vkcApiImpl->vkcCreateDescriptorPool(vkcDevice, useBufferCount, vkcDescriptorPool);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorPool(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorPool : " << vkcDevice << ", " << vkcDescriptorPool;
+  *result = vkcApiImpl->vkcReleaseDescriptorPool(vkcDevice, vkcDescriptorPool);
+}
+
+void GpuChannel::OnCallVKCCreateDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateDescriptorSet : " << vkcDevice << ", " << vkcDescriptorPool << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcCreateDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSetLayout, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCReleaseDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseDescriptorSet : " << vkcDevice << ", " <<vkcDescriptorPool << ", " << vkcDescriptorSet;
+  *result = vkcApiImpl->vkcReleaseDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCCreatePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreatePipelineLayout : " << vkcDevice << ", " << vkcDescriptorSetLayout;
+  *result = vkcApiImpl->vkcCreatePipelineLayout(vkcDevice, vkcDescriptorSetLayout, vkcPipelineLayout);
+}
+
+void GpuChannel::OnCallVKCReleasePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleasePipelineLyaout : " << vkcDevice << ", " << vkcPipelineLayout;
+  *result = vkcApiImpl->vkcReleasePipelineLayout(vkcDevice, vkcPipelineLayout);
+}
+
+void GpuChannel::OnCallVKCCreateShaderModule(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreateShaderModule : " << vkcDevice << ", " << shaderPath;
+  *result = vkcApiImpl->vkcCreateShaderModule(vkcDevice, shaderPath, vkcShaderModule);
+}
+void GpuChannel::OnCallVKCReleaseShaderModule(const VKCPoint& vkcDevice, const VKCPoint& vkcShaderModule, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleaseShaderModule : " << vkcDevice << ", " << vkcShaderModule;
+  *result = vkcApiImpl->vkcReleaseShaderModule(vkcDevice, vkcShaderModule);
+}
+
+void GpuChannel::OnCallVKCCreatePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCreatePipeline : " << vkcDevice << ", " << vkcPipelineLayout << ", " << vkcShaderModule;
+  *result = vkcApiImpl->vkcCreatePipeline(vkcDevice, vkcPipelineLayout, vkcShaderModule, vkcPipelineCache, vkcPipeline);
+}
+
+void GpuChannel::OnCallVKCReleasePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineCache, const VKCPoint& vkcPipeline, int* result) {
+  VKCLOG(INFO) << "OnCallVKCReleasePipeline : " << vkcDevice << ", " << vkcPipelineCache << ", " << vkcPipeline;
+  *result = vkcApiImpl->vkcReleasePipeline(vkcDevice, vkcPipelineCache, vkcPipeline);
+}
+
+void GpuChannel::OnCallVKCUpdateDescriptorSets(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSet, const std::vector<VKCPoint>& bufferVector, int* result) {
+  VKCLOG(INFO) << "OnCallVKCUpdateDescriptorSets : " << vkcDevice << ", " << vkcDescriptorSet << ", "  << bufferVector.size();
+  *result = vkcApiImpl->vkcUpdateDescriptorSets(vkcDevice, vkcDescriptorSet, bufferVector);
+}
+
+void GpuChannel::OnCallVKCBeginQueue(const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcPipeline, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcDescriptorSet, int* result) {
+  VKCLOG(INFO) << "OnCallVKCBeginQueue : " << vkcCMDBuffer << ", " << vkcPipeline << ", " << vkcPipelineLayout << ", " << vkcDescriptorSet;
+  *result = vkcApiImpl->vkcBeginQueue(vkcCMDBuffer, vkcPipeline, vkcPipelineLayout, vkcDescriptorSet);
+}
+
+void GpuChannel::OnCallVKCEndQueue(const VKCPoint& vkcCMDBuffer, int* result) {
+  VKCLOG(INFO) << "OnCallVKCEndQueue : " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcEndQueue(vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCDispatch(const VKCPoint& vkcCMDBuffer, const VKCuint& workGroupX, const VKCuint& workGroupY, const VKCuint& workGroupZ, int* result) {
+  // VKCLOG(INFO) << "OnCallVKCDispatch : " << vkcCMDBuffer << ", " << workGroupX;
+  *result = vkcApiImpl->vkcDispatch(vkcCMDBuffer, workGroupX, workGroupY, workGroupZ);
+}
+
+void GpuChannel::OnCallVKCPipelineBarrier(const VKCPoint& vkcCMDBuffer, int* result) {
+  // VKCLOG(INFO) << "OnCallVKCPipelineBarrier : " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcPipelineBarrier(vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCCmdCopyBuffer(const VKCPoint& vkcCMDBuffer, const VKCPoint& srcBuffer, const VKCPoint& dstBuffer, const VKCuint& copySize, int* result) {
+  VKCLOG(INFO) << "OnCallVKCCmdCopyBuffer : " << vkcCMDBuffer << ", " << srcBuffer << ", " << dstBuffer << ", " << copySize;
+  *result = vkcApiImpl->vkcCmdCopyBuffer(vkcCMDBuffer, srcBuffer, dstBuffer, copySize);
+}
+
+void GpuChannel::OnCallVKCQueueSubmit(const VKCPoint& vkcQueue, const VKCPoint& vkcCMDBuffer, int* result) {
+  VKCLOG(INFO) << "OnCallVKCQueueSubmit : " << vkcQueue << ", " << vkcCMDBuffer;
+  *result = vkcApiImpl->vkcQueueSubmit(vkcQueue, vkcCMDBuffer);
+}
+
+void GpuChannel::OnCallVKCDeviceWaitIdle(const VKCPoint& vkcDevice, int* result) {
+  VKCLOG(INFO) << "OnCallVKCDeviceWaitIdle : " << vkcDevice;
+  *result = vkcApiImpl->vkcDeviceWaitIdle(vkcDevice);
 }
 #endif
 

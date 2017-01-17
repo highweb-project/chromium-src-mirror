@@ -1,0 +1,7 @@
+include_rules = [
+  "+third_party/vulkan/include/vulkan",
+  "+base",
+  "+base/memory",
+  "+content/common",
+  "+gpu/command_buffer",
+]

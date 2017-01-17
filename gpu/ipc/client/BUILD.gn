@@ -67,4 +67,7 @@ source_set("ipc_client_sources") {
   if (enable_highweb_webcl) {
     deps += [ "//gpu/opencl:opencl_sources", ]
   }
+  if (enable_highweb_webvkc) {
+    deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
+  }
 }

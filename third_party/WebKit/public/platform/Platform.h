@@ -688,6 +688,16 @@ class BLINK_PLATFORM_EXPORT Platform {
   #endif
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  // WebVKC create gpu channel context
+  virtual gpu::GpuChannelHost* createWebVKCGPUChannelContext() {return nullptr;}
+
+  //WebVKC Shared Memory API-----------------------------------------------
+  #if defined(OS_LINUX)
+  virtual base::SharedMemory* getSharedMemoryForWebVKC(int size) {return nullptr;};
+  #endif
+#endif
+
  protected:
   Platform();
   virtual ~Platform() {}

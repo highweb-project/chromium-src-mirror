@@ -34,6 +34,9 @@
 #if defined(ENABLE_HIGHWEB_WEBCL)
 #include "core/dom/custom/WebCL/WebCLException.h"
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
+#endif
 
 namespace blink {
 
@@ -90,6 +93,9 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(
 #if defined(ENABLE_HIGHWEB_WEBCL)
   WebCLException* webclException = nullptr;
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  WebVKCException* webvkcException = nullptr;
+#endif
   v8::Local<v8::Object> exceptionObj;
   v8::Local<v8::Value> error;
 
@@ -103,10 +109,26 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(
   }
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBCL) && defined(ENABLE_HIGHWEB_WEBVKC)
+  else if(WebVKCException::isWebVKCException(exceptionCode)) {
+#elif defined(ENABLE_HIGHWEB_WEBVKC)
+  if (WebVKCException::isWebVKCException(exceptionCode)) {
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+    webvkcException = WebVKCException::create(exceptionCode, sanitizedMessage, unsanitizedMessage);
+    exceptionObj =
+        toV8(webvkcException, isolate->GetCurrentContext()->Global(), isolate)
+            .As<v8::Object>();
+    error = v8::Exception::Error(v8String(isolate, webvkcException->message()));
+  }
+  else {
+#else
 #if defined(ENABLE_HIGHWEB_WEBCL)
   else {
 #else
   {
+#endif
 #endif
 
     domException = DOMException::create(exceptionCode, sanitizedMessage, unsanitizedMessage);

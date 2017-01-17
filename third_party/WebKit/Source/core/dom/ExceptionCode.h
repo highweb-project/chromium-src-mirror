@@ -94,6 +94,8 @@ enum {
 
   // WebCL
   WebCLError, //36
+
+  WebVulkanError = WebCLError + 54,
 };
 
 enum V8ErrorType {

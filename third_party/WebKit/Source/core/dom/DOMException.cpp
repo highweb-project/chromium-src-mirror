@@ -33,6 +33,9 @@
 #if defined(ENABLE_HIGHWEB_WEBCL)
 #include "core/dom/custom/WebCL/WebCLException.h"
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
+#endif
 
 namespace blink {
 
@@ -161,6 +164,10 @@ static const struct CoreException {
     // WebCL
     { "WebCLError", "The WebCL operation failed for an operation-specific reason", 0 },
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+    // WebVKC
+    { "WebVulkanError", "The WebVKC operation failed for an operation-specific reason", 0 },
+#endif
 };
 
 static const CoreException* getErrorEntry(ExceptionCode ec) {
@@ -195,6 +202,17 @@ DOMException* DOMException::create(ExceptionCode ec,
 #if defined(ENABLE_HIGHWEB_WEBCL)
   if(ec >= WebCLError && ec <= (WebCLError+(WebCLException::WebCLExceptionMax-1))) {
      return new DOMException(ec, WebCLException::getErrorName(ec), WebCLException::getErrorMessage(ec), unsanitizedMessage);
+  }
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBCL) && defined(ENABLE_HIGHWEB_WEBVKC)
+  else if(ec >= WebVulkanError && ec <= (WebVulkanError + (WebVKCException::WebVKCExceptionMax - 1))) {
+#elif defined(ENABLE_HIGHWEB_WEBVKC)
+  if(ec >= WebVulkanError && ec <= (WebVulkanError + (WebVKCException::WebVKCExceptionMax - 1))) {
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+     return new DOMException(ec, WebVKCException::getErrorName(ec), WebVKCException::getErrorMessage(ec), unsanitizedMessage);
   }
 #endif
   const CoreException* entry = getErrorEntry(ec);

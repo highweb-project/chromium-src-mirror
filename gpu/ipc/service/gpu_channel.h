@@ -34,6 +34,9 @@
 #if defined(ENABLE_HIGHWEB_WEBCL)
 #include "gpu/opencl/opencl_include.h"
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "gpu/native_vulkan/vulkan_include.h"
+#endif
 
 struct GPUCreateCommandBufferConfig;
 
@@ -58,6 +61,9 @@ class GpuWatchdogThread;
 #if defined(ENABLE_HIGHWEB_WEBCL)
 class CLApi;
 class OpenCLProxy;
+#endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+class VKCApi;
 #endif
 
 // Encapsulates an IPC channel between the GPU process and one renderer
@@ -830,6 +836,58 @@ class GPU_EXPORT GpuChannel
 
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  // Vulkan Function
+  void OnCallVKCSetSharedHandles(
+    const base::SharedMemoryHandle& data_handle,
+    const base::SharedMemoryHandle& operation_handle,
+    const base::SharedMemoryHandle& result_handle,
+    bool* result);
+
+  void OnCallVKCClearSharedHandles(bool* result);
+
+  void OnCallVKCCreateInstance(
+    const std::vector<std::string>& names,
+    const std::vector<uint32_t>& versions,
+    const std::vector<std::string>& enabledLayerNames,
+    const std::vector<std::string>& enabledExtensionNames,
+    VKCPoint* vkcInstance,
+    int* result);
+
+  void OnCallVKCDestroyInstance(const VKCPoint& vkcInstance, int* result);
+  void OnCallVKCEnumeratePhysicalDevice(const VKCPoint& vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList, int* result);
+  void OnCallVKCDestroyPhysicalDevice(const VKCPoint& physicalDeviceList, int* result);
+  void OnCallVKCCreateDevice(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue, int* result);
+  void OnCallVKCDestroyDevice(const VKCPoint& vkcDevice, const VKCPoint& vkcQueue, int* result);
+  void OnCallVKCGetDeviceInfoUint(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, VKCuint* data_uint, int* result);
+  void OnCallVKCGetDeviceInfoArray(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::vector<VKCuint>* data_array, int* result);
+  void OnCallVKCGetDeviceInfoString(const VKCuint& vdIndex, const VKCPoint& physicalDeviceList, const VKCuint& name, std::string* data_string, int* result);
+  void OnCallVKCCreateBuffer(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, const VKCuint& sizeInBytes, VKCPoint* vkcBuffer, VKCPoint* vkcMemory, int* result);
+  void OnCallVKCReleaseBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcBuffer, const VKCPoint& vkcMemory, int* result);
+  void OnCallVKCFillBuffer(const VKCPoint& vkcDevice, const VKCPoint& vkcMemory, const std::vector<VKCuint>& uintVector, int* result);
+  void OnCallVKCCreateCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& physicalDeviceList, const VKCuint& vdIndex, VKCPoint* vkcCMDBuffer, VKCPoint* vkcCMDPool, int* result);
+  void OnCallVKCReleaseCommandQueue(const VKCPoint& vkcDevice, const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcCMDPool, int* result);
+  void OnCallVKCCreateDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorSetLayout, int* result);
+  void OnCallVKCReleaseDescriptorSetLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, int* result);
+  void OnCallVKCCreateDescriptorPool(const VKCPoint& vkcDevice, const VKCuint& useBufferCount, VKCPoint* vkcDescriptorPool, int* result);
+  void OnCallVKCReleaseDescriptorPool(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, int* result);
+  void OnCallVKCCreateDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcDescriptorSet, int* result);
+  void OnCallVKCReleaseDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSet, int* result);
+  void OnCallVKCCreatePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout, int* result);
+  void OnCallVKCReleasePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, int* result);
+  void OnCallVKCCreateShaderModule(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, int* result);
+  void OnCallVKCReleaseShaderModule(const VKCPoint& vkcDevice, const VKCPoint& vkcShaderModule, int* result);
+  void OnCallVKCCreatePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline, int* result);
+  void OnCallVKCReleasePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineCache, const VKCPoint& vkcPipeline, int* result);
+  void OnCallVKCUpdateDescriptorSets(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSet, const std::vector<VKCPoint>& bufferVector, int* result);
+  void OnCallVKCBeginQueue(const VKCPoint& vkcCMDBuffer, const VKCPoint& vkcPipeline, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcDescriptorSet, int* result);
+  void OnCallVKCEndQueue(const VKCPoint& vkcCMDBuffer, int* result);
+  void OnCallVKCDispatch(const VKCPoint& vkcCMDBuffer, const VKCuint& workGroupX, const VKCuint& workGroupY, const VKCuint& workGroupZ, int* result);
+  void OnCallVKCPipelineBarrier(const VKCPoint& vkcCMDBuffer, int* result);
+  void OnCallVKCCmdCopyBuffer(const VKCPoint& vkcCMDBuffer, const VKCPoint& srcBuffer, const VKCPoint& dstBuffer, const VKCuint& copySize, int* result);
+  void OnCallVKCQueueSubmit(const VKCPoint& vkcQueue, const VKCPoint& vkcCMDBuffer, int* result);
+  void OnCallVKCDeviceWaitIdle(const VKCPoint& vkcDevice, int* result);
+#endif
   // Message handlers for control messages.
   void OnCreateCommandBuffer(const GPUCreateCommandBufferConfig& init_params,
                              int32_t route_id,
@@ -908,6 +966,9 @@ class GPU_EXPORT GpuChannel
   gpu::CLApi* clApiImpl;
   gpu::OpenCLProxy* opencl_proxy;
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  gpu::VKCApi* vkcApiImpl;
+#endif
 
   // Member variables should appear before the WeakPtrFactory, to ensure
   // that any WeakPtrs to Controller are invalidated before its members
@@ -952,6 +1013,9 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
 #if defined(ENABLE_HIGHWEB_WEBCL)
   void setCLApi(gpu::CLApi* api) { cl_api_ = api; };
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  void setVKCApi(gpu::VKCApi* api) { vkc_api_ = api; };
+#endif
 
  protected:
   ~GpuChannelMessageFilter() override;
@@ -970,6 +1034,9 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
   std::vector<scoped_refptr<IPC::MessageFilter>> channel_filters_;
 #if defined(ENABLE_HIGHWEB_WEBCL)
   gpu::CLApi* cl_api_;
+#endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  gpu::VKCApi* vkc_api_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(GpuChannelMessageFilter);

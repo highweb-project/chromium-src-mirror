@@ -600,6 +600,9 @@ source_set("blink_headers") {
   if (enable_highweb_webcl) {
     defines += [ "ENABLE_HIGHWEB_WEBCL", ]
   }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
+  }
   if (enable_highweb_deviceapi) {
     sources += [
       "platform/modules/device_api/WebDeviceApiPermissionCheckClient.h",

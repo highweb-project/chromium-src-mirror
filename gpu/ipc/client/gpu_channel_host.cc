@@ -3244,5 +3244,617 @@ bool GpuChannelHost::webcl_ctrlTriggerSharedOperation(int operation)
 #endif
 //if enable_highweb_webcl build flag
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+//vulkan
+bool webvkc_SetSharedHandles(
+    GpuChannelHost* channel_webvkc,
+    base::SharedMemoryHandle data_handle,
+    base::SharedMemoryHandle operation_handle,
+    base::SharedMemoryHandle result_handle)
+{
+  return channel_webvkc->webvkc_SetSharedHandles(data_handle, operation_handle, result_handle);
+}
+
+bool GpuChannelHost::webvkc_SetSharedHandles(
+    base::SharedMemoryHandle data_handle,
+    base::SharedMemoryHandle operation_handle,
+    base::SharedMemoryHandle result_handle)
+{
+  bool result_inter = false;
+
+  if (!Send(new VulkanComputeChannelMsg_SetSharedHandles(
+           data_handle,
+           operation_handle,
+           result_handle,
+           &result_inter))) {
+    return false;
+  }
+
+  return result_inter;
+}
+
+bool webvkc_ClearSharedHandles(
+    GpuChannelHost* channel_webvkc)
+{
+  return channel_webvkc->webvkc_ClearSharedHandles();
+}
+
+bool GpuChannelHost::webvkc_ClearSharedHandles()
+{
+  bool result_inter = false;
+
+  if (!Send(new VulkanComputeChannelMsg_ClearSharedHandles(
+           &result_inter))) {
+    return false;
+  }
+
+  return result_inter;
+}
+
+bool webvkc_TriggerSharedOperation(GpuChannelHost* channel_webvkc, int operation)
+{
+  return channel_webvkc->webvkc_TriggerSharedOperation(operation);
+}
+
+bool GpuChannelHost::webvkc_TriggerSharedOperation(int operation)
+{
+  switch(operation) {
+    case VULKAN_OPERATION_TYPE::VKC_WRITE_BUFFER: {
+      if (!Send(new VulkanComputeChannelMsg_Trigger_WriteBuffer())) {
+        return false;
+      }
+    }
+    break;
+    case VULKAN_OPERATION_TYPE::VKC_READ_BUFFER: {
+      if (!Send(new VulkanComputeChannelMsg_Trigger_ReadBuffer())) {
+        return false;
+      }
+    }
+    break;
+    default:
+      return false;
+  }
+
+  return true;
+}
+
+VKCResult webvkc_createInstance(GpuChannelHost* channel_webvkc, std::string& applicationName, std::string& engineName,
+    uint32_t& applicationVersion, uint32_t& engineVersion, uint32_t& apiVersion,
+    std::vector<std::string>& enabledLayerNames, std::vector<std::string>& enabledExtensionNames, VKCPoint* vkcInstance) {
+  return channel_webvkc->webvkc_createInstance(applicationName, engineName, applicationVersion,
+    engineVersion, apiVersion, enabledLayerNames, enabledExtensionNames, vkcInstance);
+}
+
+
+VKCResult GpuChannelHost::webvkc_createInstance(std::string& applicationName, std::string& engineName,
+    uint32_t& applicationVersion, uint32_t& engineVersion, uint32_t& apiVersion,
+    std::vector<std::string>& enabledLayerNames, std::vector<std::string>& enabledExtensionNames, VKCPoint* vkcInstance) {
+  VKCLOG(INFO) << "GpuChannelHost::webvkc_createInstance";
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  std::vector<std::string> names;
+  names.push_back(applicationName);
+  names.push_back(engineName);
+
+  std::vector<uint32_t> versions;
+  versions.push_back(applicationVersion);
+  versions.push_back(engineVersion);
+  versions.push_back(apiVersion);
+
+  if (!Send(new VulkanComputeChannelMsg_CreateInstance(
+           names, versions, enabledLayerNames, enabledExtensionNames, vkcInstance, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_destroyInstance(GpuChannelHost* channel_webvkc, VKCPoint* vkcInstance) {
+  return channel_webvkc->webvkc_destroyInstance(vkcInstance);
+}
+
+VKCResult GpuChannelHost::webvkc_destroyInstance(VKCPoint* vkcInstance) {
+  VKCLOG(INFO) << "vkcInstance : " << vkcInstance << ", " << *vkcInstance;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_DestroyInstance(*vkcInstance, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_enumeratePhysicalDeviceCount(GpuChannelHost* channel_webvkc, VKCPoint* vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList) {
+  return channel_webvkc->webvkc_enumeratePhysicalDeviceCount(vkcInstance, physicalDeviceCount, physicalDeviceList);
+}
+
+VKCResult GpuChannelHost::webvkc_enumeratePhysicalDeviceCount(VKCPoint* vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList) {
+  VKCLOG(INFO) << "getPhysicalDeviceCount";
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_EnumeratePhysicalDevice(*vkcInstance, physicalDeviceCount, physicalDeviceList, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_destroyPhysicalDevice(GpuChannelHost* channel_webvkc, VKCPoint* physicalDeviceList) {
+  return channel_webvkc->webvkc_destroyPhysicalDevice(physicalDeviceList);
+}
+
+VKCResult GpuChannelHost::webvkc_destroyPhysicalDevice(VKCPoint* physicalDeviceList) {
+  VKCLOG(INFO) << "webvkc_destroyPhysicalDevice";
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_DestroyPhysicalDevice(*physicalDeviceList, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createDevice(GpuChannelHost* channel_webvkc, VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue) {
+  return channel_webvkc->webvkc_createDevice(vdIndex, physicalDeviceList, vkcDevice, vkcQueue);
+}
+
+VKCResult GpuChannelHost::webvkc_createDevice(VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue) {
+  VKCLOG(INFO) << "webvkc_createDevice " << vdIndex << ", " << physicalDeviceList;
+
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateDevice(vdIndex, physicalDeviceList, vkcDevice, vkcQueue, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_destroyDevice(GpuChannelHost* channel_webvkc, VKCPoint* vkcDevice, VKCPoint* vkcQueue) {
+  return channel_webvkc->webvkc_destroyDevice(vkcDevice, vkcQueue);
+}
+
+
+VKCResult GpuChannelHost::webvkc_destroyDevice(VKCPoint* vkcDevice, VKCPoint* vkcQueue) {
+  VKCLOG(INFO) << "vkcDevice : " << vkcDevice << ", " << *vkcDevice;
+  VKCLOG(INFO) << "vkcQueue : " << vkcQueue << ", " << *vkcQueue;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_DestroyDevice(*vkcDevice, *vkcQueue, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_getDeviceInfo(GpuChannelHost* channel_webvkc, VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCenum& name, void* data) {
+  return channel_webvkc->webvkc_getDeviceInfo(vdIndex, physicalDeviceList, name, data);
+}
+
+VKCResult GpuChannelHost::webvkc_getDeviceInfo(VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCenum& name, void* data) {
+  VKCLOG(INFO) << "getDeviceInfo : " << vdIndex << ", " << name;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  uint32_t data_uint = 0;
+  std::string data_string;
+  std::vector<VKCuint> data_array;
+
+  switch(name) {
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_apiVersion:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_driverVersion:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_vendorID:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_deviceID:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_deviceType:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_maxComputeWorkGroupInvocations:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_maxMemoryAllocationCount: {
+      if (!Send(new VulkanComputeChannelMsg_GetDeviceInfo_uint(vdIndex, physicalDeviceList, name, &data_uint, &result_inter))) {
+        return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+      }
+      if (result_inter == VK_SUCCESS) {
+        *((VKCuint*)data) = data_uint;
+      }
+      break;
+    }
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_maxComputeWorkGroupCount:
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_maxComputeWorkGroupSize: {
+      if (!Send(new VulkanComputeChannelMsg_GetDeviceInfo_array(vdIndex, physicalDeviceList, name, &data_array, &result_inter))) {
+        return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+      }
+      if (result_inter == VK_SUCCESS) {
+        ((VKCuint*)data)[0] = data_array[0];
+        ((VKCuint*)data)[1] = data_array[1];
+        ((VKCuint*)data)[2] = data_array[2];
+      }
+      break;
+    }
+    case VULKAN_DEVICE_GETINFO_NAME_TABLE::VKC_deviceName: {
+      if (!Send(new VulkanComputeChannelMsg_GetDeviceInfo_string(vdIndex, physicalDeviceList, name, &data_string, &result_inter))) {
+        return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+      }
+      if (result_inter == VK_SUCCESS) {
+        strcpy((char*)data, data_string.c_str());
+      }
+      break;
+    }
+  }
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createBuffer(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& physicalDeviceList, VKCuint& vdIndex, VKCuint& sizeInBytes, VKCPoint* vkcBuffer, VKCPoint* vkcMemory) {
+  return channel_webvkc->webvkc_createBuffer(vkcDevice, physicalDeviceList, vdIndex, sizeInBytes, vkcBuffer, vkcMemory);
+}
+
+VKCResult GpuChannelHost::webvkc_createBuffer(VKCPoint& vkcDevice, VKCPoint& physicalDeviceList, VKCuint& vdIndex, VKCuint& sizeInBytes, VKCPoint* vkcBuffer, VKCPoint* vkcMemory) {
+  VKCLOG(INFO) << "createBuffer : " << vkcDevice << ", " << sizeInBytes;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateBuffer(vkcDevice, physicalDeviceList, vdIndex, sizeInBytes, vkcBuffer, vkcMemory, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseBuffer(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcBuffer, VKCPoint& vkcMemory ) {
+  return channel_webvkc->webvkc_releaseBuffer(vkcDevice, vkcBuffer, vkcMemory);
+}
+VKCResult GpuChannelHost::webvkc_releaseBuffer(VKCPoint& vkcDevice, VKCPoint& vkcBuffer, VKCPoint& vkcMemory) {
+  VKCLOG(INFO) << "releaseBuffer : " << vkcDevice << ", " << vkcBuffer << ", " << vkcMemory;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseBuffer(vkcDevice, vkcBuffer, vkcMemory, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_fillBuffer(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcMemory, std::vector<VKCuint>& uintVector) {
+  return channel_webvkc->webvkc_fillBuffer(vkcDevice, vkcMemory, uintVector);
+}
+
+VKCResult GpuChannelHost::webvkc_fillBuffer(VKCPoint& vkcDevice, VKCPoint& vkcMemory, std::vector<VKCuint>& uintVector) {
+  VKCLOG(INFO) << "webvkc_fillBuffer : " << vkcDevice << ", " << vkcMemory << ", " << uintVector[0] << ", " << uintVector[1] << ", " << uintVector[2];
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_FillBuffer(vkcDevice, vkcMemory, uintVector, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createCommandQueue(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& physicalDeviceList, VKCuint& vdIndex, VKCPoint* vkcCMDBuffer, VKCPoint* vkcCMDPool) {
+  return channel_webvkc->webvkc_createCommandQueue(vkcDevice, physicalDeviceList, vdIndex, vkcCMDBuffer, vkcCMDPool);
+}
+
+VKCResult GpuChannelHost::webvkc_createCommandQueue(VKCPoint& vkcDevice, VKCPoint& physicalDeviceList, VKCuint& vdIndex, VKCPoint* vkcCMDBuffer, VKCPoint* vkcCMDPool) {
+  VKCLOG(INFO) << "webvkc_createCommandQueue : " << vkcDevice << ", " << physicalDeviceList << ", " << vdIndex;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateCommandQueue(vkcDevice, physicalDeviceList, vdIndex, vkcCMDBuffer, vkcCMDPool, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseCommandQueue(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcCMDBuffer, VKCPoint& vkcCMDPool) {
+  return channel_webvkc->webvkc_releaseCommandQueue(vkcDevice, vkcCMDBuffer, vkcCMDPool);
+}
+
+VKCResult GpuChannelHost::webvkc_releaseCommandQueue(VKCPoint& vkcDevice, VKCPoint& vkcCMDBuffer, VKCPoint& vkcCMDPool) {
+  VKCLOG(INFO) << "webvkc_releaseCommandQueue : " << vkcDevice << ", " << vkcCMDBuffer << ", " << vkcCMDPool;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseCommandQueue(vkcDevice, vkcCMDBuffer, vkcCMDPool, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createDescriptorSetLayout(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCuint& useBufferCount, VKCPoint* vkcDescriptorSetLayout) {
+  return channel_webvkc->webvkc_createDescriptorSetLayout(vkcDevice, useBufferCount, vkcDescriptorSetLayout);
+}
+
+VKCResult GpuChannelHost::webvkc_createDescriptorSetLayout(VKCPoint& vkcDevice, VKCuint& useBufferCount, VKCPoint* vkcDescriptorSetLayout) {
+  VKCLOG(INFO) << "webvkc_createDescriptorSetLayout : " << vkcDevice << ", " << useBufferCount << ", " << vkcDescriptorSetLayout;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateDescriptorSetLayout(vkcDevice, useBufferCount, vkcDescriptorSetLayout, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseDescriptorSetLayout(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSetLayout) {
+  return channel_webvkc->webvkc_releaseDescriptorSetLayout(vkcDevice, vkcDescriptorSetLayout);
+}
+
+VKCResult GpuChannelHost::webvkc_releaseDescriptorSetLayout(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSetLayout) {
+  VKCLOG(INFO) << "webvkc_releaseDescriptorSetLayout : " << vkcDevice << vkcDescriptorSetLayout;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseDescriptorSetLayout(vkcDevice, vkcDescriptorSetLayout, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createDescriptorPool(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCuint& useBufferCount, VKCPoint* vkcDescriptorPool) {
+  return channel_webvkc->webvkc_createDescriptorPool(vkcDevice, useBufferCount, vkcDescriptorPool);
+}
+
+VKCResult GpuChannelHost::webvkc_createDescriptorPool(VKCPoint& vkcDevice, VKCuint& useBufferCount, VKCPoint* vkcDescriptorPool) {
+  VKCLOG(INFO) << "webvkc_createDescriptorPool : " << vkcDevice << ", " << useBufferCount << ", " << vkcDescriptorPool;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateDescriptorPool(vkcDevice, useBufferCount, vkcDescriptorPool, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseDescriptorPool(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool) {
+  return channel_webvkc->webvkc_releaseDescriptorPool(vkcDevice, vkcDescriptorPool);
+}
+
+VKCResult GpuChannelHost::webvkc_releaseDescriptorPool(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool) {
+  VKCLOG(INFO) << "webvkc_releaseDescriptorPool : " << vkcDevice << ", " << vkcDescriptorPool;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseDescriptorPool(vkcDevice, vkcDescriptorPool, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createDescriptorSet(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool, VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcDescriptorSet) {
+  return channel_webvkc->webvkc_createDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSetLayout, vkcDescriptorSet);
+}
+
+VKCResult GpuChannelHost::webvkc_createDescriptorSet(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool, VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcDescriptorSet) {
+  VKCLOG(INFO) << "webvkc_createDescriptorSet : " << vkcDevice << ", " << vkcDescriptorPool << ", " << vkcDescriptorSetLayout;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSetLayout, vkcDescriptorSet, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseDescriptorSet(GpuChannelHost* channel_webvkc, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool, VKCPoint& vkcDescriptorSet) {
+  return channel_webvkc->webvkc_releaseDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSet);
+}
+
+VKCResult GpuChannelHost::webvkc_releaseDescriptorSet(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorPool, VKCPoint& vkcDescriptorSet) {
+  VKCLOG(INFO) << "webvkc_releaseDescriptorSet : " << vkcDevice << ", " << vkcDescriptorPool << ", " << vkcDescriptorSet;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseDescriptorSet(vkcDevice, vkcDescriptorPool, vkcDescriptorSet, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createPipelineLayout(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout) {
+  return webvkc_channel_->webvkc_createPipelineLayout(vkcDevice, vkcDescriptorSetLayout, vkcPipelineLayout);
+}
+
+VKCResult GpuChannelHost::webvkc_createPipelineLayout(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout) {
+  VKCLOG(INFO) << "webvkc_createPipelineLayout : " << vkcDevice << ", " << vkcDescriptorSetLayout << ", " << vkcPipelineLayout;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreatePipelineLayout(vkcDevice, vkcDescriptorSetLayout, vkcPipelineLayout, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releasePipelineLayout(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcPipelineLayout) {
+  return webvkc_channel_->webvkc_releasePipelineLayout(vkcDevice, vkcPipelineLayout);
+}
+
+VKCResult GpuChannelHost::webvkc_releasePipelineLayout(VKCPoint& vkcDevice, VKCPoint& vkcPipelineLayout) {
+  VKCLOG(INFO) << "webvkc_releasePipelineLayout : " << vkcDevice << ", " << vkcPipelineLayout;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleasePipelineLayout(vkcDevice, vkcPipelineLayout, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createShaderModule(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, std::string& shaderPath, VKCPoint* vkcShaderModule) {
+  return webvkc_channel_->webvkc_createShaderModule(vkcDevice, shaderPath, vkcShaderModule);
+}
+VKCResult GpuChannelHost::webvkc_createShaderModule(VKCPoint& vkcDevice, std::string& shaderPath, VKCPoint* vkcShaderModule) {
+  VKCLOG(INFO) << "webvkc_createShaderModule : " << vkcDevice << ", " << shaderPath;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreateShaderModule(vkcDevice, shaderPath, vkcShaderModule, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releaseShaderModule(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcShaderModule) {
+  return webvkc_channel_->webvkc_releaseShaderModule(vkcDevice, vkcShaderModule);
+}
+
+VKCResult GpuChannelHost::webvkc_releaseShaderModule(VKCPoint& vkcDevice, VKCPoint& vkcShaderModule) {
+  VKCLOG(INFO) << "webvkc_releaseShaderModule : " << vkcDevice << ", " << vkcShaderModule;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleaseShaderModule(vkcDevice, vkcShaderModule, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_createPipeline(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcPipelineLayout, VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline) {
+  return webvkc_channel_->webvkc_createPipeline(vkcDevice, vkcPipelineLayout, vkcShaderModule, vkcPipelineCache, vkcPipeline);
+}
+
+VKCResult GpuChannelHost::webvkc_createPipeline(VKCPoint& vkcDevice, VKCPoint& vkcPipelineLayout, VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline) {
+  VKCLOG(INFO) << "webvkc_createPipeline : " << vkcDevice << ", " << vkcPipelineLayout << ", " << vkcShaderModule;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CreatePipeline(vkcDevice, vkcPipelineLayout, vkcShaderModule, vkcPipelineCache, vkcPipeline, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_releasePipeline(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcPipelineCache, VKCPoint& vkcPipeline) {
+  return webvkc_channel_->webvkc_releasePipeline(vkcDevice, vkcPipelineCache, vkcPipeline);
+}
+
+VKCResult GpuChannelHost::webvkc_releasePipeline(VKCPoint& vkcDevice, VKCPoint& vkcPipelineCache, VKCPoint& vkcPipeline) {
+  VKCLOG(INFO) << "webvkc_releasePipeline : " << vkcDevice << ", " << vkcPipelineCache << ", " << vkcPipeline;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_ReleasePipeline(vkcDevice, vkcPipelineCache, vkcPipeline, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_updateDescriptorSets(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSet, std::vector<VKCPoint>& bufferVector) {
+  return webvkc_channel_->webvkc_updateDescriptorSets(vkcDevice, vkcDescriptorSet, bufferVector);
+}
+VKCResult GpuChannelHost::webvkc_updateDescriptorSets(VKCPoint& vkcDevice, VKCPoint& vkcDescriptorSet, std::vector<VKCPoint>& bufferVector) {
+  VKCLOG(INFO) << "webvkc_updateDescriptorSets : " << vkcDevice << ", " << vkcDescriptorSet << ", " << bufferVector.size();
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_UpdateDescriptorSets(vkcDevice, vkcDescriptorSet, bufferVector, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_beginQueue(GpuChannelHost* webvkc_channel_, VKCPoint& vkcCMDBuffer, VKCPoint vkcPipeline, VKCPoint vkcPipelineLayout, VKCPoint vkcDescriptorSet) {
+  return webvkc_channel_->webvkc_beginQueue(vkcCMDBuffer, vkcPipeline, vkcPipelineLayout, vkcDescriptorSet);
+}
+
+VKCResult GpuChannelHost::webvkc_beginQueue(VKCPoint& vkcCMDBuffer, VKCPoint vkcPipeline, VKCPoint vkcPipelineLayout, VKCPoint vkcDescriptorSet) {
+  VKCLOG(INFO) << "webvkc_beginQueue : " << vkcCMDBuffer << ", " << vkcPipeline << ", " << vkcPipelineLayout << ", " << vkcDescriptorSet;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_BeginQueue(vkcCMDBuffer, vkcPipeline, vkcPipelineLayout, vkcDescriptorSet, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_endQueue(GpuChannelHost* webvkc_channel_, VKCPoint& vkcCMDBuffer) {
+  return webvkc_channel_->webvkc_endQueue(vkcCMDBuffer);
+}
+
+VKCResult GpuChannelHost::webvkc_endQueue(VKCPoint& vkcCMDBuffer) {
+  VKCLOG(INFO) << "webvkc_endQueue : " << vkcCMDBuffer;
+
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_EndQueue(vkcCMDBuffer, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_dispatch(GpuChannelHost* webvkc_channel_, VKCPoint& vkcCMDBuffer, VKCuint& workGroupX, VKCuint& workGroupY, VKCuint& workGroupZ) {
+  return webvkc_channel_->webvkc_dispatch(vkcCMDBuffer, workGroupX, workGroupY, workGroupZ);
+}
+
+VKCResult GpuChannelHost::webvkc_dispatch(VKCPoint& vkcCMDBuffer, VKCuint& workGroupX, VKCuint& workGroupY, VKCuint& workGroupZ) {
+  // VKCLOG(INFO) << "webvkc_dispatch : " << vkcCMDBuffer << ", " << workGroupX;
+
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_Dispatch(vkcCMDBuffer, workGroupX, workGroupY, workGroupZ, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_pipelineBarrier(GpuChannelHost* webvkc_channel_, VKCPoint& vkcCMDBuffer) {
+  return webvkc_channel_->webvkc_pipelineBarrier(vkcCMDBuffer);
+}
+
+VKCResult GpuChannelHost::webvkc_pipelineBarrier(VKCPoint& vkcCMDBuffer) {
+  // VKCLOG(INFO) << "webvkc_pipelineBarrier : " << vkcCMDBuffer;
+
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_PipelineBarrier(vkcCMDBuffer, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_cmdCopyBuffer(GpuChannelHost* webvkc_channel_, VKCPoint& vkcCMDBuffer, VKCPoint srcBuffer, VKCPoint dstBuffer, VKCuint& copySize) {
+  return webvkc_channel_->webvkc_cmdCopyBuffer(vkcCMDBuffer, srcBuffer, dstBuffer, copySize);
+}
+
+VKCResult GpuChannelHost::webvkc_cmdCopyBuffer(VKCPoint& vkcCMDBuffer, VKCPoint srcBuffer, VKCPoint dstBuffer, VKCuint& copySize) {
+  VKCLOG(INFO) << "webvkc_cmdCopyBuffer : " << vkcCMDBuffer << ", " << srcBuffer << ", " << dstBuffer << ", " << copySize;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_CmdCopyBuffer(vkcCMDBuffer, srcBuffer, dstBuffer, copySize, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_queueSubmit(GpuChannelHost* webvkc_channel_, VKCPoint& vkcQueue, VKCPoint vkcCMDBuffer) {
+  return webvkc_channel_->webvkc_queueSubmit(vkcQueue, vkcCMDBuffer);
+}
+
+VKCResult GpuChannelHost::webvkc_queueSubmit(VKCPoint& vkcQueue, VKCPoint vkcCMDBuffer) {
+  VKCLOG(INFO) << "webvkc_queueSubmit : " << vkcQueue << ", " << vkcCMDBuffer;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_QueueSubmit(vkcQueue, vkcCMDBuffer, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+
+VKCResult webvkc_deviceWaitIdle(GpuChannelHost* webvkc_channel_, VKCPoint& vkcDevice) {
+  return webvkc_channel_->webvkc_deviceWaitIdle(vkcDevice);
+}
+
+VKCResult GpuChannelHost::webvkc_deviceWaitIdle(VKCPoint& vkcDevice) {
+  VKCLOG(INFO) << "webvkc_deviceWaitIdle : " << vkcDevice;
+  int result_inter = (int)VKC_SEND_IPC_MESSAGE_FAILURE;
+
+  if (!Send(new VulkanComputeChannelMsg_DeviceWaitIdle(vkcDevice, &result_inter))) {
+    return (VKCResult)VKC_SEND_IPC_MESSAGE_FAILURE;
+  }
+
+  return (VKCResult)result_inter;
+}
+#endif
+//if enable_highweb_webvkc build flag
 
 }  // namespace gpu

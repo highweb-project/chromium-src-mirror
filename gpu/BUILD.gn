@@ -12,6 +12,9 @@ config("gpu_implementation") {
   if (enable_highweb_webcl) {
     defines += [ "ENABLE_HIGHWEB_WEBCL", ]
   }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC" ]
+  }
 }
 
 component("gpu") {
@@ -28,6 +31,9 @@ component("gpu") {
   ]
   if (enable_highweb_webcl) {
     public_deps += [ "//gpu/opencl:opencl_sources", ]
+  }
+  if (enable_highweb_webvkc) {
+    public_deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
   }
 }
 

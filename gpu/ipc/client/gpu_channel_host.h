@@ -32,6 +32,9 @@
 #if defined(ENABLE_HIGHWEB_WEBCL)
 #include "gpu/opencl/opencl_include.h"
 #endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "gpu/native_vulkan/vulkan_include.h"
+#endif
 
 namespace base {
 class WaitableEvent;
@@ -335,6 +338,54 @@ class GPU_EXPORT GpuChannelHost
 	bool webcl_ctrlClearSharedHandles();
 
 	bool webcl_ctrlTriggerSharedOperation(int operation);
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+	//vulkan
+	//sharedMemory
+	bool webvkc_SetSharedHandles(
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle);
+
+	bool webvkc_ClearSharedHandles();
+
+	bool webvkc_TriggerSharedOperation(int operation);
+
+	VKCResult webvkc_createInstance(std::string& applicationName, std::string& engineName,
+		uint32_t& applicationVersion, uint32_t& engineVersion, uint32_t& apiVersion,
+		std::vector<std::string>& enabledLayerNames, std::vector<std::string>& enabledExtensionNames, VKCPoint* vkcInstance);
+	VKCResult webvkc_destroyInstance(VKCPoint* vkcInstance);
+	VKCResult webvkc_enumeratePhysicalDeviceCount(VKCPoint* vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList);
+	VKCResult webvkc_destroyPhysicalDevice(VKCPoint* physicalDeviceList);
+	VKCResult webvkc_createDevice(VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue);
+	VKCResult webvkc_destroyDevice(VKCPoint* vkcDevice, VKCPoint* vkcQueue);
+	VKCResult webvkc_getDeviceInfo(VKCuint&, VKCPoint&, VKCenum&, void*);
+	VKCResult webvkc_createBuffer(VKCPoint&, VKCPoint&, VKCuint&, VKCuint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releaseBuffer(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_fillBuffer(VKCPoint&, VKCPoint&, std::vector<VKCuint>&);
+	VKCResult webvkc_createCommandQueue(VKCPoint&, VKCPoint&, VKCuint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releaseCommandQueue(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorSetLayout(VKCPoint&, VKCuint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorSetLayout(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorPool(VKCPoint&, VKCuint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorPool(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorSet(VKCPoint&, VKCPoint&, VKCPoint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorSet(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createPipelineLayout(VKCPoint&, VKCPoint&, VKCPoint*);
+	VKCResult webvkc_releasePipelineLayout(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createShaderModule(VKCPoint&, std::string&, VKCPoint*);
+	VKCResult webvkc_releaseShaderModule(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createPipeline(VKCPoint&, VKCPoint&, VKCPoint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releasePipeline(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_updateDescriptorSets(VKCPoint&, VKCPoint&, std::vector<VKCPoint>&);
+	VKCResult webvkc_beginQueue(VKCPoint&, VKCPoint, VKCPoint, VKCPoint);
+	VKCResult webvkc_endQueue(VKCPoint&);
+	VKCResult webvkc_dispatch(VKCPoint&, VKCuint&, VKCuint&, VKCuint&);
+	VKCResult webvkc_pipelineBarrier(VKCPoint&);
+	VKCResult webvkc_cmdCopyBuffer(VKCPoint&, VKCPoint, VKCPoint, VKCuint&);
+	VKCResult webvkc_queueSubmit(VKCPoint&, VKCPoint);
+	VKCResult webvkc_deviceWaitIdle(VKCPoint&);
 #endif
 
   // Must be called on the main thread (as defined by the factory).

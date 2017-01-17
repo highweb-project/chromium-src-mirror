@@ -125,6 +125,9 @@ target(link_target_type, "ipc_service_sources") {
       "gpu_channel_opencl_proxy.h",
     ]
   }
+  if (enable_highweb_webvkc) {
+    deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
+  }
 }
 
 source_set("test_support") {

@@ -250,6 +250,14 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   #endif
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  gpu::GpuChannelHost* createWebVKCGPUChannelContext() override;
+
+  #if defined(OS_LINUX)
+  base::SharedMemory* getSharedMemoryForWebVKC(int size) override;
+  #endif
+#endif
+
  private:
   bool CheckPreparsedJsCachingEnabled() const;
 

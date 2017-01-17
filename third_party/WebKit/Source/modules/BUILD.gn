@@ -168,6 +168,9 @@ target(modules_target_type, "modules") {
   if (enable_highweb_webcl) {
     deps += [ "//third_party/WebKit/Source/modules/webcl", ]
   }
+  if (enable_highweb_webvkc) {
+    deps += [ "//third_party/WebKit/Source/modules/webvulkan", ]
+  }
   if (enable_highweb_deviceapi) {
     deps += [
       "//device/contact:mojo_bindings_blink",

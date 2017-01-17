@@ -403,6 +403,13 @@ blink_core_sources("dom") {
     ]
     defines += [ "ENABLE_HIGHWEB_WEBCL", ]
   }
+  if (enable_highweb_webvkc) {
+    sources += [
+      "custom/WebVulkan/WebVKCException.cpp",
+      "custom/WebVulkan/WebVKCException.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
+  }
 
   configs += [
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
