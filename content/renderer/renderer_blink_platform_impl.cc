@@ -1314,4 +1314,19 @@ void RendererBlinkPlatformImpl::workerContextCreated(
       worker);
 }
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+gpu::GpuChannelHost* RendererBlinkPlatformImpl::createWebCLGPUChannelContext() {
+  RenderThreadImpl* thread = RenderThreadImpl::current();
+  thread->EstablishGpuChannelSync();
+  return thread->GetGpuChannel();
+}
+
+#if defined(OS_LINUX)
+base::SharedMemory* RendererBlinkPlatformImpl::getSharedMemoryForWebCL(int size) {
+  return content::RenderThread::Get()->HostAllocateSharedMemoryBuffer(size).release();
+}
+#endif
+
+#endif
+
 }  // namespace content

@@ -423,6 +423,13 @@ core_idl_files = get_path_info([
                                ],
                                "abspath")
 
+if (enable_highweb_webcl) {
+  core_idl_files += get_path_info([
+                                   "dom/custom/WebCL/WebCLException.idl",
+                                 ],
+                                 "abspath")
+}
+
 # Files for which bindings (.cpp and .h files) will be generated.
 core_idl_with_modules_dependency_files =
     get_path_info([

@@ -31,6 +31,10 @@
 #include "core/dom/DOMException.h"
 #include "core/dom/ExceptionCode.h"
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "core/dom/custom/WebCL/WebCLException.h"
+#endif
+
 namespace blink {
 
 namespace {
@@ -81,15 +85,39 @@ v8::Local<v8::Value> V8ThrowException::createDOMException(
       return createReferenceError(isolate, sanitizedMessage);
   }
 
-  DOMException* domException =
-      DOMException::create(exceptionCode, sanitizedMessage, unsanitizedMessage);
-  v8::Local<v8::Object> exceptionObj =
-      toV8(domException, isolate->GetCurrentContext()->Global(), isolate)
-          .As<v8::Object>();
+  //check is WebCLException!
+  DOMException* domException = nullptr;
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  WebCLException* webclException = nullptr;
+#endif
+  v8::Local<v8::Object> exceptionObj;
+  v8::Local<v8::Value> error;
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  if(WebCLException::isWebCLException(exceptionCode)) {
+    webclException = WebCLException::create(exceptionCode, sanitizedMessage, unsanitizedMessage);
+    exceptionObj =
+        toV8(webclException, isolate->GetCurrentContext()->Global(), isolate)
+            .As<v8::Object>();
+    error = v8::Exception::Error(v8String(isolate, webclException->message()));
+  }
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  else {
+#else
+  {
+#endif
+
+    domException = DOMException::create(exceptionCode, sanitizedMessage, unsanitizedMessage);
+    exceptionObj =
+        toV8(domException, isolate->GetCurrentContext()->Global(), isolate)
+            .As<v8::Object>();
+    error = v8::Exception::Error(v8String(isolate, domException->message()));
+  }
   // Attach an Error object to the DOMException. This is then lazily used to
   // get the stack value.
-  v8::Local<v8::Value> error =
-      v8::Exception::Error(v8String(isolate, domException->message()));
+
   exceptionObj
       ->SetAccessor(isolate->GetCurrentContext(),
                     v8AtomicString(isolate, "stack"), domExceptionStackGetter,

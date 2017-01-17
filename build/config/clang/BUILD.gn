@@ -37,14 +37,14 @@ config("find_bad_constructs") {
       "find-bad-constructs",
     ]
 
-    if ((is_linux || is_android) && !is_chromecast) {
-      cflags += [
-        "-Xclang",
-        "-plugin-arg-find-bad-constructs",
-        "-Xclang",
-        "check-ipc",
-      ]
-    }
+#    if ((is_linux || is_android) && !is_chromecast) {
+#      cflags += [
+#        "-Xclang",
+#        "-plugin-arg-find-bad-constructs",
+#        "-Xclang",
+#        "check-ipc",
+#      ]
+#    }
   }
 }
 

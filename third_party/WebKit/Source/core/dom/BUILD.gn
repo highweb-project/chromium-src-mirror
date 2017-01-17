@@ -395,6 +395,15 @@ blink_core_sources("dom") {
     "SendAndroidBroadcastCallback.h",
   ]
 
+  defines = []
+  if (enable_highweb_webcl) {
+    sources += [
+      "custom/WebCL/WebCLException.cpp",
+      "custom/WebCL/WebCLException.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+
   configs += [
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
     "//build/config/compiler:no_size_t_to_int_warning",

@@ -30,6 +30,10 @@
 
 #include "core/dom/ExceptionCode.h"
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "core/dom/custom/WebCL/WebCLException.h"
+#endif
+
 namespace blink {
 
 static const struct CoreException {
@@ -152,6 +156,11 @@ static const struct CoreException {
 
     // Pointer Event
     {"InvalidPointerId", "PointerId was invalid.", 0},
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+    // WebCL
+    { "WebCLError", "The WebCL operation failed for an operation-specific reason", 0 },
+#endif
 };
 
 static const CoreException* getErrorEntry(ExceptionCode ec) {
@@ -183,6 +192,11 @@ DOMException::DOMException(unsigned short code,
 DOMException* DOMException::create(ExceptionCode ec,
                                    const String& sanitizedMessage,
                                    const String& unsanitizedMessage) {
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  if(ec >= WebCLError && ec <= (WebCLError+(WebCLException::WebCLExceptionMax-1))) {
+     return new DOMException(ec, WebCLException::getErrorName(ec), WebCLException::getErrorMessage(ec), unsanitizedMessage);
+  }
+#endif
   const CoreException* entry = getErrorEntry(ec);
   DCHECK(entry);
   return new DOMException(

@@ -1,0 +1,43 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+interface WebCLContext {
+	[RaisesException] WebCLBuffer createBuffer(long memFlags, unsigned long sizeInBytes, optional ArrayBufferView hostPtr);
+	[RaisesException] WebCLImage createImage(long memFlags, WebCLImageDescriptor descriptor, optional ArrayBufferView hostPtr);
+	[RaisesException] WebCLSampler createSampler(boolean normalizedCoords, unsigned long addressingMode, unsigned long filterMode);
+	[RaisesException] WebCLUserEvent createUserEvent();
+	[RaisesException] WebCLCommandQueue createCommandQueue(optional WebCLDevice? device, optional long properties);
+	[RaisesException] sequence<WebCLImageDescriptor> getSupportedImageFormats(optional unsigned long memFlags);
+	[RaisesException] WebCLProgram createProgram(DOMString source);
+
+	[CallWith=ScriptState, RaisesException] any getInfo(long name);
+
+	[RaisesException] void release();
+	[RaisesException] void releaseAll();
+
+	/*
+	 * WEBCL_html_video extenion
+	 */
+	[RaisesException] WebCLImage createImage(long memFlags, HTMLVideoElement srcVideo);
+
+	/*
+	 * WEBCL_html_image extension
+	 */
+	[RaisesException] WebCLBuffer createBuffer(long memFlags, ImageData srcPixels);
+	[RaisesException] WebCLBuffer createBuffer(long memFlags, HTMLCanvasElement srcCanvas);
+	[RaisesException] WebCLBuffer createBuffer(long memFlags, HTMLImageElement srcImage);
+	[RaisesException] WebCLImage createImage(long memFlags, ImageData srcPixels);
+	[RaisesException] WebCLImage createImage(long memFlags, HTMLCanvasElement srcCanvas);
+	[RaisesException] WebCLImage createImage(long memFlags, HTMLImageElement srcImage);
+
+	/*
+	 * gl/cl sharing
+	 */
+	[RaisesException] WebGLRenderingContext getGLContext();
+	[RaisesException] WebCLBuffer createFromGLBuffer(long memFlags, WebGLBuffer buffer);
+	[RaisesException] WebCLImage createFromGLRenderbuffer(long memFlags, WebGLRenderbuffer renderbuffer);
+	[RaisesException] WebCLImage createFromGLTexture(long memFlags, long textureTarget, long miplevel, WebGLTexture texture);
+};

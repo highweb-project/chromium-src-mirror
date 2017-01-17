@@ -1,0 +1,12 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+dictionary WebCLGLObjectInfo {
+  any glObject;          // the GL object used to create this memory object, 'undefined' if none
+  unsigned long type;           // the type of GL object attached to this memory object, 'undefined' if none
+  unsigned long textureTarget;  // 'undefined' if there is no texture associated
+  long mipmapLevel;     // 'undefined' if there is no texture associated
+};

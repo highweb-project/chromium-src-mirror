@@ -57,8 +57,13 @@
 #include "cc/resources/shared_bitmap.h"
 #include "cc/surfaces/frame_sink_id.h"
 
+#if defined(OS_LINUX)
+#include "base/memory/shared_memory.h"
+#endif
+
 namespace gpu {
 class GpuMemoryBufferManager;
+class GpuChannelHost;
 }
 
 namespace v8 {
@@ -672,6 +677,16 @@ class BLINK_PLATFORM_EXPORT Platform {
   // Experimental Framework ----------------------------------------------
 
   virtual WebTrialTokenValidator* trialTokenValidator() { return nullptr; }
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  // WebCL create gpu channel context
+  virtual gpu::GpuChannelHost* createWebCLGPUChannelContext() {return nullptr;}
+
+  //WebCL Shared Memory API------------------------------------------------
+  #if defined(OS_LINUX)
+  virtual base::SharedMemory* getSharedMemoryForWebCL(int size) {return nullptr;};
+  #endif
+#endif
 
  protected:
   Platform();

@@ -1,0 +1,14 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+interface WebCLKernel {
+	[CallWith=ScriptState, RaisesException] any getInfo (unsigned long kernelInfo);
+	[CallWith=ScriptState, RaisesException] any getWorkGroupInfo (WebCLDevice? device, unsigned long name);
+	[Custom,RaisesException] WebCLKernelArgInfo getArgInfo(unsigned long index);
+
+	[RaisesException] void setArg(unsigned long index, any value);
+
+	[RaisesException] void release();
+};

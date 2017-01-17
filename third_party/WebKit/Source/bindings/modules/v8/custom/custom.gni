@@ -19,6 +19,17 @@ bindings_modules_v8_custom_files =
                   ],
                   "abspath")
 
+if(enable_highweb_webcl) {
+  bindings_modules_v8_custom_files +=
+    get_path_info([
+                    "V8WebCLCommandQueueCustom.cpp",
+                    "V8WebCLKernelCustom.cpp",
+                    "V8WebCLProgramCustom.cpp",
+                    "V8WebCLCustom.cpp",
+                  ],
+                  "abspath")
+}
+
 if (enable_highweb_deviceapi) {
 bindings_modules_v8_custom_files +=
   get_path_info([

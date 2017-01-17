@@ -31,6 +31,10 @@
 #include "ui/gl/gl_share_group.h"
 #include "ui/gl/gpu_preference.h"
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "gpu/opencl/opencl_include.h"
+#endif
+
 struct GPUCreateCommandBufferConfig;
 
 namespace base {
@@ -50,6 +54,11 @@ class GpuChannelManager;
 class GpuChannelMessageFilter;
 class GpuChannelMessageQueue;
 class GpuWatchdogThread;
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+class CLApi;
+class OpenCLProxy;
+#endif
 
 // Encapsulates an IPC channel between the GPU process and one renderer
 // process. On the renderer side there's a corresponding GpuChannelHost.
@@ -125,6 +134,10 @@ class GPU_EXPORT GpuChannel
   gl::GLShareGroup* share_group() const { return share_group_.get(); }
 
   GpuCommandBufferStub* LookupCommandBuffer(int32_t route_id);
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  unsigned int LookupGLServiceId(unsigned int resource_id, GLResourceType glResourceType);
+#endif
 
   void LoseAllContexts();
   void MarkAllContextsLost();
@@ -205,6 +218,618 @@ class GPU_EXPORT GpuChannel
   void AddRouteToStream(int32_t route_id, int32_t stream_id);
   void RemoveRouteFromStream(int32_t route_id);
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  void OnCallclGetPlatformIDs(
+		    const cl_uint& num_entries,
+		    const std::vector<bool>& return_variable_null_status,
+		    std::vector<cl_point>* point_platform_list,
+		    cl_uint* num_platforms,
+		    cl_int* errcode_ret);
+
+  void OnCallclGetPlatformInfo(
+		cl_point platform,
+		cl_platform_info param_name,
+		size_t param_value_size,
+		std::vector<bool> null_param_status,
+		cl_int* errcode_ret,
+		std::string* param_value,
+		size_t* param_value_size_ret);
+
+  void OnCallclGetDeviceIDs(
+      const cl_point&,
+      const cl_device_type&,
+      const cl_uint&,
+      const std::vector<bool>&,
+      std::vector<cl_point>*,
+      cl_uint*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_string(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      std::string*,
+      size_t*,
+      cl_int*);
+  void OnCallclGetDeviceInfo_cl_uint(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      cl_uint*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_size_t_list(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      std::vector<size_t>*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_size_t(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      size_t*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_cl_ulong(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      cl_ulong*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_cl_point(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      cl_point*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclGetDeviceInfo_intptr_t_list(
+      const cl_point&,
+      const cl_device_info&,
+      const size_t&,
+      const std::vector<bool>&,
+      std::vector<intptr_t>*,
+      size_t*,
+      cl_int*);
+
+  void OnCallclCreateContextFromType(
+      const std::vector<cl_context_properties>&,
+      const cl_device_type&,
+      const cl_point&,
+      const cl_point&,
+      const std::vector<bool>&,
+      cl_int*,
+      cl_point*);
+
+  void OnCallclCreateContext(
+      const std::vector<cl_context_properties>&,
+	  const std::vector<cl_point>&,
+      const cl_point&,
+      const cl_point&,
+      const std::vector<bool>&,
+      cl_int*,
+      cl_point*);
+
+  void OnCallclWaitForevents(
+      const cl_uint&,
+      const std::vector<cl_point>&,
+      cl_int*);
+
+  void OnCallclGetMemObjectInfo_cl_int(
+      const cl_point&,
+      const cl_mem_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_int*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetMemObjectInfo_cl_uint(
+      const cl_point&,
+      const cl_mem_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_uint*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetMemObjectInfo_cl_ulong(
+      const cl_point&,
+      const cl_mem_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_ulong*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetMemObjectInfo_size_t(
+      const cl_point&,
+      const cl_mem_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  size_t*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetMemObjectInfo_cl_point(
+      const cl_point&,
+      const cl_mem_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_point*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclCreateSubBuffer(
+      const cl_point&,
+      const cl_mem_flags&,
+      const cl_buffer_create_type&,
+	  const size_t,
+	  const size_t,
+	  cl_point*,
+	  cl_int*);
+
+	void OnCallclCreateSampler(
+		const cl_point&,
+		const cl_bool&,
+		const cl_addressing_mode&,
+		const cl_filter_mode&,
+		const std::vector<bool>&,
+		cl_int*,
+		cl_point*);
+
+	void OnCallclGetSamplerInfo_cl_uint(
+		const cl_point&,
+		const cl_sampler_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_uint*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetSamplerInfo_cl_point(
+		const cl_point&,
+		const cl_sampler_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_point*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclReleaseSampler(
+		const cl_point&,
+		cl_int*);
+
+  void OnCallclGetImageInfo_cl_int(
+      const cl_point&,
+      const cl_image_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_int*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetImageInfo_cl_uint_list(
+      const cl_point&,
+      const cl_image_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  std::vector<cl_uint>*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetImageInfo_size_t(
+      const cl_point&,
+      const cl_image_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  size_t*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetImageInfo_cl_point(
+      const cl_point&,
+      const cl_image_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_point*,
+	  size_t*,
+	  cl_int*);
+
+	void OnCallclGetEventInfo_cl_point(
+		const cl_point& point_event,
+		const cl_event_info& param_name,
+		const size_t& param_value_size,
+		const std::vector<bool>& return_variable_null_status,
+		cl_point* cl_point_ret,
+		size_t* param_value_size_ret,
+		cl_int* errcode_ret);
+
+	void OnCallclGetEventInfo_cl_uint(
+		const cl_point& point_event,
+		const cl_event_info& param_name,
+		const size_t& param_value_size,
+		const std::vector<bool>& return_variable_null_status,
+		cl_uint* cl_uint_ret,
+		size_t* param_value_size_ret,
+		cl_int* errcode_ret);
+
+	void OnCallclGetEventInfo_cl_int(
+		const cl_point& point_event,
+		const cl_event_info& param_name,
+		const size_t& param_value_size,
+		const std::vector<bool>& return_variable_null_status,
+		cl_int* cl_int_ret,
+		size_t* param_value_size_ret,
+		cl_int* errcode_ret);
+
+	void OnCallclGetEventProfilingInfo_cl_ulong(
+		const cl_point& point_event,
+		const cl_profiling_info& param_name,
+		const size_t& param_value_size,
+		const std::vector<bool>& return_variable_null_status,
+		cl_ulong* cl_ulong_ret,
+		size_t* param_value_size_ret,
+		cl_int* errcode_ret);
+
+	void OnCallclSetEventCallback(
+		const cl_point& point_event,
+		const cl_int& command_exec_callback_type,
+		const std::vector<int>& key_list,
+		cl_int* errcode_ret);
+
+	void OnCallclReleaseEvent(
+		const cl_point& point_event,
+		cl_int* errcode_ret);
+
+  void OnCallclGetContextInfo_cl_uint(
+      const cl_point&,
+      const cl_context_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_uint*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetContextInfo_cl_point(
+      const cl_point&,
+      const cl_context_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  cl_point*,
+	  size_t*,
+	  cl_int*);
+
+  void OnCallclGetContextInfo_cl_point_list(
+      const cl_point&,
+      const cl_context_info&,
+      const size_t&,
+      const std::vector<bool>&,
+	  std::vector<cl_point>*,
+	  size_t*,
+	  cl_int*);
+
+	void OnCallclSetUserEventStatus(
+		const cl_point&,
+		const cl_int&,
+		cl_int*);
+
+	void OnCallclCreateUserEvent(
+		const cl_point&,
+		const std::vector<bool>&,
+		cl_int*,
+		cl_point*);
+
+	void OnCallclGetSupportedImageFormat(
+		const cl_point&,
+		const cl_mem_flags&,
+		const cl_mem_object_type&,
+		const cl_uint&,
+		const std::vector<bool>&,
+		std::vector<cl_uint>*,
+		cl_uint*,
+		cl_int*);
+
+	void OnCallclReleaseCommon(
+		const cl_point&,
+		const int,
+		cl_int*);
+
+	void OnCallclCreateCommandQueue(
+		const cl_point&,
+		const cl_point&,
+		const cl_command_queue_properties&,
+		const std::vector<bool>&,
+		cl_int*,
+		cl_point*);
+
+	  void OnCallclGetCommandQueueInfo_cl_ulong(
+	      const cl_point&,
+	      const cl_context_info&,
+	      const size_t&,
+	      const std::vector<bool>&,
+		  cl_ulong*,
+		  size_t*,
+		  cl_int*);
+
+	  void OnCallclGetCommandQueueInfo_cl_point(
+	      const cl_point&,
+	      const cl_context_info&,
+	      const size_t&,
+	      const std::vector<bool>&,
+		  cl_point*,
+		  size_t*,
+		  cl_int*);
+
+	  void OnCallFlush(
+			  const cl_point&,
+			  cl_int*);
+
+	void OnCallclGetKernelInfo_string(
+		const cl_point&,
+		const cl_kernel_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::string*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelInfo_cl_uint(
+		const cl_point&,
+		const cl_kernel_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_uint*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelInfo_cl_point(
+		const cl_point&,
+		const cl_kernel_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_point*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelWorkGroupInfo_size_t_list(
+		const cl_point&,
+		const cl_point&,
+		const cl_kernel_work_group_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::vector<size_t>*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelWorkGroupInfo_size_t(
+		const cl_point&,
+		const cl_point&,
+		const cl_kernel_work_group_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		size_t*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelWorkGroupInfo_cl_ulong(
+		const cl_point&,
+		const cl_point&,
+		const cl_kernel_work_group_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_ulong*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelArgInfo_string(
+		const cl_point&,
+		const cl_uint&,
+		const cl_kernel_arg_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::string*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelArgInfo_cl_uint(
+		const cl_point&,
+		const cl_uint&,
+		const cl_kernel_arg_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_uint*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetKernelArgInfo_cl_ulong(
+		const cl_point&,
+		const cl_uint&,
+		const cl_kernel_arg_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_ulong*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclReleaseKernel(
+		const cl_point&,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_cl_uint(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_uint*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_cl_point(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_point*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_cl_point_list(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::vector<cl_point>*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_string(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::string*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_size_t_list(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::vector<size_t>*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_string_list(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::vector<std::string>*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramInfo_size_t(
+		const cl_point&,
+		const cl_program_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		size_t*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclCreateProgramWithSource(
+		const cl_point&,
+		const cl_uint&,
+		const std::vector<std::string>&,
+		const std::vector<size_t>&,
+		const std::vector<bool>&,
+		cl_int*,
+		cl_point*);
+
+	void OnCallclGetProgramBuildInfo_cl_int(
+		const cl_point&,
+		const cl_point&,
+		const cl_program_build_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_int*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramBuildInfo_string(
+		const cl_point&,
+		const cl_point&,
+		const cl_program_build_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		std::string*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclGetProgramBuildInfo_cl_uint(
+		const cl_point&,
+		const cl_point&,
+		const cl_program_build_info&,
+		const size_t&,
+		const std::vector<bool>&,
+		cl_uint*,
+		size_t*,
+		cl_int*);
+
+	void OnCallclBuildProgram(
+		const cl_point&,
+		const cl_uint&,
+		const std::vector<cl_point>&,
+		const std::string&,
+		const std::vector<cl_point>& key_list,
+		cl_int*);
+
+	void OnCallclEnqueueMarker(
+		const cl_point&,
+		cl_point*,
+		cl_int*);
+
+	void OnCallclEnqueueBarrier(
+		const cl_point&,
+		cl_int*);
+
+	void OnCallclEnqueueWaitForEvents(
+		const cl_point&,
+		const std::vector<cl_point>&,
+		const cl_uint&,
+		cl_int*);
+
+	void OnCallclCreateKernel(
+		const cl_point&,
+		const std::string&,
+		const std::vector<bool>&,
+		cl_int*,
+		cl_point*);
+
+	void OnCallclCreateKernelsInProgram(
+		const cl_point&,
+		const cl_uint&,
+		const std::vector<cl_point>&,
+		const std::vector<bool>&,
+		std::vector<cl_point>*,
+		cl_uint*,
+		cl_int*);
+
+	void OnCallclReleaseProgram(
+		const cl_point&,
+		cl_int*);
+
+  // gl/cl sharing
+  void OnCallGetGLContext(cl_point*, cl_point*);
+
+	void OnCallCtrlSetSharedHandles(
+		const base::SharedMemoryHandle& data_handle,
+		const base::SharedMemoryHandle& operation_handle,
+		const base::SharedMemoryHandle& result_handle,
+		const base::SharedMemoryHandle& events_handle,
+		bool* result);
+
+	void OnCallCtrlClearSharedHandles(
+		bool* result);
+
+#endif
+
   // Message handlers for control messages.
   void OnCreateCommandBuffer(const GPUCreateCommandBufferConfig& init_params,
                              int32_t route_id,
@@ -279,6 +904,11 @@ class GPU_EXPORT GpuChannel
 
   base::ProcessId peer_pid_;
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  gpu::CLApi* clApiImpl;
+  gpu::OpenCLProxy* opencl_proxy;
+#endif
+
   // Member variables should appear before the WeakPtrFactory, to ensure
   // that any WeakPtrs to Controller are invalidated before its members
   // variable's destructors are executed, rendering them invalid.
@@ -319,6 +949,10 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
 
   bool Send(IPC::Message* message);
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  void setCLApi(gpu::CLApi* api) { cl_api_ = api; };
+#endif
+
  protected:
   ~GpuChannelMessageFilter() override;
 
@@ -334,6 +968,9 @@ class GPU_EXPORT GpuChannelMessageFilter : public IPC::MessageFilter {
   IPC::Channel* channel_;
   base::ProcessId peer_pid_;
   std::vector<scoped_refptr<IPC::MessageFilter>> channel_filters_;
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  gpu::CLApi* cl_api_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(GpuChannelMessageFilter);
 };

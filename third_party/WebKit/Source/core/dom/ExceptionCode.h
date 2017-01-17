@@ -91,6 +91,9 @@ enum {
 
   // Pointer Events
   InvalidPointerId,
+
+  // WebCL
+  WebCLError, //36
 };
 
 enum V8ErrorType {

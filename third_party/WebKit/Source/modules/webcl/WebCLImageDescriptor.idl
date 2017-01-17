@@ -1,0 +1,12 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+dictionary WebCLImageDescriptor {
+	unsigned long channelOrder = 0x10B5;
+	unsigned long channelType = 0x10D2;
+	unsigned long width = 0;
+	unsigned long height = 0;
+	unsigned long rowPitch = 0;
+};

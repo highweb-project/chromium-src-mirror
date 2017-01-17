@@ -130,6 +130,10 @@ source_set("prerequisites") {
     "//url",
     "//v8",
   ]
+  if (enable_highweb_webcl) {
+    public_deps += [ "//gpu/opencl:opencl_sources", ]
+  }
+
   deps = [
     "//third_party/WebKit/Source/bindings/core/v8:bindings_core_v8_generated",
 
@@ -1012,6 +1016,10 @@ target(core_link_small_target_type, "core_generated") {
       "/wd4701",
       "/wd4702",
     ]
+  }
+
+  if (enable_highweb_webcl) {
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
   }
 }
 

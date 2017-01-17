@@ -24,6 +24,11 @@
 #include "content/renderer/webpublicsuffixlist_impl.h"
 #include "third_party/WebKit/public/platform/modules/indexeddb/WebIDBFactory.h"
 #include "third_party/WebKit/public/platform/modules/screen_orientation/WebScreenOrientationType.h"
+#include "content/renderer/render_thread_impl.h"
+
+namespace gpu {
+  class GpuChannelHost;
+}
 
 namespace IPC {
 class SyncMessageFilter;
@@ -236,6 +241,14 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
   }
 
   blink::WebURLLoader* createURLLoader() override;
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  gpu::GpuChannelHost* createWebCLGPUChannelContext() override;
+
+  #if defined(OS_LINUX)
+  base::SharedMemory* getSharedMemoryForWebCL(int size) override;
+  #endif
+#endif
 
  private:
   bool CheckPreparsedJsCachingEnabled() const;
