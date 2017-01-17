@@ -49,6 +49,7 @@
 #include "content/common/view_messages.h"
 #include "content/common/worker_messages.h"
 #include "media/media_features.h"
+#include "content/common/device_api/device_api_permission_check_messages.h"
 
 #if BUILDFLAG(ENABLE_WEBRTC)
 #include "content/common/p2p_messages.h"

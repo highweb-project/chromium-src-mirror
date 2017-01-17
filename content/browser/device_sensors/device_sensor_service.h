@@ -65,6 +65,10 @@ class CONTENT_EXPORT DeviceSensorService {
   std::unique_ptr<DataFetcherSharedMemory> data_fetcher_;
   base::ThreadChecker thread_checker_;
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  int num_proximity_readers_;
+#endif
+
   DISALLOW_COPY_AND_ASSIGN(DeviceSensorService);
 };
 

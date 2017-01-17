@@ -1,0 +1,43 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device;
+
+struct ContactObject {
+	string id;
+	string displayName;
+	string phoneNumber;
+	string emails;
+	string address;
+	array<string>? categories;
+	string accountName;
+	string accountType;
+	ContactName structuredName;
+	ContactAddress structuredAddress;
+};
+
+struct ContactName {
+	string familyName;
+	string givenName;
+	string middleName;
+	string honorificPrefix;
+	string honorificSuffix;
+};
+
+struct ContactAddress {
+	string type;
+	string streetAddress;
+	string locality;
+	string region;
+	string postalCode;
+	string country;
+};
+
+interface ContactManager {
+  FindContact(int32 requestID, uint32 target, uint32 maxItem, string condition) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  AddContact(int32 requestID, ContactObject contact) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  DeleteContact(int32 requestID, uint32 target, uint32 maxItem, string condition) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  UpdateContact(int32 requestID, ContactObject contact) => (int32 requestID, uint32 error, array<ContactObject>? results);
+};

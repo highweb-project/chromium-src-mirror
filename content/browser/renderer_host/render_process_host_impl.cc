@@ -250,6 +250,18 @@
 #define IntToStringType base::IntToString
 #endif
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "device/applauncher/applauncher_manager_impl.h"
+#include "device/calendar/calendar_manager_impl.h"
+#include "device/contact/contact_manager_impl.h"
+#include "device/cpu/devicecpu_manager_impl.h"
+#include "device/gallery/devicegallery_manager_impl.h"
+#include "device/sound/devicesound_manager_impl.h"
+#include "device/storage/devicestorage_manager_impl.h"
+#include "device/messaging/messaging_manager_impl.h"
+#include "content/browser/device_api/device_api_permission_check_message_filter.h"
+#endif
+
 namespace content {
 namespace {
 
@@ -1182,6 +1194,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
       new SynchronousCompositorBrowserFilter(GetID());
   AddFilter(synchronous_compositor_filter_.get());
 #endif
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  AddFilter(new DeviceApiPermissionCheckMessageFilter(GetID()));
+#endif
 }
 
 void RenderProcessHostImpl::RegisterMojoInterfaces() {
@@ -1196,9 +1212,53 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
   AddUIThreadInterface(registry.get(),
                        GetGlobalJavaInterfaces()
                            ->CreateInterfaceFactory<device::BatteryMonitor>());
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::AppLauncherManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::CalendarManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::ContactManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::DeviceCpuManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::DeviceGalleryManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::DeviceSoundManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::DeviceStorageManager>());
+  AddUIThreadInterface(registry.get(),
+                      GetGlobalJavaInterfaces()
+                          ->CreateInterfaceFactory<device::MessagingManager>());
+  #endif
 #else
   AddUIThreadInterface(
       registry.get(), base::Bind(&device::BatteryMonitorImpl::Create));
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::AppLauncherManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::CalendarManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::ContactManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::DeviceCpuManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::DeviceGalleryManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::DeviceSoundManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::DeviceStorageManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::MessagingManagerImpl::Create));
+  #endif
 #endif
   AddUIThreadInterface(
       registry.get(),
@@ -1275,6 +1335,10 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
                        base::Bind(&DeviceOrientationHost::Create));
   AddUIThreadInterface(registry.get(),
                        base::Bind(&DeviceOrientationAbsoluteHost::Create));
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  AddUIThreadInterface(registry.get(),
+                      base::Bind(&DeviceProximityHost::Create));
+  #endif
 #else
   // On platforms other than Android the device sensors implementations run on
   // the IO thread.
@@ -1282,6 +1346,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
   registry->AddInterface(base::Bind(&DeviceMotionHost::Create));
   registry->AddInterface(base::Bind(&DeviceOrientationHost::Create));
   registry->AddInterface(base::Bind(&DeviceOrientationAbsoluteHost::Create));
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  registry->AddInterface(base::Bind(&DeviceProximityHost::Create));
+  #endif
 #endif  // defined(OS_ANDROID)
 
   registry->AddInterface(base::Bind(&device::GamepadMonitor::Create));

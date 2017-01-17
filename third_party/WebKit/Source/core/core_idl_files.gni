@@ -4,6 +4,7 @@
 
 import("//third_party/WebKit/Source/bindings/bindings.gni")
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 # The paths in this file are absolute since this file is imported and the
 # file lists must be valid from multple "current directories".
@@ -418,6 +419,7 @@ core_idl_files = get_path_info([
                                  "xmlhttprequest/XMLHttpRequest.idl",
                                  "xmlhttprequest/XMLHttpRequestEventTarget.idl",
                                  "xmlhttprequest/XMLHttpRequestUpload.idl",
+                                 "dom/SendAndroidBroadcastCallback.idl",
                                ],
                                "abspath")
 

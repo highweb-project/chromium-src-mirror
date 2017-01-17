@@ -9,5 +9,6 @@ mojom("interfaces") {
     "light.mojom",
     "motion.mojom",
     "orientation.mojom",
+    "proximity.mojom",
   ]
 }

@@ -15,6 +15,7 @@
 #include "chrome/browser/android/hung_renderer_infobar_delegate.h"
 #include "chrome/browser/android/media/media_throttle_infobar_delegate.h"
 #include "chrome/browser/chrome_notification_types.h"
+#include "chrome/browser/device_api/permission_bubble_device_api_handler.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/infobars/infobar_service.h"
 #include "chrome/browser/media/protected_media_identifier_permission_context.h"
@@ -267,6 +268,13 @@ void TabWebContentsDelegateAndroid::RequestMediaAccessPermission(
   MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
       web_contents, request, callback, nullptr);
 }
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void TabWebContentsDelegateAndroid::RequestDeviceApiPermission(content::WebContents* web_contents, const content::DeviceApiPermissionRequest& request)
+{
+	PermissionBubbleDeviceApiHandler::GetInstance()->CheckPermission(web_contents, request);
+}
+#endif
 
 bool TabWebContentsDelegateAndroid::CheckMediaAccessPermission(
     content::WebContents* web_contents,

@@ -231,6 +231,10 @@
 #include "ash/shell.h"  // nogncheck
 #endif
 
+#if defined(OS_LINUX)
+#include "chrome/browser/device_api/permission_bubble_device_api_handler.h"
+#endif
+
 using base::TimeDelta;
 using base::UserMetricsAction;
 using content::NativeWebKeyboardEvent;
@@ -1812,6 +1816,16 @@ void Browser::RequestMediaAccessPermission(
     const content::MediaResponseCallback& callback) {
   ::RequestMediaAccessPermission(web_contents, profile_, request, callback);
 }
+
+#if defined(OS_LINUX) && defined(ENABLE_HIGHWEB_DEVICEAPI)
+void Browser::RequestDeviceApiPermission(
+    content::WebContents* web_contents,
+    const content::DeviceApiPermissionRequest& request) {
+  DLOG(INFO) << "Browser::RequestDeviceApiPermission";
+  // request.callback_.Run(content::DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+  PermissionBubbleDeviceApiHandler::GetInstance()->CheckPermission(web_contents, request);
+}
+#endif
 
 bool Browser::CheckMediaAccessPermission(content::WebContents* web_contents,
                                          const GURL& security_origin,

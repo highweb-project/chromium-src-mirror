@@ -55,6 +55,7 @@ SensorManagerAndroid::SensorManagerAndroid()
       device_light_buffer_(nullptr),
       device_motion_buffer_(nullptr),
       device_orientation_buffer_(nullptr),
+	  device_proximity_buffer_(nullptr),
       motion_buffer_initialized_(false),
       orientation_buffer_initialized_(false),
       is_shutdown_(false) {
@@ -206,6 +207,19 @@ void SensorManagerAndroid::GotLight(JNIEnv*,
   device_light_buffer_->seqlock.WriteBegin();
   device_light_buffer_->data.value = value;
   device_light_buffer_->seqlock.WriteEnd();
+}
+
+void SensorManagerAndroid::GotProximity(JNIEnv*, jobject, double value) {
+  base::AutoLock autolock(proximity_buffer_lock_);
+
+  DLOG(INFO) << "GotProximity, value=" << value;
+
+  if (!device_proximity_buffer_)
+	return;
+
+  device_proximity_buffer_->seqlock.WriteBegin();
+  device_proximity_buffer_->data.value = value;
+  device_proximity_buffer_->seqlock.WriteEnd();
 }
 
 bool SensorManagerAndroid::Start(ConsumerType consumer_type) {
@@ -444,6 +458,50 @@ void SensorManagerAndroid::StopFetchingDeviceOrientationAbsoluteData() {
       device_orientation_absolute_buffer_ = nullptr;
     }
   }
+}
+
+// --- Device Proximity
+bool SensorManagerAndroid::StartFetchingDeviceProximityData(DeviceProximityHardwareBuffer* buffer) {
+  DLOG(INFO) << "SensorManagerAndroid::StartFetchingDeviceProximityData";
+  DCHECK(thread_checker_.CalledOnValidThread());
+  DCHECK(buffer);
+
+  if (is_shutdown_)
+    return false;
+
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    device_proximity_buffer_ = buffer;
+    SetProximityBufferValue(-1);
+  }
+  bool success = Start(CONSUMER_TYPE_PROXIMITY);
+  if (!success) {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    SetProximityBufferValue(-1);
+  }
+  return success;
+}
+
+void SensorManagerAndroid::StopFetchingDeviceProximityData() {
+  DCHECK(thread_checker_.CalledOnValidThread());
+  if (is_shutdown_)
+    return;
+
+  Stop(CONSUMER_TYPE_PROXIMITY);
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    if (device_proximity_buffer_) {
+      SetProximityBufferValue(-1);
+      device_proximity_buffer_ = nullptr;
+    }
+  }
+}
+
+void SensorManagerAndroid::SetProximityBufferValue(double value)
+{
+	  device_proximity_buffer_->seqlock.WriteBegin();
+	  device_proximity_buffer_->data.value = value;
+	  device_proximity_buffer_->seqlock.WriteEnd();
 }
 
 void SensorManagerAndroid::Shutdown() {

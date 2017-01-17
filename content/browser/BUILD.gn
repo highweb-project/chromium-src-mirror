@@ -9,6 +9,7 @@ import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
 import("//third_party/WebKit/public/public_features.gni")
 import("//tools/ipc_fuzzer/ipc_fuzzer.gni")
+import("//build/config/highweb.gni")
 
 source_set("browser") {
   # Only the public target should depend on this. All other targets (even
@@ -1963,6 +1964,30 @@ source_set("browser") {
       "hyphenation/hyphenation_impl.cc",
       "hyphenation/hyphenation_impl.h",
     ]
+  }
+
+  if (enable_highweb_deviceapi) {
+    deps += [
+      "//device/applauncher",
+      "//device/calendar",
+      "//device/contact",
+      "//device/cpu",
+      "//device/gallery",
+      "//device/messaging",
+      "//device/sound",
+      "//device/storage",
+    ]
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+    sources += [
+      "device_api/device_api_permission_check_message_filter.cc",
+      "device_api/device_api_permission_check_message_filter.h",
+    ]
+    if (is_android) {
+      sources += [
+        "device_api/third_party_broadcast_android.cc",
+        "device_api/third_party_broadcast_android.h",
+      ]
+    }
   }
 }
 

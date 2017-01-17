@@ -108,6 +108,10 @@
 #include <memory>
 #include <v8.h>
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_proximity/DeviceProximityController.h"
+#endif
+
 namespace blink {
 
 namespace {
@@ -159,6 +163,9 @@ void FrameLoaderClientImpl::dispatchDidClearWindowObjectInMainWorld() {
       if (RuntimeEnabledFeatures::webVREnabled() ||
           OriginTrials::webVREnabled(document->getExecutionContext()))
         NavigatorVR::from(*document);
+    #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      DeviceProximityController::from(*document);
+    #endif
     }
   }
   // FIXME: when extensions go out of process, this whole concept stops working.

@@ -50,3 +50,4 @@ modules/webmidi/MIDIInput
 modules/webmidi/MIDIPort
 modules/websockets/WebSocket ImplementedAs=DOMWebSocket
 modules/webusb/USB
+modules/device_cpu/DeviceCpu

@@ -126,6 +126,8 @@ class CORE_EXPORT EmptyChromeClient : public ChromeClient {
 
   void setResizable(bool) override {}
 
+  void sendAndroidBroadcast(LocalFrame*, const String& action) override {}
+
   bool shouldReportDetailedMessageForSource(LocalFrame&,
                                             const String&) override {
     return false;

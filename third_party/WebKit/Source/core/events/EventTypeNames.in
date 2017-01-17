@@ -70,6 +70,7 @@ devicelight
 devicemotion
 deviceorientation
 deviceorientationabsolute
+deviceproximity
 dischargingtimechange
 disconnect
 display
@@ -139,6 +140,7 @@ loadstart
 lostpointercapture
 mark
 message
+messagereceived
 midimessage
 mousedown
 mouseenter

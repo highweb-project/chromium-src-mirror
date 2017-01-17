@@ -20,6 +20,24 @@ import org.chromium.device.vibration.VibrationManagerImpl;
 import org.chromium.mojo.system.impl.CoreImpl;
 import org.chromium.services.service_manager.InterfaceRegistry;
 
+import org.chromium.device.AppLauncherManager;
+import org.chromium.device.AppLauncher.AppLauncherManagerImpl;
+import org.chromium.device.CalendarManager;
+import org.chromium.device.Calendar.CalendarManagerImpl;
+import org.chromium.device.DeviceCpuManager;
+import org.chromium.device.cpu.DeviceCpuManagerImpl;
+import org.chromium.device.DeviceGalleryManager;
+import org.chromium.device.gallery.DeviceGalleryManagerImpl;
+import org.chromium.device.DeviceSoundManager;
+import org.chromium.device.sound.DeviceSoundManagerImpl;
+import org.chromium.device.DeviceStorageManager;
+import org.chromium.device.storage.DeviceStorageManagerImpl;
+import org.chromium.device.ContactManager;
+import org.chromium.device.contact.ContactManagerImpl;
+import org.chromium.device.MessagingManager;
+import org.chromium.device.messaging.MessagingManagerImpl;
+import org.chromium.base.BuildConfig;
+
 @JNINamespace("content")
 class InterfaceRegistrarImpl {
     @CalledByNative
@@ -60,6 +78,24 @@ class ContentContextInterfaceRegistrar implements InterfaceRegistrar<Context> {
                 BatteryMonitor.MANAGER, new BatteryMonitorFactory(applicationContext));
         registry.addInterface(
                 FaceDetection.MANAGER, new FaceDetectionFactory(applicationContext));
+        if (BuildConfig.ENABLE_HIGHWEB_DEVICEAPI) {
+          registry.addInterface(
+                  AppLauncherManager.MANAGER, new AppLauncherManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  CalendarManager.MANAGER, new CalendarManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  ContactManager.MANAGER, new ContactManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  DeviceSoundManager.MANAGER, new DeviceSoundManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  DeviceStorageManager.MANAGER, new DeviceStorageManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  MessagingManager.MANAGER, new MessagingManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  DeviceCpuManager.MANAGER, new DeviceCpuManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  DeviceGalleryManager.MANAGER, new DeviceGalleryManagerImpl.Factory(applicationContext));
+        }
         // TODO(avayvod): Register the PresentationService implementation here.
     }
 }

@@ -8,6 +8,7 @@ import("//third_party/WebKit/public/public_features.gni")
 import("//third_party/WebKit/Source/config.gni")
 import("//third_party/WebKit/Source/core/core.gni")
 import("//tools/grit/grit_rule.gni")
+import("//build/config/highweb.gni")
 
 if (is_android) {
   import("//build/config/android/rules.gni")
@@ -594,6 +595,15 @@ source_set("blink_headers") {
   deps = [
     ":generate_mojo_bindings",
   ]
+
+  defines = []
+  if (enable_highweb_deviceapi) {
+    sources += [
+      "platform/modules/device_api/WebDeviceApiPermissionCheckClient.h",
+      "platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+  }
 }
 
 group("blink_devtools_frontend_resources") {

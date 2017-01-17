@@ -1,0 +1,3 @@
+callback interface MessagingSuccessCallback {
+	void handleResult(MessageObject[] messageObjs);
+};

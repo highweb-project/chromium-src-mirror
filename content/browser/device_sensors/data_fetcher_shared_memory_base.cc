@@ -19,6 +19,10 @@
 #include "device/sensors/public/cpp/device_motion_hardware_buffer.h"
 #include "device/sensors/public/cpp/device_orientation_hardware_buffer.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "device/sensors/public/cpp/device_proximity_hardware_buffer.h"
+#endif
+
 namespace content {
 
 namespace {
@@ -32,6 +36,10 @@ size_t GetConsumerSharedMemoryBufferSize(ConsumerType consumer_type) {
       return sizeof(DeviceOrientationHardwareBuffer);
     case CONSUMER_TYPE_LIGHT:
       return sizeof(DeviceLightHardwareBuffer);
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      return sizeof(DeviceProximityHardwareBuffer);
+  #endif
     default:
       NOTREACHED();
   }
@@ -178,6 +186,9 @@ void DataFetcherSharedMemoryBase::Shutdown() {
   StopFetchingDeviceData(CONSUMER_TYPE_ORIENTATION);
   StopFetchingDeviceData(CONSUMER_TYPE_ORIENTATION_ABSOLUTE);
   StopFetchingDeviceData(CONSUMER_TYPE_LIGHT);
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  StopFetchingDeviceData(CONSUMER_TYPE_PROXIMITY);
+#endif
 }
 
 mojo::ScopedSharedBufferHandle

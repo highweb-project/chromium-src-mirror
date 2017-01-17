@@ -104,6 +104,10 @@
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "url/gurl.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "content/renderer/device_sensors/device_proximity_event_pump.h"
+#endif
+
 #if defined(OS_MACOSX)
 #include "content/common/mac/font_descriptor.h"
 #include "content/common/mac/font_loader.h"
@@ -1184,6 +1188,10 @@ RendererBlinkPlatformImpl::CreatePlatformEventObserverFromType(
       return base::MakeUnique<GamepadSharedMemoryReader>(thread);
     case blink::WebPlatformEventTypeScreenOrientation:
       return base::MakeUnique<ScreenOrientationObserver>();
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case blink::WebPlatformEventTypeDeviceProximity:
+      return base::MakeUnique<DeviceProximityEventPump>(thread);
+  #endif
     default:
       // A default statement is required to prevent compilation errors when
       // Blink adds a new type.

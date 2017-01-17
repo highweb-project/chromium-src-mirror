@@ -13066,7 +13066,35 @@ Tell us what happened exactly before you got the profile error message:
       <message name="IDS_MEDIA_CAPTURE_BLOCK" desc="Label for a button that blocks access to a web page, so they can't use a camera and/or a microphone.">
         Block
       </message>
-
+      
+      <!-- Device API -->
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to permit executing <ph name="HOST">$1<ex>html5rocks.com</ex></ph> ?
+      </message>
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST_VIEW" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to allow <ph name="HOST">$1<ex>html5rocks.com</ex></ph> to viewing?
+      </message>
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST_MODIFY" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to allow <ph name="HOST">$1<ex>html5rocks.com</ex></ph> to modifying?
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_CONTACT" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Contact API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_CALENDAR" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Calendar API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_GALLERY" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Gallery API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_MESSAGING" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Messaging API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_APPLICATION_LAUNCHER" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        ApplicationLauncher API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_SYSTEM_INFORMATION" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        SystemInformation API
+      </message>      
       <!-- Quota messages -->
       <if expr="is_android">
         <message name="IDS_REQUEST_QUOTA_INFOBAR_QUESTION" desc="Mobile: For Android device. Question asked on the info bar whenever webapp requests new (larger) quota to persistently store data on the device (e.g. for persistent-type filesystem).">

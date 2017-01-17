@@ -16,6 +16,7 @@
 #include "device/sensors/public/cpp/device_light_hardware_buffer.h"
 #include "device/sensors/public/cpp/device_motion_hardware_buffer.h"
 #include "device/sensors/public/cpp/device_orientation_hardware_buffer.h"
+#include "device/sensors/public/cpp/device_proximity_hardware_buffer.h"
 
 namespace base {
 template <typename T>
@@ -68,6 +69,8 @@ class CONTENT_EXPORT SensorManagerAndroid {
                        double beta,
                        double gamma);
 
+  void GotProximity(JNIEnv*, jobject, double value);
+
   // Shared memory related methods.
   void StartFetchingDeviceLightData(DeviceLightHardwareBuffer* buffer);
   void StopFetchingDeviceLightData();
@@ -82,6 +85,9 @@ class CONTENT_EXPORT SensorManagerAndroid {
   void StartFetchingDeviceOrientationAbsoluteData(
       DeviceOrientationHardwareBuffer* buffer);
   void StopFetchingDeviceOrientationAbsoluteData();
+
+  bool StartFetchingDeviceProximityData(DeviceProximityHardwareBuffer* buffer);
+  void StopFetchingDeviceProximityData();
 
   void Shutdown();
 
@@ -111,6 +117,23 @@ class CONTENT_EXPORT SensorManagerAndroid {
   // ConsumerType.DEVICE_MOTION.
   virtual int GetNumberActiveDeviceMotionSensors();
 
+  void StartFetchingLightDataOnUI(DeviceLightHardwareBuffer* buffer);
+  void StopFetchingLightDataOnUI();
+
+  void StartFetchingMotionDataOnUI(DeviceMotionHardwareBuffer* buffer);
+  void StopFetchingMotionDataOnUI();
+
+  void StartFetchingOrientationDataOnUI(
+      DeviceOrientationHardwareBuffer* buffer);
+  void StopFetchingOrientationDataOnUI();
+
+  void StartFetchingOrientationAbsoluteDataOnUI(
+      DeviceOrientationHardwareBuffer* buffer);
+  void StopFetchingOrientationAbsoluteDataOnUI();
+
+  void StartFetchingProximityDataOnUI(DeviceProximityHardwareBuffer* buffer);
+  void StopFetchingProximityDataOnUI();
+
  private:
   friend struct base::DefaultSingletonTraits<SensorManagerAndroid>;
 
@@ -126,6 +149,7 @@ class CONTENT_EXPORT SensorManagerAndroid {
   void CheckMotionBufferReadyToRead();
   void SetMotionBufferReadyStatus(bool ready);
   void ClearInternalMotionBuffers();
+  void SetProximityBufferValue(double value);
 
   // The Java provider of sensors info.
   base::android::ScopedJavaGlobalRef<jobject> device_sensors_;
@@ -137,6 +161,7 @@ class CONTENT_EXPORT SensorManagerAndroid {
   DeviceMotionHardwareBuffer* device_motion_buffer_;
   DeviceOrientationHardwareBuffer* device_orientation_buffer_;
   DeviceOrientationHardwareBuffer* device_orientation_absolute_buffer_;
+  DeviceProximityHardwareBuffer* device_proximity_buffer_;
 
   bool motion_buffer_initialized_;
   bool orientation_buffer_initialized_;
@@ -146,6 +171,7 @@ class CONTENT_EXPORT SensorManagerAndroid {
   base::Lock motion_buffer_lock_;
   base::Lock orientation_buffer_lock_;
   base::Lock orientation_absolute_buffer_lock_;
+  base::Lock proximity_buffer_lock_;
 
   bool is_shutdown_;
   base::ThreadChecker thread_checker_;

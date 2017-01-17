@@ -124,6 +124,10 @@
 #include "wtf/text/StringConcatenate.h"
 #include <memory>
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_api/DeviceApiPermissionController.h"
+#endif
+
 namespace blink {
 
 namespace {
@@ -1165,6 +1169,20 @@ void ChromeClientImpl::installSupplements(LocalFrame& frame) {
                                      AudioOutputDeviceClientImpl::create());
   if (RuntimeEnabledFeatures::installedAppEnabled())
     InstalledAppController::provideTo(frame, client->installedAppClient());
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  DeviceApiPermissionController::provideTo(frame, client->deviceApiPermissionClient());
+#endif
 }
 
-}  // namespace blink
+void ChromeClientImpl::sendAndroidBroadcast(LocalFrame* localFrame, const String& action)
+{
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    WebLocalFrameImpl* frame = WebLocalFrameImpl::fromFrame(localFrame);
+    if (frame && frame->client()) {
+        frame->client()->didSendAndroidBroadcast(action);
+    }
+  #endif
+}
+
+} // namespace blink

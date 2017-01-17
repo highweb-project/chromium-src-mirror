@@ -121,6 +121,7 @@ class WebURLLoaderMockFactory;
 class WebURLResponse;
 class WebURLResponse;
 struct WebSize;
+class WebDeviceStorageListener;
 
 class BLINK_PLATFORM_EXPORT Platform {
  public:

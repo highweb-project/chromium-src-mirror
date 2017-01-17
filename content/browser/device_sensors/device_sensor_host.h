@@ -13,6 +13,10 @@
 #include "device/sensors/public/interfaces/orientation.mojom.h"
 #include "mojo/public/cpp/bindings/interface_request.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "device/sensors/public/interfaces/proximity.mojom.h"
+#endif
+
 namespace content {
 
 // A base class for device sensor related mojo interface implementations.
@@ -47,6 +51,11 @@ using DeviceOrientationHost = DeviceSensorHost<device::mojom::OrientationSensor,
 using DeviceOrientationAbsoluteHost =
     DeviceSensorHost<device::mojom::OrientationAbsoluteSensor,
                      CONSUMER_TYPE_ORIENTATION_ABSOLUTE>;
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+using DeviceProximityHost =
+    DeviceSensorHost<device::mojom::ProximitySensor,
+                     CONSUMER_TYPE_PROXIMITY>;
+#endif
 
 }  // namespace content
 

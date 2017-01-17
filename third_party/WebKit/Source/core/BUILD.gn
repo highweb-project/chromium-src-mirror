@@ -15,6 +15,7 @@ import("//third_party/WebKit/Source/core/core.gni")
 import("//third_party/WebKit/Source/build/scripts/scripts.gni")
 import("//third_party/WebKit/Source/modules/modules_idl_files.gni")
 import("//third_party/WebKit/Source/platform/platform_generated.gni")
+import("//build/config/highweb.gni")
 
 visibility = [
   "//third_party/WebKit/Source/*",

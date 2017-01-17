@@ -1390,6 +1390,10 @@ class CORE_EXPORT UseCounter {
     // numbers of any item, and don't reuse removed slots.
     // Also, run update_use_counter_feature_enum.py in
     // chromium/src/tools/metrics/histograms/ to update the UMA mapping.
+
+    DocumentCreateEventMessagingEvent = 1698,
+    DocumentCreateEventDeviceProximityEvent = 1699,
+
     NumberOfFeatures,  // This enum value must be last.
   };
 

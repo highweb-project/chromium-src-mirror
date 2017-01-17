@@ -14,6 +14,7 @@ import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
 import("//rlz/features/features.gni")
 import("//ui/base/ui_features.gni")
+import("//build/config/highweb.gni")
 
 config("ui_warnings") {
   if (is_clang) {
@@ -3416,6 +3417,10 @@ split_static_library("ui") {
       "webui/local_discovery/local_discovery_ui_handler.cc",
       "webui/local_discovery/local_discovery_ui_handler.h",
     ]
+  }
+
+  if (enable_highweb_deviceapi) {
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
 }
 

@@ -1,0 +1,11 @@
+enum ContactFindTarget {
+    "name",
+    "phone",
+    "email",
+};
+
+dictionary ContactFindOptions {
+	ContactFindTarget target;
+	unsigned short maxItem;
+	DOMString condition;
+};

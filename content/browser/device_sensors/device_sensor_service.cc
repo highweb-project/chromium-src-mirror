@@ -67,6 +67,11 @@ bool DeviceSensorService::ChangeNumberConsumers(ConsumerType consumer_type,
       num_light_readers_ += delta;
       DCHECK_GE(num_light_readers_, 0);
       return true;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      num_proximity_readers_ += delta;
+      return true;
+  #endif
     default:
       NOTREACHED();
   }
@@ -83,6 +88,10 @@ int DeviceSensorService::GetNumberConsumers(ConsumerType consumer_type) const {
       return num_orientation_absolute_readers_;
     case CONSUMER_TYPE_LIGHT:
       return num_light_readers_;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      return num_proximity_readers_;
+  #endif
     default:
       NOTREACHED();
   }

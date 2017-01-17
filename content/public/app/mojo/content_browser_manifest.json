@@ -40,7 +40,16 @@
           "discardable_memory::mojom::DiscardableSharedMemoryManager",
           "media::mojom::ImageCapture",
           "memory_coordinator::mojom::MemoryCoordinatorHandle",
-          "payments::mojom::PaymentAppManager"
+          "payments::mojom::PaymentAppManager",
+          "device::AppLauncherManager",
+          "device::CalendarManager",
+          "device::ContactManager",
+          "device::DeviceCpuManager",
+          "device::DeviceGalleryManager",
+          "device::MessagingManager",
+          "device::DeviceSoundManager",
+          "device::DeviceStorageManager",
+          "device::mojom::ProximitySensor"
         ],
         "service_manager:service_factory": [
           "service_manager::mojom::ServiceFactory"

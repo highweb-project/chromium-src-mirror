@@ -192,6 +192,13 @@ void WebContentsDelegate::RequestMediaAccessPermission(
                std::unique_ptr<MediaStreamUI>());
 }
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void WebContentsDelegate::RequestDeviceApiPermission(WebContents* web_contents, const DeviceApiPermissionRequest& request)
+{
+  request.callback_.Run(DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+}
+#endif
+
 bool WebContentsDelegate::CheckMediaAccessPermission(
     WebContents* web_contents,
     const GURL& security_origin,

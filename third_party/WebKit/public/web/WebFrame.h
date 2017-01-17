@@ -454,6 +454,8 @@ class WebFrame {
   void clearWeakFrames(InlinedGlobalMarkingVisitor);
 #endif
 
+  virtual void sendAndroidBroadcastResponse(const WebString& action) { }
+
  protected:
   explicit WebFrame(WebTreeScopeType);
   virtual ~WebFrame();

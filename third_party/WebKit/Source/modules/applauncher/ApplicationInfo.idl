@@ -1,0 +1,18 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+interface ApplicationInfo {
+	readonly attribute DOMString name;
+	readonly attribute DOMString className;
+	readonly attribute DOMString dataDir;
+	readonly attribute boolean enabled;
+	readonly attribute long flags;
+	readonly attribute DOMString permission;
+	readonly attribute DOMString processName;
+	readonly attribute long targetSdkVersion;
+	readonly attribute long theme;
+	readonly attribute long uid;
+	readonly attribute DOMString packageName;
+};

@@ -169,6 +169,9 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
   CustomElementRegistry* customElements() const;
   CustomElementRegistry* maybeCustomElements() const;
 
+  void sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*) override;
+  void sendAndroidBroadcastResponse(const String& action) override;
+
   void registerProperty(DOMWindowProperty*);
   void unregisterProperty(DOMWindowProperty*);
 
@@ -289,6 +292,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
 
   HeapHashSet<Member<PostMessageTimer>> m_postMessageTimers;
   HeapHashSet<WeakMember<EventListenerObserver>> m_eventListenerObservers;
+
+  #if defined(OS_ANDROID)
+  SendAndroidBroadcastCallback* m_sendAndroidBroadcastCallback = nullptr;
+  #endif
+
 };
 
 DEFINE_TYPE_CASTS(LocalDOMWindow,

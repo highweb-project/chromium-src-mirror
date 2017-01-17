@@ -549,6 +549,9 @@ class CONTENT_EXPORT WebContentsImpl
   void RequestMediaAccessPermission(
       const MediaStreamRequest& request,
       const MediaResponseCallback& callback) override;
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  void RequestDeviceApiPermission(const DeviceApiPermissionRequest& request) override;
+#endif
   bool CheckMediaAccessPermission(const GURL& security_origin,
                                   MediaStreamType type) override;
   SessionStorageNamespace* GetSessionStorageNamespace(

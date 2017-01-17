@@ -49,6 +49,13 @@ void RenderFrameHostDelegate::RequestMediaAccessPermission(
                std::unique_ptr<MediaStreamUI>());
 }
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void RenderFrameHostDelegate::RequestDeviceApiPermission(const DeviceApiPermissionRequest& request)
+{
+	request.callback_.Run(DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+}
+#endif
+
 bool RenderFrameHostDelegate::CheckMediaAccessPermission(
     const GURL& security_origin,
     MediaStreamType type) {

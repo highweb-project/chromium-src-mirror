@@ -1,0 +1,15 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+interface CalendarInfo {
+	readonly attribute DOMString id;
+	readonly attribute DOMString description;
+	readonly attribute DOMString location;
+	readonly attribute DOMString summary;
+	readonly attribute DOMString start;
+	readonly attribute DOMString end;
+	readonly attribute DOMString status;
+	readonly attribute DOMString transparency;
+	readonly attribute DOMString reminder;
+};

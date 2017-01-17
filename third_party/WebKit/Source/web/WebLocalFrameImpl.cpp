@@ -234,6 +234,10 @@
 #include <memory>
 #include <utility>
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_api/DeviceApiPermissionController.h"
+#endif
+
 namespace blink {
 
 static int frameCount = 0;
@@ -2363,4 +2367,12 @@ WebInputMethodControllerImpl* WebLocalFrameImpl::inputMethodController() const {
   return m_inputMethodController.get();
 }
 
-}  // namespace blink
+#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
+void WebLocalFrameImpl::sendAndroidBroadcastResponse(const WebString& action) {
+    if(frame() && frame()->domWindow()) {
+      frame()->domWindow()->sendAndroidBroadcastResponse(action);
+    }
+}
+#endif
+
+} // namespace blink

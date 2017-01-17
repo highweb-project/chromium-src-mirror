@@ -108,6 +108,10 @@ struct WebPopupMenuInfo;
 struct WebRect;
 struct WebURLError;
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+class WebDeviceApiPermissionCheckClient;
+#endif
+
 class BLINK_EXPORT WebFrameClient {
  public:
   virtual ~WebFrameClient() {}
@@ -729,6 +733,9 @@ class BLINK_EXPORT WebFrameClient {
   // Bluetooth -----------------------------------------------------------
   virtual WebBluetooth* bluetooth() { return 0; }
 
+  // send third party broadcast message in android
+  virtual void didSendAndroidBroadcast(const WebString& action) { }
+
   // Audio Output Devices API --------------------------------------------
 
   // Checks that the given audio sink exists and is authorized. The result is
@@ -760,6 +767,11 @@ class BLINK_EXPORT WebFrameClient {
   virtual WebURL overrideFlashEmbedWithHTML(const WebURL& url) {
     return WebURL();
   }
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  // DeviceAPI ------------------------------------------------------------
+  virtual WebDeviceApiPermissionCheckClient* deviceApiPermissionClient() { return nullptr; }
+#endif
 };
 
 }  // namespace blink

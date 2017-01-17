@@ -1,0 +1,10 @@
+enum MessageFindTarget {
+    "from",
+	"body"
+};
+
+dictionary MessageFindOptions {
+	MessageFindTarget target;
+	unsigned short maxItem;
+	DOMString condition;
+};
