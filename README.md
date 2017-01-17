@@ -4,7 +4,8 @@
 소개
 ----
 
-하이웹 브라우저는 크로미엄 오픈소스 브라우저에 웹고속화 관련 수정 사항들이 적용된 브라우저입니다. 현재 아래 내용들이 적용되어 있으며 기반 브라우저는 크로미엄 57.0.2951.0 버전입니다.
+하이웹 브라우저는 크로미엄 오픈소스 브라우저에 웹고속화 관련 수정 사항들이 적용된 브라우저입니다.
+현재 아래 내용들이 적용되어 있으며 기반 브라우저는 크로미엄 57.0.2951.0 버전입니다.
 
 -	**WebCL**
 	-	WebCL 1.0 (Draft) 규격을 지원합니다.
@@ -35,7 +36,8 @@
 크로미엄 브라우저 빌드
 ----------------------
 
-빌드 절차는 크로미엄 브라우저와 동일합니다. 상세한 크로미엄 브라우저 빌드 가이드는 아래 링크를 참고해 주세요. 이 문서에서는 단순화된 빌드 절차를 명령어와 함께 안내합니다.
+빌드 절차는 크로미엄 브라우저와 동일합니다. 상세한 크로미엄 브라우저 빌드 가이드는 아래 링크를 참고해 주세요.
+이 문서에서는 단순화된 빌드 절차를 명령어와 함께 안내합니다.
 
 https://www.chromium.org/developers/how-tos/get-the-code
 
@@ -44,8 +46,9 @@ https://www.chromium.org/developers/how-tos/get-the-code
 
 -	우분투 16.04 64비트, 램 8기가 이상, 가급적이면 SSD 권장
 -	depot_tools 사전 설정
-	-	fetch, gclient 명령어 사용을 위해 사전에 depot_tools가 설정되어 있어야 합니다. 자세한 설정 방법은 아래 링크를 참고하세요.
-	-	https://dev.chromium.org/developers/how-tos/install-depot-tools
+	-	fetch, gclient 명령어 사용을 위해 사전에 depot_tools가 설정되어 있어야 합니다.
+	자세한 설정 방법은 아래 링크를 참고하세요.
+		-	https://dev.chromium.org/developers/how-tos/install-depot-tools
 
 안드로이드 빌드
 ---------------
@@ -56,14 +59,14 @@ https://www.chromium.org/developers/how-tos/get-the-code
 
 -	외부 소스 저장소 동기화<pre><code>$ gclient sync -n</code></pre>
 
--	필요 라이브러리 설치 (최초 1회만 필요)<pre><code>src\$ ./build/install-build-deps-android.sh src$ gclient runhooks</code></pre>
+-	필요 라이브러리 설치 (최초 1회만 필요)<pre><code>src$ ./build/install-build-deps-android.sh src$ gclient runhooks</code></pre>
 
 -	GN 빌드 진행 (최초 1회만 필요)
 
 	-	추가 적용 사항에 대해 GN 플래그가 적용되어 있으며 각각 true로 설정해 주어야 기능이 동작합니다.
 	-	디버그 버전의 경우 컴포넌트 빌드, 릴리즈 버전의 경우 non-컴포넌트 빌드가 진행됩니다.
-	-	빌드 속도 향상을 위해 디버그 버전의 경우 심볼-레벨을 1, 릴리즈 버전은 0으로 설정하였습니다.<pre><code>src\$ gn gen out/AndroidRelease --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=false symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
-	src\$ gn gen out/AndroidDebug --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
+	-	빌드 속도 향상을 위해 디버그 버전의 경우 심볼-레벨을 1, 릴리즈 버전은 0으로 설정하였습니다.<pre><code>src$ gn gen out/AndroidRelease --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=false symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
+	src$ gn gen out/AndroidDebug --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
 
 -	ninja 빌드 진행<pre><code>src$ ninja -C out/AndroidRelease chrome_public_apk</code></pre>
 
@@ -72,18 +75,19 @@ https://www.chromium.org/developers/how-tos/get-the-code
 리눅스 (x64) 빌드
 -----------------
 
--	안드로이드 소스를 다운로드 받고 동기화를 완료했을 경우, 해당 소스 트리에서 그대로 작업 진행하면 됩니다. (소스 1벌로 안드로이드/리눅스/오드로이드 리눅스 빌드 가능)
+-	안드로이드 소스를 다운로드 받고 동기화를 완료했을 경우, 해당 소스 트리에서 그대로 작업 진행하면 됩니다.
+(소스 1벌로 안드로이드/리눅스/오드로이드 리눅스 빌드 가능)
 
--	필요 라이브러리 설치 (최초 1회만 필요)<pre><code>src\$ ./build/install-build-deps.sh src$ gclient runhooks</code></pre>
+-	필요 라이브러리 설치 (최초 1회만 필요)<pre><code>src$ ./build/install-build-deps.sh src$ gclient runhooks</code></pre>
 
--	GN 빌드 진행 (최초 1회만 필요)<pre><code>src\$ gn gen out/LinuxRelease --args='is_debug=false enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
-src\$ gn gen out/LinuxDebug --args='is_debug=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
+-	GN 빌드 진행 (최초 1회만 필요)<pre><code>src$ gn gen out/LinuxRelease --args='is_debug=false enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
+src$ gn gen out/LinuxDebug --args='is_debug=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
 
 -	ninja 빌드 진행<pre><code>src$ ninja -C out/LinuxRelease chrome</code></pre>
 
 -	크로미엄 실행  
 	<pre><code>src$ ./out/LinuxRelease/chrome
-	src\$ ./out/LinuxRelease/chrome --no-sandbox --ignore-gpu-blacklist (기타 오류 발생 시)</code></pre>
+	src$ ./out/LinuxRelease/chrome --no-sandbox --ignore-gpu-blacklist (기타 오류 발생 시)</code></pre>
 
 오드로이드 리눅스 (x86, arm) 빌드
 ---------------------------------
