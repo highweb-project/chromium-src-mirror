@@ -280,7 +280,11 @@ class HeadlessShell : public HeadlessWebContents::Observer,
     std::stringstream expression;
     while (true) {
       char c = fgetc(stdin);
+#if defined(__arm__)
+      if (c == '\n') {
+#else
       if (c == EOF || c == '\n') {
+#endif
         break;
       }
       expression << c;
