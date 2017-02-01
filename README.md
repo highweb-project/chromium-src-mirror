@@ -15,7 +15,6 @@
 		-	https://highweb-project.github.io/WebCL-sample/
 	- 오류 사항을 수정한 크로노스 WebCL Conformance Test를 아래 링크에서 확인할 수 있습니다.
 		- https://highweb-project.github.io/WebCL-conformance/webcl-conformance-tests.html
-
 -	**WebVKc**
 	-	WebVKc (가칭 WebVulkan Compute, 실험적인 기능) 규격을 지원합니다.
 	-	Vulkan의 Compute Shader 기능을 자바스크립트에서 사용할 수 있도록 관련 API를 제공합니다.
@@ -32,6 +31,11 @@
 		-	ApplicationLauncher, SystemInformation, Calendar, Contact, Messaging, Gallery, Sensor
 	-	각 기능들에 대한 동작 및 샘플 코드는 아래 링크를 참고해 주세요.
 		-	https://highweb-project.github.io/DeviceAPI-sample/
+- **SVG-Canvas 변환 및 벤치마크**
+	- 특정 SVG 태그를 캔버스 변환 스크립트를 사용해서 캔버스로 그리도록 수정합니다.
+	- 위 작업을 통해 페인팅 작업의 속도 향상이 가능한지 개발자 도구를 이용해서 측정합니다.
+	- 결과 확인을 위해서는 enable_highweb_svgconvert=true 플래그를 주어 빌드 후 아래와 같이 실행합니다.
+		- <pre><code>./out/LinuxRelease/chrome --no-sandbox -auto-open-devtools-for-tabs http://180.66.229.97/svgcanvas-benchmark/svgbenchmark_v4.php</code></pre>
 
 크로미엄 브라우저 빌드
 ----------------------
@@ -65,8 +69,8 @@ https://www.chromium.org/developers/how-tos/get-the-code
 
 	-	추가 적용 사항에 대해 GN 플래그가 적용되어 있으며 각각 true로 설정해 주어야 기능이 동작합니다.
 	-	디버그 버전의 경우 컴포넌트 빌드, 릴리즈 버전의 경우 non-컴포넌트 빌드가 진행됩니다.
-	-	빌드 속도 향상을 위해 디버그 버전의 경우 심볼-레벨을 1, 릴리즈 버전은 0으로 설정하였습니다.<pre><code>src$ gn gen out/AndroidRelease --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=false symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
-	src$ gn gen out/AndroidDebug --args='target_os="android" enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
+	-	빌드 속도 향상을 위해 디버그 버전의 경우 심볼-레벨을 1, 릴리즈 버전은 0으로 설정하였습니다.<pre><code>src$ gn gen out/AndroidRelease --args='target_os="android" enable_highweb_svgconvert=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=false symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
+	src$ gn gen out/AndroidDebug --args='target_os="android" enable_highweb_svgconvert=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true is_debug=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
 
 -	ninja 빌드 진행<pre><code>src$ ninja -C out/AndroidRelease chrome_public_apk</code></pre>
 
@@ -80,8 +84,8 @@ https://www.chromium.org/developers/how-tos/get-the-code
 
 -	필요 라이브러리 설치 (최초 1회만 필요)<pre><code>src$ ./build/install-build-deps.sh src$ gclient runhooks</code></pre>
 
--	GN 빌드 진행 (최초 1회만 필요)<pre><code>src$ gn gen out/LinuxRelease --args='is_debug=false enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
-src$ gn gen out/LinuxDebug --args='is_debug=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
+-	GN 빌드 진행 (최초 1회만 필요)<pre><code>src$ gn gen out/LinuxRelease --args='is_debug=false enable_highweb_svgconvert=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'
+src$ gn gen out/LinuxDebug --args='is_debug=true enable_highweb_svgconvert=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=1 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
 
 -	ninja 빌드 진행<pre><code>src$ ninja -C out/LinuxRelease chrome</code></pre>
 
@@ -95,7 +99,7 @@ src$ gn gen out/LinuxDebug --args='is_debug=true enable_highweb_deviceapi=true e
 -	빌드에 필요한 ARM 관련 라이브러리 설치 (최초 1회만 필요)<pre><code>src$ ./build/install-build-deps.sh --arm</code></pre>
 -	ARM sysroot 설치 (최초 1회만 필요)<pre><code>src$ ./build/linux/sysroot_scripts/install-sysroot.py --arch=arm</code></pre>
 -	GN 빌드 진행 (최초 1회만 필요)
-	- 디버그 빌드 시 용량 문제로 파일 전송에 어려움이 있을 수 있어 릴리즈 빌드를 권장합니다.<pre><code>src$ gn gen out/OdroidRelease --args='target_cpu="arm" use_allocator="none" is_debug=false enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
+	- 디버그 빌드 시 용량 문제로 파일 전송에 어려움이 있을 수 있어 릴리즈 빌드를 권장합니다.<pre><code>src$ gn gen out/OdroidRelease --args='target_cpu="arm" use_allocator="none" is_debug=false enable_highweb_svgconvert=true enable_highweb_deviceapi=true enable_highweb_webvkc=true enable_highweb_webcl=true symbol_level=0 proprietary_codecs=true ffmpeg_branding="Chrome"'</code></pre>
 -	ninja 빌드 진행<pre><code>src$ ninja -C out/OdroidRelease chrome</code></pre>
 -	오드로이드 파일 전송 후 실행
 	-	우분투 16.04 MATE (20161011) 테스트
@@ -106,3 +110,11 @@ Tips
 ----
 
 -	ccache 적용하기
+	- ccache를 사용하면 반복적인 빌드 시 캐쉬를 사용하여 빌드 속도를 향상시킬 수 있습니다.
+	- 크로미엄에서 ccache를 사용하기 위해서는 GN 빌드 시 cc_wrapper="ccache" 플래그를 추가합니다.
+	- 빌드 전 아래와 같이 환경 값을 설정하고, 동일한 절차로 빌드합니다.
+		- ccache -s로 현재 상태를 확인할 수 있습니다.
+	<pre><code>export GYP_CHROMIUM_NO_ACTION=1
+	export CCACHE_CPP2=yes
+	export CCACHE_SLOPPINESS=time_macros
+	export PATH=`pwd`/third_party/llvm-build/Release+Asserts/bin:$PATH</pre></code>
