@@ -36,17 +36,27 @@ class ThirdPartyBroadcast {
       }
 
       BroadcastReceiver receiver = new BroadcastReceiver() {
-          @Override
-          public void onReceive(Context context, Intent intent) {
-              String action = intent.getAction();
-              Log.e("IntentHelper", "=SAB=, ThirdPartyBroadcast.java, sendAndroidBroadcast, onReceive, action : " + action + ", process_id_ : " + process_id_ + ", routing_id_ : " + routing_id_);
-
-              ThirdPartyBroadcast.nativeReceiveAndroidBroadcast(action, process_id_, routing_id_);
-              context.unregisterReceiver(this);
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          String action = intent.getAction();
+          Log.e("IntentHelper", "=SAB=, ThirdPartyBroadcast.java, sendAndroidBroadcast, onReceive, action : " + action + ", process_id_ : " + process_id_ + ", routing_id_ : " + routing_id_);
+          
+          //web2app
+          String result = intent.getStringExtra("result");
+          Log.e("IntentHelper", "=SAB=, IntentHelper.java, sendAndroidBroadcast, onReceive, result : " + result);
+          
+          if(result == null) {
+            result = "";
           }
+
+          // ThirdPartyBroadcast.nativeReceiveAndroidBroadcast(action, process_id_, routing_id_);
+          ThirdPartyBroadcast.nativeReceiveAndroidBroadcast(result, process_id_, routing_id_);
+          context.unregisterReceiver(this);
+        }
       };
 
-      String responseAction = "webcl.broadcast.response";
+      // String responseAction = "webcl.broadcast.response";
+      String responseAction = "web2app.response";
       IntentFilter filter = new IntentFilter();
       filter.addAction(responseAction);
       context.registerReceiver(receiver, filter);

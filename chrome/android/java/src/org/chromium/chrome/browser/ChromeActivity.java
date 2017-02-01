@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.app.assist.AssistContent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -25,6 +26,7 @@ import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1720,6 +1722,42 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
             }
         } else if (id == R.id.help_id) {
             startHelpAndFeedback(currentTab, "MobileMenuFeedback");
+        } else if (id == R.id.webd2d_id) {
+            // Log.w("chromium", "webd2d, getUrl() : " + currentTab.getUrl());
+            // Log.w("chromium", "webd2d, getTitle() : " + currentTab.getTitle());
+
+          final String webd2d_url = currentTab.getUrl();
+          final String webd2d_title = currentTab.getTitle();
+          final String webd2d_cmd = getApplicationContext().getString(R.string.webd2d_commands);
+          final String webd2d_server = getApplicationContext().getString(R.string.webd2d_server);
+          CharSequence[] lists = webd2d_cmd.split(",");
+          String ss;
+          for(int i=0; i < lists.length; i++){
+            ss = lists[i].toString();
+            lists[i] = ss.trim();
+          }
+
+          Log.w("chromium", ">>>>> webd2d commands : " + webd2d_cmd);
+          Log.w("chromium", ">>>>> webd2d commands2 : " + lists[0] +", list.length: " + lists.length);
+          Log.w("chromium", ">>>>> webd2d server : " + webd2d_server);
+
+          //CharSequence lists[] = new CharSequence[]{"URL Share", "Hello World", "HELO"};
+          AlertDialog.Builder builder = new AlertDialog.Builder(this);
+          //builder.setTitle("WebD2D Share");
+          builder.setTitle(getApplicationContext().getString(R.string.webd2d_title));
+          builder.setItems(lists, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            // Log.w("chromium", "DialogInterface.OnClickListener, i : " + i);
+
+              if(i == 0) {
+                createContextualSearchTab("http://180.66.229.97/rand/webd2d.html?url=" + webd2d_url + "&title=" + webd2d_title);
+                // createContextualSearchTab("http://localhost:9000/webd2dtest.html?url=http://localhost:9000/webd2dtest.html?url=" + webd2d_url);
+                // createContextualSearchTab(webd2d_server + webd2d_url);
+              }
+            }
+          });
+          builder.show();
         } else {
             return false;
         }
