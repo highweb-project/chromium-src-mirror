@@ -338,6 +338,8 @@ class CORE_EXPORT ChromeClient : public HostWindow {
 
   virtual void installSupplements(LocalFrame&) {}
 
+  virtual bool executeJavaScriptInDevTools(const String& script) { return false; }
+
  protected:
   ~ChromeClient() override {}
 

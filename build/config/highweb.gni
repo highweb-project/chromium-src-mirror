@@ -11,4 +11,7 @@ declare_args() {
 
   #Enable DeviceAPI Feature
   enable_highweb_deviceapi = false
+
+  #Enable SVG to Canvas Convert Feature
+  enable_highweb_svgconvert = false
 }

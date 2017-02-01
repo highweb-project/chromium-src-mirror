@@ -992,6 +992,69 @@ void HTMLTreeBuilder::processStartTagForInTable(AtomicHTMLToken* token) {
 
 void HTMLTreeBuilder::processStartTag(AtomicHTMLToken* token) {
   ASSERT(token->type() == HTMLToken::StartTag);
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if (token->name() == SVGNames::svgTag) {
+    Vector<Attribute> svgAttribute = token->attributes();
+    for(Attribute at : svgAttribute) {
+      if (at.localName() == "svgtocanvas" && at.value() == "true") {
+        DLOG(INFO) << "SVG has svgtocanvas attribute";
+        svgConvertAttribute = true;
+      }
+    }
+  }
+  if (token->name() == SVGNames::svgTag && svgConvertAttribute) {
+    AtomicHTMLToken createCanvasToken(HTMLToken::StartTag, "svg", Vector<Attribute>());
+    createCanvasToken.setName("canvas");
+    AtomicString sId = "";
+    Attribute* svgID = token->getAttributeItem(QualifiedName(nullAtom, "id", nullAtom));
+    if (svgID == nullptr) {
+      sId = "svgTag" + AtomicString::number(svgtagCount);
+      token->attributes().append(Attribute(QualifiedName(nullAtom, "id", nullAtom), sId));
+    } else {
+      sId = svgID->value();
+    }
+    Attribute* svgDisplay = token->getAttributeItem(QualifiedName(nullAtom, "display", nullAtom));
+    if (svgDisplay == nullptr) {
+      token->attributes().append(Attribute(QualifiedName(nullAtom, "display", nullAtom), "none"));
+    } else {
+      svgDisplay->setValue("none");
+    }
+
+    Attribute* svgWidth = token->getAttributeItem(QualifiedName(nullAtom, "width", nullAtom));
+    if (svgWidth != nullptr) {
+      createCanvasToken.attributes().append(Attribute(QualifiedName(nullAtom, "width", nullAtom), svgWidth->value()));
+    }
+    Attribute* svgHeight = token->getAttributeItem(QualifiedName(nullAtom, "height", nullAtom));
+    if (svgHeight != nullptr) {
+      createCanvasToken.attributes().append(Attribute(QualifiedName(nullAtom, "height", nullAtom), svgHeight->value()));
+    }
+    createCanvasToken.attributes().append(Attribute(QualifiedName(nullAtom, "id", nullAtom), "scanvas" + AtomicString::number(svgtagCount)));
+    processToken(&createCanvasToken);
+    AtomicHTMLToken endCanvasToken(HTMLToken::EndTag, "canvas", Vector<Attribute>());
+    processToken(&endCanvasToken);
+
+    if (!needSVGConvert) {
+      needSVGConvert = true;
+      svgTagData = "";
+    }
+
+    String index = String::number(svgtagCount);
+    svgTagData.append(String("var svgData" + index + " = document.getElementById('" + sId + "');\n"));
+    svgTagData.append(String("var serializerTag" + index + "=new XMLSerializer();\n"));
+    svgTagData.append(String("var svgStr" + index + " = serializerTag" + index + ".serializeToString(svgData" + index + ")\n;"));
+
+    svgTagData.append(String("var DOMURL" + index + "CAN = window.URL || window.webkitURL || window;\n"));
+    svgTagData.append(String("var svgImg" + index + "can = new Image();\n"));
+    svgTagData.append(String("var svg" + index + "data = new Blob([svgStr" + index + "], {type: 'image/svg+xml;charset=utf-8'});\n"));
+    svgTagData.append(String("var svgurl" + index + "can = DOMURL" + index + "CAN.createObjectURL(svg" + index + "data);\n"));
+    svgTagData.append(String("var svgCanvas" + index + " = document.getElementById('scanvas" + index + "').getContext('2d');\n"));
+    svgTagData.append(String("svgImg" + index + "can.onload = function() { svgCanvas" + index + ".drawImage(svgImg" + index + "can, 0, 0);\n "));
+    svgTagData.append(String("DOMURL" + index + "CAN.revokeObjectURL(svgurl" + index + "can);\n}\n svgImg" + index + "can.src = svgurl" + index + "can;\n"));
+
+    svgtagCount++;
+  }
+#endif
   switch (getInsertionMode()) {
     case InitialMode:
       ASSERT(getInsertionMode() == InitialMode);
@@ -1862,6 +1925,24 @@ void HTMLTreeBuilder::processEndTagForInTable(AtomicHTMLToken* token) {
 }
 
 void HTMLTreeBuilder::processEndTag(AtomicHTMLToken* token) {
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if (token->name() == "body" && needSVGConvert) {
+    // HTMLToken scriptData;
+    // scriptData.ensureIsCharacterToken();
+    // AtomicHTMLToken createScript(HTMLToken::StartTag, "script", Vector<Attribute>());
+    // processToken(&createScript);
+    // Vector<LChar, 32> data;
+    // data.append(svgTagData.characters8(), svgTagData.length());
+    // scriptData.appendToCharacter(data);
+    // AtomicHTMLToken scriptAToken(scriptData);
+    // processToken(&scriptAToken);
+
+    // AtomicHTMLToken endScript(HTMLToken::EndTag, "script", Vector<Attribute>());
+    // processToken(&endScript);
+    needSVGConvert = false;
+    svgTagData = "";
+  }
+#endif
   ASSERT(token->type() == HTMLToken::EndTag);
   switch (getInsertionMode()) {
     case InitialMode:

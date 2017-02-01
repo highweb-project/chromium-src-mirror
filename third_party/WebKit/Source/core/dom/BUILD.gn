@@ -393,6 +393,7 @@ blink_core_sources("dom") {
     "shadow/SlotScopedTraversal.cpp",
     "shadow/SlotScopedTraversal.h",
     "SendAndroidBroadcastCallback.h",
+    "DevToolsCallback.h",
   ]
 
   defines = []

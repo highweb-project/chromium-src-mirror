@@ -104,6 +104,9 @@ class RenderFrameDevToolsAgentHost::FrameHostHolder {
 
   RenderFrameHostImpl* host() const { return host_; }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void SendMessageFromDevTools(const std::string& message);
+#endif
   void Attach();
   void Reattach(FrameHostHolder* old);
   void Detach();
@@ -156,6 +159,12 @@ void RenderFrameDevToolsAgentHost::FrameHostHolder::Attach() {
   GrantPolicy();
   attached_ = true;
 }
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void RenderFrameDevToolsAgentHost::FrameHostHolder::SendMessageFromDevTools(const std::string& message) {
+  host_->Send(new DevToolsAgentMsg_SendMessageFromDevTools(host_->GetRoutingID(), message));
+}
+#endif
 
 void RenderFrameDevToolsAgentHost::FrameHostHolder::Reattach(
     FrameHostHolder* old) {
@@ -477,6 +486,13 @@ BrowserContext* RenderFrameDevToolsAgentHost::GetBrowserContext() {
 WebContents* RenderFrameDevToolsAgentHost::GetWebContents() {
   return web_contents();
 }
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void RenderFrameDevToolsAgentHost::SendMessageFromDevTools(const std::string& message) {
+  if (current_)
+    current_->SendMessageFromDevTools(message);
+}
+#endif
 
 void RenderFrameDevToolsAgentHost::Attach() {
   session()->dispatcher()->setFallThroughForNotFound(true);
@@ -857,6 +873,10 @@ bool RenderFrameDevToolsAgentHost::OnMessageReceived(
                         OnDispatchOnInspectorFrontend)
     IPC_MESSAGE_HANDLER(DevToolsAgentHostMsg_RequestNewWindow,
                         OnRequestNewWindow)
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+    IPC_MESSAGE_HANDLER(DevToolsAgentHostMsg_ExecuteJavaScriptInDevTools,
+                        OnExecuteJavaScriptInDevTools)
+#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -1153,6 +1173,22 @@ void RenderFrameDevToolsAgentHost::OnDispatchOnInspectorFrontend(
         bad_message::RFH_INCONSISTENT_DEVTOOLS_MESSAGE);
   }
 }
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void RenderFrameDevToolsAgentHost::OnExecuteJavaScriptInDevTools(
+    RenderFrameHost* sender, int new_routing_id, const std::string& script) {
+  RenderFrameHostImpl* frame_host = RenderFrameHostImpl::FromID(
+      sender->GetProcess()->GetID(), new_routing_id);
+
+  if (IsAttached() && frame_host) {
+    scoped_refptr<DevToolsAgentHost> agent = DevToolsAgentHost::GetOrCreateFor(frame_host);
+    DevToolsManager* manager = DevToolsManager::GetInstance();
+    if (manager->delegate()) { 
+      manager->delegate()->executeJavaScriptInDevTools(agent.get(), script);
+    }
+  }
+}
+#endif
 
 void RenderFrameDevToolsAgentHost::OnRequestNewWindow(
     RenderFrameHost* sender,

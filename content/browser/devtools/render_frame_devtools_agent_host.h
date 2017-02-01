@@ -101,6 +101,9 @@ class CONTENT_EXPORT RenderFrameDevToolsAgentHost
   base::TimeTicks GetLastActivityTime() override;
 
   bool DispatchProtocolMessage(const std::string& message) override;
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void SendMessageFromDevTools(const std::string& message);
+#endif
 
  private:
   friend class DevToolsAgentHost;
@@ -166,6 +169,10 @@ class CONTENT_EXPORT RenderFrameDevToolsAgentHost
       RenderFrameHost* sender,
       const DevToolsMessageChunk& message);
   void OnRequestNewWindow(RenderFrameHost* sender, int new_routing_id);
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void OnExecuteJavaScriptInDevTools(RenderFrameHost* sender, int new_routing_id, const std::string& script);
+#endif
   void DestroyOnRenderFrameGone();
 
   bool CheckConsistency();

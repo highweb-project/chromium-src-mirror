@@ -932,6 +932,10 @@ Timeline.TimelineUIUtils = class {
     return contentHelper.fragment;
   }
 
+  static callResultCallback() {
+    window.DevToolsAPI.sendMessageToEmbedder("DevToolsResultCallback", [JSON.stringify(this._lastAggregatedStats)], null);
+  }
+
   /**
    * @param {!TimelineModel.TimelineModel} model
    * @param {number} startTime
@@ -983,6 +987,7 @@ Timeline.TimelineUIUtils = class {
         Common.UIString('Range:  %s \u2013 %s', Number.millisToString(startOffset), Number.millisToString(endOffset)));
     var pieChart = Timeline.TimelineUIUtils.generatePieChart(aggregatedStats);
     contentHelper.appendElementRow('', pieChart);
+    this._lastAggregatedStats = aggregatedStats;
     return contentHelper.fragment;
   }
 

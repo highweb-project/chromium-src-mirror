@@ -62,6 +62,10 @@ class WebDevToolsAgent {
   // Exposed for TestRunner.
   virtual WebString evaluateInWebInspectorOverlay(const WebString& script) = 0;
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  virtual void sendMessageFromDevTools(const WebString& message) = 0;
+#endif
+
   class MessageDescriptor {
    public:
     virtual ~MessageDescriptor() {}

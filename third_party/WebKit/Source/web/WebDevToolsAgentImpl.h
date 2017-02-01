@@ -102,6 +102,9 @@ class WebDevToolsAgentImpl final
   void inspectElementAt(int sessionId, const WebPoint&) override;
   void failedToRequestDevTools() override;
   WebString evaluateInWebInspectorOverlay(const WebString& script) override;
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void sendMessageFromDevTools(const WebString& message) override;
+#endif
 
  private:
   WebDevToolsAgentImpl(WebLocalFrameImpl*,

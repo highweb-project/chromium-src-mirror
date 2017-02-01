@@ -42,6 +42,7 @@ class ScrollToOptions;
 class SerializedScriptValue;
 class StyleMedia;
 class SendAndroidBroadcastCallback;
+class DevToolsCallback;
 
 class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
                               public DOMWindowBase64 {
@@ -175,6 +176,10 @@ class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
   }
   virtual void moveBy(int x, int y) const = 0;
   virtual void moveTo(int x, int y) const = 0;
+
+  virtual void executeJavaScriptInDevTools(const String& script) const { }
+  virtual void setDevToolsCallback(DevToolsCallback*) { }
+  virtual void sendMessageFromDevTools(const String& message) { }
 
   virtual void resizeBy(int x, int y) const = 0;
   virtual void resizeTo(int width, int height) const = 0;

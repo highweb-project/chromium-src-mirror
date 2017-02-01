@@ -128,6 +128,10 @@
 #include "modules/device_api/DeviceApiPermissionController.h"
 #endif
 
+#include "web/WebDevToolsAgentImpl.h"
+#include "public/web/WebDevToolsAgentClient.h"
+#include "public/web/WebFrame.h"
+
 namespace blink {
 
 namespace {
@@ -1183,6 +1187,26 @@ void ChromeClientImpl::sendAndroidBroadcast(LocalFrame* localFrame, const String
         frame->client()->didSendAndroidBroadcast(action);
     }
   #endif
+}
+
+bool ChromeClientImpl::executeJavaScriptInDevTools(const String& script) {
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  WebViewImpl* webview = static_cast<WebViewImpl*>(webView());
+
+  if(webview) {
+    WebDevToolsAgentImpl* devToolsAgentImpl = webview->mainFrameDevToolsAgentImpl();
+
+    if(devToolsAgentImpl) {
+      WebDevToolsAgentClient* devToolsAgentClient = devToolsAgentImpl->client();
+
+      if(devToolsAgentClient) {
+        devToolsAgentClient->executeJavaScriptInDevTools(webview->mainFrame()->toWebLocalFrame(), script);
+        return true;
+      }
+    }
+  }
+#endif
+  return false;
 }
 
 } // namespace blink

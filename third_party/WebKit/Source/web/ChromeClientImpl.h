@@ -221,6 +221,8 @@ class WEB_EXPORT ChromeClientImpl final : public ChromeClient {
 
   void sendAndroidBroadcast(LocalFrame*, const String&) override;
 
+  bool executeJavaScriptInDevTools(const String& script) override;
+
  private:
   explicit ChromeClientImpl(WebViewImpl*);
 

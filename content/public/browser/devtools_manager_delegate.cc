@@ -48,6 +48,12 @@ std::string DevToolsManagerDelegate::GetFrontendResource(
   return std::string();
 }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+bool DevToolsManagerDelegate::executeJavaScriptInDevTools(content::DevToolsAgentHost* agent, const std::string& script) {
+  return false;
+}
+#endif
+
 DevToolsManagerDelegate::~DevToolsManagerDelegate() {
 }
 

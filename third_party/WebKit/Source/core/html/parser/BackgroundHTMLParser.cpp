@@ -221,6 +221,17 @@ void BackgroundHTMLParser::forcePlaintextForTextDocument() {
 
 void BackgroundHTMLParser::markEndOfFile() {
   ASSERT(!m_input.current().isClosed());
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if (m_svgTagData.length() > 0) {
+    String script;
+    script.append("<script>");
+    script.append(m_svgTagData);
+    script.append("</script>");
+    m_input.append(script);
+  }
+#endif
+
   m_input.append(String(&kEndOfFileMarker, 1));
   m_input.close();
 }
@@ -277,6 +288,43 @@ void BackgroundHTMLParser::pumpTokenizer() {
         shouldNotifyMainThread |= queueChunkForMainThread();
         m_startingScript = true;
       }
+
+    #if defined(ENABLE_HIGHWEB_SVGCONVERT)
+      if (token.data() == "svg" && token.type() == HTMLToken::TokenType::StartTag) {
+        Vector<blink::CompactHTMLToken::Attribute> attributes = token.attributes();
+        Vector<blink::CompactHTMLToken::Attribute>::iterator iter = attributes.begin();
+
+        String id;
+        bool svgtocanvas = false;
+
+        for (; iter != attributes.end(); ++iter) {
+          if ((*iter).name() == "svgtocanvas" && (*iter).value() == "true") {
+            svgtocanvas = true;
+          }
+
+          if ((*iter).name() == "id") {
+            id = (*iter).value();
+          }
+        }
+
+        if (svgtocanvas) {
+          String index = String::number(m_svgTagCount);
+          m_svgTagData.append(String("var svgData" + index + " = document.getElementById('" + id + "');\n"));
+          m_svgTagData.append(String("var serializerTag" + index + "=new XMLSerializer();\n"));
+          m_svgTagData.append(String("var svgStr" + index + " = serializerTag" + index + ".serializeToString(svgData" + index + ")\n;"));
+
+          m_svgTagData.append(String("var DOMURL" + index + "CAN = window.URL || window.webkitURL || window;\n"));
+          m_svgTagData.append(String("var svgImg" + index + "can = new Image();\n"));
+          m_svgTagData.append(String("var svg" + index + "data = new Blob([svgStr" + index + "], {type: 'image/svg+xml;charset=utf-8'});\n"));
+          m_svgTagData.append(String("var svgurl" + index + "can = DOMURL" + index + "CAN.createObjectURL(svg" + index + "data);\n"));
+          m_svgTagData.append(String("var svgCanvas" + index + " = document.getElementById('scanvas" + index + "').getContext('2d');\n"));
+          m_svgTagData.append(String("svgImg" + index + "can.onload = function() { svgCanvas" + index + ".drawImage(svgImg" + index + "can, 0, 0);\n "));
+          m_svgTagData.append(String("DOMURL" + index + "CAN.revokeObjectURL(svgurl" + index + "can);\n}\n svgImg" + index + "can.src = svgurl" + index + "can;\n"));
+
+          m_svgTagCount++;
+        }
+      }
+    #endif
 
       m_pendingTokens->append(token);
       if (isCSPMetaTag) {

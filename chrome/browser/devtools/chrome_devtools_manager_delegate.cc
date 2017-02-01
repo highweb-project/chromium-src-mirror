@@ -281,3 +281,13 @@ ChromeDevToolsManagerDelegate::SetRemoteLocations(
       base::MakeUnique<base::DictionaryValue>());
   return DevToolsProtocol::CreateSuccessResponse(command_id, std::move(result));
 }
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+bool ChromeDevToolsManagerDelegate::executeJavaScriptInDevTools(
+    content::DevToolsAgentHost* agent, 
+    const std::string& script) {
+  DevToolsWindow* devToolsWindow = DevToolsWindow::FindDevToolsWindow(agent);
+  devToolsWindow->executeJavaScriptInDevTools(script);
+  return true;
+}
+#endif

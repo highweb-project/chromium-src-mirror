@@ -209,6 +209,10 @@ class DevToolsWindow : public DevToolsUIBindings::Delegate,
 
   content::WebContents* GetInspectedWebContents();
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void executeJavaScriptInDevTools(const std::string& script);
+#endif
+
  private:
   friend class DevToolsWindowTesting;
   friend class DevToolsWindowCreationObserver;

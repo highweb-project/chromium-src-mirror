@@ -150,6 +150,11 @@ class BackgroundHTMLParser {
   bool m_startingScript;
   double m_lastBytesReceivedTime;
   bool m_shouldCoalesceChunks;
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  int m_svgTagCount = 0;
+  String m_svgTagData;
+#endif
 };
 
 }  // namespace blink

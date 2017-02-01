@@ -39,6 +39,7 @@
 #include "core/dom/DocumentUserGestureToken.h"
 #include "core/dom/ExecutionContextTask.h"
 #include "core/dom/FrameRequestCallback.h"
+#include "core/dom/DevToolsCallback.h"
 #include "core/dom/SandboxFlags.h"
 #include "core/dom/custom/CustomElementRegistry.h"
 #include "core/editing/Editor.h"
@@ -1102,6 +1103,29 @@ double LocalDOMWindow::devicePixelRatio() const {
   return frame()->devicePixelRatio();
 }
 
+void LocalDOMWindow::sendMessageFromDevTools(const String& message)
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if(m_devToolsCallback) {
+    m_devToolsCallback->handleEvent(message);
+  }
+#endif
+}
+
+void LocalDOMWindow::setDevToolsCallback(DevToolsCallback* callback)
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  m_devToolsCallback = callback;
+#endif
+}
+
+void LocalDOMWindow::executeJavaScriptInDevTools(const String& script) const
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  frame()->page()->chromeClient().executeJavaScriptInDevTools(script);
+#endif
+}
+
 void LocalDOMWindow::scrollBy(double x,
                               double y,
                               ScrollBehavior scrollBehavior) const {
@@ -1589,6 +1613,7 @@ DEFINE_TRACE(LocalDOMWindow) {
   visitor->trace(m_postMessageTimers);
   visitor->trace(m_visualViewport);
   visitor->trace(m_eventListenerObservers);
+  visitor->trace(m_devToolsCallback);
   DOMWindow::trace(visitor);
   Supplementable<LocalDOMWindow>::trace(visitor);
 }

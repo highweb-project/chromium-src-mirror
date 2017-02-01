@@ -60,6 +60,12 @@ class ChromeDevToolsManagerDelegate :
       int command_id,
       base::DictionaryValue* params);
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  bool executeJavaScriptInDevTools(
+      content::DevToolsAgentHost* agent, 
+      const std::string& script) override;
+#endif
+
   std::unique_ptr<DevToolsNetworkProtocolHandler> network_protocol_handler_;
   std::map<content::DevToolsAgentHost*, std::unique_ptr<HostData>> host_data_;
 

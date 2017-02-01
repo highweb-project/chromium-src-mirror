@@ -150,6 +150,10 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
   void scrollTo(double x, double y) const override;
   void scrollTo(const ScrollToOptions&) const override;
 
+  void executeJavaScriptInDevTools(const String& script) const override;
+  void setDevToolsCallback(DevToolsCallback*) override;
+  void sendMessageFromDevTools(const String& message) override;
+
   void moveBy(int x, int y) const override;
   void moveTo(int x, int y) const override;
   void resizeBy(int x, int y) const override;
@@ -297,6 +301,7 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
   SendAndroidBroadcastCallback* m_sendAndroidBroadcastCallback = nullptr;
   #endif
 
+  Member<DevToolsCallback> m_devToolsCallback;
 };
 
 DEFINE_TYPE_CASTS(LocalDOMWindow,

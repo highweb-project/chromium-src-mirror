@@ -649,6 +649,15 @@ void WebDevToolsAgentImpl::waitForCreateWindow(LocalFrame* frame) {
     ClientMessageLoopAdapter::pauseForCreateWindow(m_webLocalFrameImpl);
 }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void WebDevToolsAgentImpl::sendMessageFromDevTools(const WebString& message)
+{
+  DOMWindow* domWindow = m_webLocalFrameImpl->viewImpl()->page()->mainFrame()->domWindow();
+
+  domWindow->sendMessageFromDevTools(message);
+}
+#endif
+
 WebString WebDevToolsAgentImpl::evaluateInWebInspectorOverlay(
     const WebString& script) {
   if (!m_overlay)
