@@ -14,7 +14,8 @@ public class ChromeVersionInfo {
      * @return Whether this build is a local build.
      */
     public static boolean isLocalBuild() {
-        return ChromeVersionConstants.CHANNEL == ChromeVersionConstants.CHANNEL_DEFAULT;
+        // return ChromeVersionConstants.CHANNEL == ChromeVersionConstants.CHANNEL_DEFAULT;
+        return false;
     }
 
     /**
