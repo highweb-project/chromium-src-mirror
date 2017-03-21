@@ -613,14 +613,6 @@ IPC_MESSAGE_ROUTED2(FrameMsg_CustomContextMenuAction,
                     content::CustomContextMenuContext /* custom_context */,
                     unsigned /* action */)
 
-#if defined(ENABLE_HIGHWEB_DEVICEAPI)
-// sendAndroidBroadcast
-IPC_MESSAGE_ROUTED1(FrameMsg_SendAndroidBroadcastResponse,
-                    std::string /* action */)
-IPC_MESSAGE_ROUTED1(FrameHostMsg_SendAndroidBroadcast,
-                    base::string16 /* action */)
-#endif
-
 // Requests that the RenderFrame or RenderFrameProxy updates its opener to the
 // specified frame.  The routing ID may be MSG_ROUTING_NONE if the opener was
 // disowned.

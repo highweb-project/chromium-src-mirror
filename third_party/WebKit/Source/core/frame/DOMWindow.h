@@ -41,7 +41,6 @@ class ScriptState;
 class ScrollToOptions;
 class SerializedScriptValue;
 class StyleMedia;
-class SendAndroidBroadcastCallback;
 class DevToolsCallback;
 
 class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
@@ -241,9 +240,6 @@ class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
   void resetLocation();
 
   bool isSecureContext() const;
-
-  virtual void sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback*) { }
-  virtual void sendAndroidBroadcastResponse(const String& action) { }
 
   DEFINE_ATTRIBUTE_EVENT_LISTENER(animationend);
   DEFINE_ATTRIBUTE_EVENT_LISTENER(animationiteration);

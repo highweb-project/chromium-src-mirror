@@ -176,7 +176,6 @@
     //  90 is when rotated counter clockwise.
     [MeasureAs=WindowOrientation, RuntimeEnabled=OrientationEvent] readonly attribute long orientation;
     [DeprecateAs=PrefixedRequestAnimationFrame] long webkitRequestAnimationFrame(FrameRequestCallback callback);
-    void sendAndroidBroadcast(DOMString action, SendAndroidBroadcastCallback callback);
     [DeprecateAs=PrefixedCancelAnimationFrame, ImplementedAs=cancelAnimationFrame] void webkitCancelAnimationFrame(long id);
     [MeasureAs=PrefixedTransitionEventConstructor] attribute TransitionEventConstructor WebKitTransitionEvent;
     [Measure] attribute AnimationEventConstructor WebKitAnimationEvent;

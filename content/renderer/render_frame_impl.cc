@@ -1515,10 +1515,6 @@ bool RenderFrameImpl::OnMessageReceived(const IPC::Message& msg) {
 #if BUILDFLAG(ENABLE_PLUGINS)
     IPC_MESSAGE_HANDLER(FrameMsg_SetPepperVolume, OnSetPepperVolume)
 #endif
-#if defined(ENABLE_HIGHWEB_DEVICEAPI)
-    // sendAndroidBroadcast
-    IPC_MESSAGE_HANDLER(FrameMsg_SendAndroidBroadcastResponse, OnSendAndroidBroadcastResponse)
-#endif
     IPC_MESSAGE_HANDLER(InputMsg_Undo, OnUndo)
     IPC_MESSAGE_HANDLER(InputMsg_Redo, OnRedo)
     IPC_MESSAGE_HANDLER(InputMsg_Cut, OnCut)
@@ -1806,15 +1802,6 @@ void RenderFrameImpl::OnContextMenuClosed(
   }
 
   render_view()->webview()->didCloseContextMenu();
-}
-
-// sendAndroidBroadcast
-void RenderFrameImpl::OnSendAndroidBroadcastResponse(const std::string& action) {
-  blink::WebLocalFrame* frame = GetWebFrame();
-
-  if(frame) {
-    frame->sendAndroidBroadcastResponse(blink::WebString::fromUTF8(action));
-  }
 }
 
 void RenderFrameImpl::OnCustomContextMenuAction(
@@ -3201,14 +3188,6 @@ bool RenderFrameImpl::shouldReportDetailedMessageForSource(
     const blink::WebString& source) {
   return GetContentClient()->renderer()->ShouldReportDetailedMessageForSource(
       source);
-}
-
-// sendAndroidBroadcast
-void RenderFrameImpl::didSendAndroidBroadcast(const blink::WebString& action)
-{
-#if defined(ENABLE_HIGHWEB_DEVICEAPI)
-  Send(new FrameHostMsg_SendAndroidBroadcast(routing_id_, action));
-#endif
 }
 
 void RenderFrameImpl::didAddMessageToConsole(

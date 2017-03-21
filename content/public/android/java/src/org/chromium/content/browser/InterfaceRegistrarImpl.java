@@ -36,6 +36,8 @@ import org.chromium.device.ContactManager;
 import org.chromium.device.contact.ContactManagerImpl;
 import org.chromium.device.MessagingManager;
 import org.chromium.device.messaging.MessagingManagerImpl;
+import org.chromium.device.DeviceThirdpartyManager;
+import org.chromium.device.thirdparty.DeviceThirdpartyManagerImpl;
 import org.chromium.base.BuildConfig;
 
 @JNINamespace("content")
@@ -95,6 +97,8 @@ class ContentContextInterfaceRegistrar implements InterfaceRegistrar<Context> {
                   DeviceCpuManager.MANAGER, new DeviceCpuManagerImpl.Factory(applicationContext));
           registry.addInterface(
                   DeviceGalleryManager.MANAGER, new DeviceGalleryManagerImpl.Factory(applicationContext));
+          registry.addInterface(
+                  DeviceThirdpartyManager.MANAGER, new DeviceThirdpartyManagerImpl.Factory(applicationContext));
         }
         // TODO(avayvod): Register the PresentationService implementation here.
     }

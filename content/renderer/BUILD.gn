@@ -929,6 +929,7 @@ target(link_target_type, "renderer") {
       "//device/messaging:mojo_bindings",
       "//device/sound:mojo_bindings",
       "//device/storage:mojo_bindings",
+      "//device/thirdparty:mojo_bindings",
     ]
     defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }

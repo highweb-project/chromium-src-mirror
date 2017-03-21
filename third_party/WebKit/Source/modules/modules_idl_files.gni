@@ -769,6 +769,20 @@ if(enable_highweb_deviceapi) {
             "device_storage/NavigatorDeviceStorage.idl",
           ],
           "abspath")
+  if (is_android) {
+    modules_idl_files +=
+        get_path_info([
+                        "device_api/SendAndroidBroadcastCallback.idl",
+                        "device_api/ThirdPartyDeviceApi.idl",
+                      ],
+                      "abspath")
+    modules_dependency_idl_files +=
+        get_path_info(
+            [
+              "device_api/WindowThirdPartyDeviceApi.idl",
+            ],
+            "abspath")
+  }
 }
 
 modules_definition_idl_files = modules_dictionary_idl_files + modules_idl_files

@@ -181,6 +181,7 @@ target(modules_target_type, "modules") {
       "//device/storage:mojo_bindings_blink",
       "//device/applauncher:mojo_bindings_blink",
       "//device/calendar:mojo_bindings_blink",
+      "//device/thirdparty:mojo_bindings_blink",
       "//third_party/WebKit/Source/modules/applauncher",
       "//third_party/WebKit/Source/modules/calendar",
       "//third_party/WebKit/Source/modules/device_api",

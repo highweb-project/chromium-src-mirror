@@ -733,9 +733,6 @@ class BLINK_EXPORT WebFrameClient {
   // Bluetooth -----------------------------------------------------------
   virtual WebBluetooth* bluetooth() { return 0; }
 
-  // send third party broadcast message in android
-  virtual void didSendAndroidBroadcast(const WebString& action) { }
-
   // Audio Output Devices API --------------------------------------------
 
   // Checks that the given audio sink exists and is authorized. The result is

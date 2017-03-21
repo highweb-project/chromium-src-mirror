@@ -158,8 +158,6 @@ class CORE_EXPORT ChromeClient : public HostWindow {
                                    const String& sourceID,
                                    const String& stackTrace) = 0;
 
-  virtual void sendAndroidBroadcast(LocalFrame*, const String& action) = 0;
-
   virtual bool canOpenBeforeUnloadConfirmPanel() = 0;
   bool openBeforeUnloadConfirmPanel(const String& message,
                                     LocalFrame*,

@@ -219,8 +219,6 @@ class WEB_EXPORT ChromeClientImpl final : public ChromeClient {
 
   void installSupplements(LocalFrame&) override;
 
-  void sendAndroidBroadcast(LocalFrame*, const String&) override;
-
   bool executeJavaScriptInDevTools(const String& script) override;
 
  private:

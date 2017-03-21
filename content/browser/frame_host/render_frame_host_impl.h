@@ -625,11 +625,6 @@ class CONTENT_EXPORT RenderFrameHostImpl
                                 int32_t line_no,
                                 const base::string16& source_id);
 
-  // sendAndroidBroadcast
-  #if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-  void OnSendAndroidBroadcast(const base::string16& action);
-  #endif
-
   void OnDetach();
   void OnFrameFocused();
   void OnOpenURL(const FrameHostMsg_OpenURL_Params& params);

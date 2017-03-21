@@ -49,7 +49,8 @@
           "device::MessagingManager",
           "device::DeviceSoundManager",
           "device::DeviceStorageManager",
-          "device::mojom::ProximitySensor"
+          "device::mojom::ProximitySensor",
+          "device::DeviceThirdpartyManager"
         ],
         "service_manager:service_factory": [
           "service_manager::mojom::ServiceFactory"

@@ -402,10 +402,6 @@ class WEB_EXPORT WebLocalFrameImpl final
 
   WebInputMethodControllerImpl* inputMethodController() const;
 
-  #if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-  void sendAndroidBroadcastResponse(const WebString&) override;
-  #endif
-
   DECLARE_TRACE();
 
  private:

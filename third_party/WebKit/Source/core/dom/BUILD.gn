@@ -392,7 +392,6 @@ blink_core_sources("dom") {
     "shadow/SlotAssignment.h",
     "shadow/SlotScopedTraversal.cpp",
     "shadow/SlotScopedTraversal.h",
-    "SendAndroidBroadcastCallback.h",
     "DevToolsCallback.h",
   ]
 

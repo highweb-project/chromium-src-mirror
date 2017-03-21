@@ -1179,16 +1179,6 @@ void ChromeClientImpl::installSupplements(LocalFrame& frame) {
 #endif
 }
 
-void ChromeClientImpl::sendAndroidBroadcast(LocalFrame* localFrame, const String& action)
-{
-  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
-    WebLocalFrameImpl* frame = WebLocalFrameImpl::fromFrame(localFrame);
-    if (frame && frame->client()) {
-        frame->client()->didSendAndroidBroadcast(action);
-    }
-  #endif
-}
-
 bool ChromeClientImpl::executeJavaScriptInDevTools(const String& script) {
 #if defined(ENABLE_HIGHWEB_SVGCONVERT)
   WebViewImpl* webview = static_cast<WebViewImpl*>(webView());

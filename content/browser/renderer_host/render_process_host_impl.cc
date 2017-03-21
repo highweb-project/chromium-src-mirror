@@ -259,6 +259,7 @@
 #include "device/sound/devicesound_manager_impl.h"
 #include "device/storage/devicestorage_manager_impl.h"
 #include "device/messaging/messaging_manager_impl.h"
+#include "device/thirdparty/devicethirdparty_manager_impl.h"
 #include "content/browser/device_api/device_api_permission_check_message_filter.h"
 #endif
 
@@ -1237,6 +1238,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
   AddUIThreadInterface(registry.get(),
                       GetGlobalJavaInterfaces()
                           ->CreateInterfaceFactory<device::MessagingManager>());
+  AddUIThreadInterface(registry.get(),
+                       GetGlobalJavaInterfaces()
+                           ->CreateInterfaceFactory<device::DeviceThirdpartyManager>());
   #endif
 #else
   AddUIThreadInterface(
@@ -1258,6 +1262,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
       registry.get(), base::Bind(&device::DeviceStorageManagerImpl::Create));
   AddUIThreadInterface(
       registry.get(), base::Bind(&device::MessagingManagerImpl::Create));
+  AddUIThreadInterface(
+      registry.get(), base::Bind(&device::DeviceThirdpartyManagerImpl::Create));
   #endif
 #endif
   AddUIThreadInterface(

@@ -87,8 +87,6 @@
 #include "public/platform/WebScreenInfo.h"
 #include <memory>
 
-#include "core/dom/SendAndroidBroadcastCallback.h"
-
 namespace blink {
 
 // Timeout for link preloads to be used after window.onload
@@ -1328,33 +1326,6 @@ int LocalDOMWindow::requestIdleCallback(IdleRequestCallback* callback,
   if (Document* document = this->document())
     return document->requestIdleCallback(callback, options);
   return 0;
-}
-
-void LocalDOMWindow::sendAndroidBroadcastResponse(const String& action)
-{
-#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-  if(m_sendAndroidBroadcastCallback) {
-    m_sendAndroidBroadcastCallback->onResult(action);
-    // m_sendAndroidBroadcastCallback->deref();
-    m_sendAndroidBroadcastCallback = nullptr;
-  }
-#endif
-}
-
-void LocalDOMWindow::sendAndroidBroadcast(const String& action, SendAndroidBroadcastCallback* callback)
-{
-#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-  if (frame() && frame()->host()) {
-    frame()->host()->chromeClient().sendAndroidBroadcast(frame(), action);
-
-    if(m_sendAndroidBroadcastCallback) {
-      // m_sendAndroidBroadcastCallback->deref();
-      m_sendAndroidBroadcastCallback = nullptr;
-    }
-
-    m_sendAndroidBroadcastCallback = callback;
-  }
-#endif
 }
 
 void LocalDOMWindow::cancelIdleCallback(int id) {

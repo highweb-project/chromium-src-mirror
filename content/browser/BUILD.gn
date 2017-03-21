@@ -1976,18 +1976,13 @@ source_set("browser") {
       "//device/messaging",
       "//device/sound",
       "//device/storage",
+      "//device/thirdparty",
     ]
     defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
     sources += [
       "device_api/device_api_permission_check_message_filter.cc",
       "device_api/device_api_permission_check_message_filter.h",
     ]
-    if (is_android) {
-      sources += [
-        "device_api/third_party_broadcast_android.cc",
-        "device_api/third_party_broadcast_android.h",
-      ]
-    }
   }
 
   if (enable_highweb_svgconvert) {

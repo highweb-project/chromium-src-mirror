@@ -112,17 +112,12 @@
 #include "url/gurl.h"
 
 #if defined(OS_ANDROID)
-// sendAndroidBroadcast
 #include "content/browser/android/app_web_message_port_message_filter.h"
 #include "content/public/browser/android/java_interfaces.h"
 #include "content/browser/media/android/media_player_renderer.h"
 #include "media/base/audio_renderer_sink.h"
 #include "media/base/video_renderer_sink.h"
 #include "media/mojo/services/mojo_renderer_service.h"  // nogncheck
-#endif
-
-#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-#include "content/browser/device_api/third_party_broadcast_android.h"
 #endif
 
 #if defined(OS_MACOSX)
@@ -690,11 +685,6 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
     IPC_MESSAGE_HANDLER(FrameHostMsg_DidAddMessageToConsole,
                         OnDidAddMessageToConsole)
 
-    // sendAndroidBroadcast
-    #if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-    IPC_MESSAGE_HANDLER(FrameHostMsg_SendAndroidBroadcast, OnSendAndroidBroadcast)
-    #endif
-
     IPC_MESSAGE_HANDLER(FrameHostMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(FrameHostMsg_FrameFocused, OnFrameFocused)
     IPC_MESSAGE_HANDLER(FrameHostMsg_DidStartProvisionalLoad,
@@ -975,14 +965,6 @@ void RenderFrameHostImpl::Init() {
     pendinging_navigate_.reset();
   }
 }
-
-// sendAndroidBroadcast
-#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-void RenderFrameHostImpl::OnSendAndroidBroadcast(const base::string16& action) {
-    int process_id_ = GetProcess()->GetID();
-    content::ThirdPartyBroadcastAndroid::SendAndroidBroadcast(action, process_id_, routing_id_);
-}
-#endif
 
 void RenderFrameHostImpl::OnDidAddMessageToConsole(
     int32_t level,

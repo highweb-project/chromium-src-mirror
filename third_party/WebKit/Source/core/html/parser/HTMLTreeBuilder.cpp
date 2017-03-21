@@ -526,7 +526,6 @@ static void adjustForeignAttributes(AtomicHTMLToken* token) {
     map->add("xmlns:xlink", QualifiedName(xmlnsAtom, xlinkAtom,
                                           XMLNSNames::xmlnsNamespaceURI));
   }
-
   for (unsigned i = 0; i < token->attributes().size(); ++i) {
     Attribute& tokenAttribute = token->attributes().at(i);
     const QualifiedName& name = map->get(tokenAttribute.localName());
@@ -537,6 +536,7 @@ static void adjustForeignAttributes(AtomicHTMLToken* token) {
 
 void HTMLTreeBuilder::processStartTagForInBody(AtomicHTMLToken* token) {
   ASSERT(token->type() == HTMLToken::StartTag);
+
   if (token->name() == htmlTag) {
     processHtmlStartTagForInBody(token);
     return;
@@ -2751,8 +2751,9 @@ void HTMLTreeBuilder::processTokenInForeignContent(AtomicHTMLToken* token) {
       break;
     }
     case HTMLToken::EndTag: {
-      if (adjustedCurrentNode->namespaceURI() == SVGNames::svgNamespaceURI)
+        if (adjustedCurrentNode->namespaceURI() == SVGNames::svgNamespaceURI) {
         adjustSVGTagNameCase(token);
+          }
 
       if (token->name() == SVGNames::scriptTag &&
           m_tree.currentStackItem()->hasTagName(SVGNames::scriptTag)) {

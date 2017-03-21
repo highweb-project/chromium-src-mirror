@@ -2367,12 +2367,4 @@ WebInputMethodControllerImpl* WebLocalFrameImpl::inputMethodController() const {
   return m_inputMethodController.get();
 }
 
-#if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
-void WebLocalFrameImpl::sendAndroidBroadcastResponse(const WebString& action) {
-    if(frame() && frame()->domWindow()) {
-      frame()->domWindow()->sendAndroidBroadcastResponse(action);
-    }
-}
-#endif
-
 } // namespace blink

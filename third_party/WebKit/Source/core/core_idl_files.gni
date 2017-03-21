@@ -419,7 +419,6 @@ core_idl_files = get_path_info([
                                  "xmlhttprequest/XMLHttpRequest.idl",
                                  "xmlhttprequest/XMLHttpRequestEventTarget.idl",
                                  "xmlhttprequest/XMLHttpRequestUpload.idl",
-                                 "dom/SendAndroidBroadcastCallback.idl",
                                  "dom/DevToolsCallback.idl",
                                ],
                                "abspath")
