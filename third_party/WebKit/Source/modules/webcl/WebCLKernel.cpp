@@ -716,20 +716,7 @@ Vector<unsigned> WebCLKernel::getCompileWorkGroupSizeVector(WebCLDevice* device,
 }
 
 size_t WebCLKernel::getKernelNumArgs(ExceptionState& ec) {
-	cl_int err = 0;
-	cl_uint uint_units = 0;
-
-	if (mClKernel == NULL) {
-		printf("Error: Invalid kernel\n");
-		ec.throwDOMException(WebCLException::INVALID_KERNEL, "WebCLException::INVALID_KERNEL");
-		return uint_units;
-	}
-
-	err = webcl_clGetKernelInfo(webcl_channel_, mClKernel, CL_KERNEL_NUM_ARGS , sizeof(cl_uint), &uint_units, NULL);
-	if (err != CL_SUCCESS)
-		WebCLException::throwException(err, ec);
-
-	return (size_t)uint_units;
+	return (size_t)mArgInfoProvider->numberOfArguments();
 }
 
 DEFINE_TRACE(WebCLKernel) {
