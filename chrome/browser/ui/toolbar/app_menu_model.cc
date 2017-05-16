@@ -551,7 +551,6 @@ void AppMenuModel::LogMenuMetrics(int command_id) {
         UMA_HISTOGRAM_MEDIUM_TIMES("WrenchMenu.TimeToAction.About", delta);
       LogMenuAction(MENU_ACTION_ABOUT);
       break;
-
     // Help menu.
     case IDC_HELP_PAGE_VIA_MENU:
       content::RecordAction(UserMetricsAction("ShowHelpTabViaWrenchMenu"));
@@ -765,6 +764,8 @@ void AppMenuModel::Build() {
     AddCheckItemWithStringId(IDC_TOGGLE_REQUEST_TABLET_SITE,
                              IDS_TOGGLE_REQUEST_TABLET_SITE);
 #endif
+
+  AddItem(IDC_WEBD2D, l10n_util::GetStringUTF16(IDS_WEBD2D));
 
   if (browser_defaults::kShowExitMenuItem) {
     AddSeparator(ui::NORMAL_SEPARATOR);
