@@ -13,7 +13,7 @@ if (enable_highweb_deviceapi) {
       "DeviceApiPermissionController.h",
     ]
 
-    if (is_android) {
+    #if (is_android) {
       sources += [
         "DOMWindowThirdPartyDeviceApi.cpp",
         "DOMWindowThirdPartyDeviceApi.h",
@@ -21,7 +21,7 @@ if (enable_highweb_deviceapi) {
         "ThirdPartyDeviceApi.cpp",
         "ThirdPartyDeviceApi.h",
       ]
-    }
+    #}
 
     deps = [
       "//device/thirdparty:mojo_bindings_blink",
