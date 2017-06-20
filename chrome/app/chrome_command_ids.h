@@ -352,6 +352,7 @@
 #define IDC_OPEN_LINK_IN_PROFILE_LAST  52399
 
 #define IDC_WEBD2D  52400
+#define IDC_WEBD2D_URL_SHARE  52401
 
 // NOTE: The last valid command value is 57343 (0xDFFF)
 // See http://msdn.microsoft.com/en-us/library/t2zechd4(VS.71).aspx

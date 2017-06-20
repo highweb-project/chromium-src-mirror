@@ -126,6 +126,25 @@ void ZoomMenuModel::Build() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// WebD2DMenuModel
+
+class AppMenuModel::WebD2DMenuModel : public ui::SimpleMenuModel {
+ public:
+  WebD2DMenuModel(ui::SimpleMenuModel::Delegate* delegate,
+                Browser* browser)
+      : SimpleMenuModel(delegate) {
+    Build(browser);
+  }
+
+ private:
+  void Build(Browser* browser) {
+    AddItemWithStringId(IDC_WEBD2D_URL_SHARE, IDS_WEBD2D_URL_SHARE);
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(WebD2DMenuModel);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // HelpMenuModel
 
 #if defined(GOOGLE_CHROME_BUILD)
@@ -765,7 +784,10 @@ void AppMenuModel::Build() {
                              IDS_TOGGLE_REQUEST_TABLET_SITE);
 #endif
 
-  AddItem(IDC_WEBD2D, l10n_util::GetStringUTF16(IDS_WEBD2D));
+  // AddItem(IDC_WEBD2D, l10n_util::GetStringUTF16(IDS_WEBD2D));
+  webd2d_menu_model_.reset(new WebD2DMenuModel(this, browser_));
+  AddSubMenuWithStringId(IDC_WEBD2D, IDS_WEBD2D,
+                         webd2d_menu_model_.get());
 
   if (browser_defaults::kShowExitMenuItem) {
     AddSeparator(ui::NORMAL_SEPARATOR);
