@@ -403,11 +403,15 @@ void ShowAboutChrome(Browser* browser) {
   ShowSingletonTabOverwritingNTP(browser, params);
 }
 
-void ShowWebD2D(Browser * browser) {
+void ShowWebD2DUrlShare(Browser * browser) {
   content::WebContents* contents = browser->tab_strip_model()->GetActiveWebContents();
   if (contents != nullptr) {
     std::string visible_url = contents->GetVisibleURL().possibly_invalid_spec();
-    LOG(ERROR) << "[ShowWebD2D][" << __FUNCTION__ << "][" << __LINE__ << "] visible_url : " << visible_url;
+    LOG(ERROR) << "[ShowWebD2DUrlShare][" << __FUNCTION__ << "][" << __LINE__ << "] visible_url : " << visible_url;
+    std::stringstream wd2dss;
+    std::string wd2dcmd;
+    wd2dss<< "WD2D&;!0&;!0&;! " << " -u" << visible_url.c_str();
+    wd2dcmd = wd2dss.str();
 
     const char* IP = "127.0.0.1";
     int PORT = 8888;
@@ -422,10 +426,11 @@ void ShowWebD2D(Browser * browser) {
       server.sin_port = htons(PORT);
 
       if (connect(sock , (struct sockaddr *)&server , sizeof(server)) == 0) {
-        if (send(sock , visible_url.c_str() , strlen(visible_url.c_str()) , 0) > 0) {
+        //if (send(sock , visible_url.c_str() , strlen(visible_url.c_str()) , 0) > 0) {
+        if (send(sock , wd2dcmd.c_str() , strlen(wd2dcmd.c_str()) , 0) > 0) {
           if (recv(sock , server_reply , 2000 , 0) > 0) {
             std::string reply(server_reply);
-            LOG(ERROR) << "[ShowWebD2D][" << __FUNCTION__ << "][" << __LINE__ << "] reply : " << reply;
+            LOG(ERROR) << "[ShowWebD2DUrlShare][" << __FUNCTION__ << "][" << __LINE__ << "] reply : " << reply;
           }
         }
         close(sock);

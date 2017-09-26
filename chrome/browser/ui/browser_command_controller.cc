@@ -610,7 +610,7 @@ void BrowserCommandController::ExecuteCommandWithDisposition(
       ShowAboutChrome(browser_);
       break;
     case IDC_WEBD2D_URL_SHARE:
-      ShowWebD2D(browser_);
+      ShowWebD2DUrlShare(browser_);
       break;
     case IDC_UPGRADE_DIALOG:
       OpenUpdateChromeDialog(browser_);
