@@ -65,6 +65,11 @@ class MODULES_EXPORT NavigatorContentUtils final
                                         ExceptionState&);
 
   static void ProvideTo(Navigator&, NavigatorContentUtilsClient*);
+  
+  static void registerContentHandler(Navigator&, const String& scheme, const String& url, const String& title, ExceptionState&);
+  static void unregisterContentHandler(Navigator&, const String& scheme, const String& url, ExceptionState&);
+
+  static NavigatorContentUtils* create(NavigatorContentUtilsClient*);
 
   DECLARE_VIRTUAL_TRACE();
 

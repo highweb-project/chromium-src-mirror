@@ -33,9 +33,9 @@ static void SetRuntimeFeatureDefaultsForPlatform() {
   // No plan to support complex UI for date/time INPUT types.
   WebRuntimeFeatures::EnableInputMultipleFieldsUI(false);
   // Android does not yet support SharedWorker. crbug.com/154571
-  WebRuntimeFeatures::EnableSharedWorker(false);
+  WebRuntimeFeatures::EnableSharedWorker(true);
   // Android does not yet support NavigatorContentUtils.
-  WebRuntimeFeatures::EnableNavigatorContentUtils(false);
+  WebRuntimeFeatures::EnableNavigatorContentUtils(true);
   WebRuntimeFeatures::EnableOrientationEvent(true);
   WebRuntimeFeatures::EnableFastMobileScrolling(true);
   WebRuntimeFeatures::EnableMediaCapture(true);
@@ -91,8 +91,9 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
     const base::CommandLine& command_line) {
   bool enableExperimentalWebPlatformFeatures = command_line.HasSwitch(
       switches::kEnableExperimentalWebPlatformFeatures);
-  if (enableExperimentalWebPlatformFeatures)
+  // if (enableExperimentalWebPlatformFeatures)
     WebRuntimeFeatures::EnableExperimentalFeatures(true);
+  WebRuntimeFeatures::EnableTestOnlyFeatures(true);
 
   WebRuntimeFeatures::EnableOriginTrials(
       base::FeatureList::IsEnabled(features::kOriginTrials));
@@ -133,7 +134,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   if (command_line.HasSwitch(switches::kDisableFileSystem))
     WebRuntimeFeatures::EnableFileSystem(false);
 
-  if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
+  // if (command_line.HasSwitch(switches::kEnableExperimentalCanvasFeatures))
     WebRuntimeFeatures::EnableExperimentalCanvasFeatures(true);
 
   if (!command_line.HasSwitch(switches::kDisableAcceleratedJpegDecoding))
@@ -214,7 +215,7 @@ void SetRuntimeFeaturesDefaultsAndUpdateFromArgs(
   else
     WebRuntimeFeatures::EnableV8IdleTasks(true);
 
-  if (command_line.HasSwitch(switches::kEnableWebVR))
+  // if (command_line.HasSwitch(switches::kEnableWebVR))
     WebRuntimeFeatures::EnableWebVR(true);
 
   WebRuntimeFeatures::EnableWebVRExperimentalRendering(

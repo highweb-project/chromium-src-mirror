@@ -269,6 +269,10 @@
     },
     "marquee",
     "menu",
+    {
+      name: "menuitem",
+      interfaceName: "HTMLMenuItemElement",
+    },
     "meta",
     {
       name: "meter",

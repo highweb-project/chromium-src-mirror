@@ -248,4 +248,40 @@ void NavigatorContentUtils::ProvideTo(Navigator& navigator,
       new NavigatorContentUtils(navigator, client));
 }
 
-}  // namespace blink
+void NavigatorContentUtils::registerContentHandler(Navigator& navigator, const String& scheme, const String& url, const String& title, ExceptionState& exceptionState)
+{
+    if (!navigator.GetFrame())
+        return;
+
+    Document* document = navigator.GetFrame()->GetDocument();
+    DCHECK(document);
+
+    if (!VerifyCustomHandlerURL(*document, url, exceptionState))
+        return;
+
+    if (!VerifyCustomHandlerScheme(scheme, exceptionState))
+        return;
+
+    DCHECK(navigator.GetFrame()->GetPage());
+    NavigatorContentUtils::From(navigator)->Client()->RegisterProtocolHandler(scheme, document->CompleteURL(url), title);
+}
+
+void NavigatorContentUtils::unregisterContentHandler(Navigator& navigator, const String& scheme, const String& url, ExceptionState& exceptionState)
+{
+    if (!navigator.GetFrame())
+        return;
+
+    Document* document = navigator.GetFrame()->GetDocument();
+    DCHECK(document);
+
+    if (!VerifyCustomHandlerURL(*document, url, exceptionState))
+        return;
+
+    if (!VerifyCustomHandlerScheme(scheme, exceptionState))
+        return;
+
+    DCHECK(navigator.GetFrame()->GetPage());
+    NavigatorContentUtils::From(navigator)->Client()->UnregisterProtocolHandler(scheme, document->CompleteURL(url));
+}
+
+} // namespace blink

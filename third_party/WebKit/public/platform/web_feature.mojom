@@ -289,6 +289,8 @@ enum WebFeature {
   kMapElement = 482,
   kMeterElement = 483,
   kProgressElement = 484,
+  //using webkitDropzone for html5test score
+  kPrefixedHTMLElementDropzone = 490,
   kWheelEventWheelDeltaX = 491,
   kWheelEventWheelDeltaY = 492,
   kWheelEventWheelDelta = 493,
