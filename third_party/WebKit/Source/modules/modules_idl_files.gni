@@ -722,6 +722,7 @@ if(enable_highweb_webcl) {
   modules_dictionary_idl_files +=
       get_path_info([
                       "webcl/WebCLGLObjectInfo.idl",
+                      "webcl/WebCLImageDescriptor.idl",
                       "webcl/WebCLKernelArgInfo.idl",
                     ],
                     "abspath")
@@ -751,7 +752,6 @@ if(enable_highweb_webvkc) {
             "webvulkan/WindowWebVKC.idl",
           ],
           "abspath")
-  }
 }
 
 #deviceapi idl files

@@ -9,7 +9,17 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/shared_memory.h"
 
+#include "base/synchronization/waitable_event.h"
+#include "net/log/net_log.h"
+#include "net/url_request/url_fetcher_delegate.h"
+#include "url/gurl.h"
+
 #include "gpu/native_vulkan/vulkan_include.h"
+
+namespace net {
+	class URLFetcher;
+	class URLRequestContext;
+}
 
 namespace gpu {
 class GpuChannel;
@@ -65,6 +75,20 @@ class GpuChannel;
 	VK_API_ARGS3(VKEnumerateDeviceLayerProperties, VKCResult, VkPhysicalDevice, ARG_PTR(uint32_t), ARG_PTR(VkLayerProperties));
 	VK_API_ARGS2(VKEnumerateInstanceLayerProperties, VKCResult, ARG_PTR(uint32_t), ARG_PTR(VkLayerProperties));
 	VK_API_ARGS3(VKEnumerateInstanceExtensionProperties, VKCResult, ARG_CONST(ARG_PTR(char)), ARG_PTR(uint32_t), ARG_PTR(VkExtensionProperties));
+
+	// Simply quits the current message loop when finished.  Used to make
+	// URLFetcher synchronous.
+	class QuitDelegate : public net::URLFetcherDelegate {
+	public:
+		QuitDelegate(base::WaitableEvent* VKCFetcherEvent);
+		~QuitDelegate() override {}
+		void OnURLFetchComplete(const net::URLFetcher* source) override;
+		void OnURLFetchDownloadProgress(const net::URLFetcher* source, int64_t current, int64_t total, int64_t current_network_bytes) override {}
+		void OnURLFetchUploadProgress(const net::URLFetcher* source, int64_t current, int64_t total) override {}
+	private:
+		base::WaitableEvent* fetcherEvent;
+		DISALLOW_COPY_AND_ASSIGN(QuitDelegate);
+	};
 
 	class VKCApi {
 	public :
@@ -148,7 +172,7 @@ class GpuChannel;
 		int vkcReleaseDescriptorSet(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorPool, const VKCPoint& vkcDescriptorSet);
 		int vkcCreatePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcDescriptorSetLayout, VKCPoint* vkcPipelineLayout);
 		int vkcReleasePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout);
-		int vkcCreateShaderModuleWithUrl(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule);
+		int vkcCreateShaderModuleWithUrl(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, const GpuChannel* channel);
 		int vkcCreateShaderModuleWithSource(const VKCPoint& vkcDevice, const std::string& shaderCode, VKCPoint* vkcShaderModule);
 		int vkcReleaseShaderModule(const VKCPoint& vkcDevice, const VKCPoint& vkcShaderModule);
 		int vkcCreatePipeline(const VKCPoint& vkcDevice, const VKCPoint& vkcPipelineLayout, const VKCPoint& vkcShaderModule, VKCPoint* vkcPipelineCache, VKCPoint* vkcPipeline);
@@ -164,7 +188,16 @@ class GpuChannel;
 
 	private:
 
-		VKCuint getShaderCode(std::string shaderPath, char* shaderCode, VKCuint maxSourceLength);
+		//for spv file download
+		VKCuint getShaderCode(std::string shaderPath, char* shaderCode, VKCuint maxSourceLength, const GpuChannel* channel);
+		void getShaderCodeInternal(GURL shaderUrl, char* shaderCode, const GpuChannel* channel, base::WaitableEvent* fetcherEvent);
+		void resetURLFetcher();
+
+		net::NetLog net_log;
+		std::unique_ptr<net::URLFetcher> fetcher;
+		std::unique_ptr<net::URLRequestContext> context;
+		std::unique_ptr<QuitDelegate> delegate;
+		//
 
 		bool vkcLibraryLoaded_ = false;
 

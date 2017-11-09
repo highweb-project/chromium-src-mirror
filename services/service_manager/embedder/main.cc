@@ -388,6 +388,13 @@ int Main(const MainParams& params) {
   base::win::SetupCRT(command_line);
 #endif
 
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("no-sandbox");
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("disable-breakpad");
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("no-default-browser-check");
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("no-first-run");
+#endif
+
   MainDelegate::InitializeParams init_params;
 
 #if defined(OS_MACOSX)

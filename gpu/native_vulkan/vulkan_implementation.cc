@@ -10,6 +10,14 @@
 
 #include "vulkan_shader_compiler.h"
 
+// for spv file download
+#include "net/proxy/proxy_config_service_fixed.h"
+#include "net/url_request/url_fetcher.h"
+#include "net/url_request/url_request_context_builder.h"
+#include "net/url_request/url_request_context_getter.h"
+#include "net/url_request/url_request_context.h"
+#include "gpu/ipc/service/gpu_channel.h"
+
 namespace gpu {
 
 void InitializeStaticVKCBindings(VKCApi* apiImpl) {
@@ -1285,11 +1293,11 @@ int VKCApi::vkcReleasePipelineLayout(const VKCPoint& vkcDevice, const VKCPoint& 
 	return (int)VK_SUCCESS;
 }
 
-int VKCApi::vkcCreateShaderModuleWithUrl(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule) {
+int VKCApi::vkcCreateShaderModuleWithUrl(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, const GpuChannel* channel) {
 	VkDevice* device = (VkDevice*)vkcDevice;
 
 	char* shaderCode = (char*)malloc(65535);
-	VKCuint codeLength = getShaderCode(shaderPath, shaderCode, 65535);
+	VKCuint codeLength = getShaderCode(shaderPath, shaderCode, 65535, channel);
 
 	if (codeLength == 0) {
 		return (int)VKC_GET_SHADER_CODE_FAIL;
@@ -1546,141 +1554,48 @@ int VKCApi::vkcDeviceWaitIdle(const VKCPoint& vkcDevice) {
 	return (int)result;
 }
 
-VKCuint VKCApi::getShaderCode(std::string shaderPath, char* shaderCode, VKCuint maxSourceLength) {
-	int sockfd, c;
-	struct sockaddr_in addr;
-	std::string address;
-	std::string protocol;
+void VKCApi::getShaderCodeInternal(GURL shaderUrl, char* shaderCode, const GpuChannel* channel, base::WaitableEvent* fetcherEvent) {
+	delegate.reset(new QuitDelegate(fetcherEvent));
+	fetcher = net::URLFetcher::Create(shaderUrl, net::URLFetcher::GET, delegate.get());
 
-	size_t protocolIndex = shaderPath.find("://");
+	net::URLRequestContextBuilder builder;
+	builder.set_proxy_config_service(base::MakeUnique<net::ProxyConfigServiceFixed>(net::ProxyConfig()));
+	builder.set_file_enabled(true);
+	context = builder.Build();
+	context->set_net_log(&net_log);
 
-	VKCLOG(INFO) << "protocolIndex : " << protocolIndex;
+	fetcher->SetRequestContext(new net::TrivialURLRequestContextGetter(context.get(), channel->io_task_runner()));
+	fetcher->Start();
+}
 
-	if (protocolIndex != std::string::npos) {
-		address = shaderPath.substr(protocolIndex + 3);
-		protocol = shaderPath.substr(0, protocolIndex);
-		VKCLOG(INFO) << protocol << ", " << address;
-	} else {
-		VKCLOG(INFO) << "not found protocol index";
-		return 0;
+VKCuint VKCApi::getShaderCode(std::string shaderPath, char* shaderCode, VKCuint maxSourceLength, const GpuChannel* channel) {
+  GURL shaderUrl(shaderPath);
+  if (shaderUrl.has_scheme() && (shaderUrl.SchemeIsHTTPOrHTTPS() || shaderUrl.SchemeIsFile())) {
+		base::WaitableEvent VKCFetcherEvent(base::WaitableEvent::ResetPolicy::MANUAL, base::WaitableEvent::InitialState::NOT_SIGNALED);
+		channel->io_task_runner()->PostTask(FROM_HERE, 
+						base::Bind(&VKCApi::getShaderCodeInternal, base::Unretained(this), shaderUrl, shaderCode, channel, &VKCFetcherEvent));
+		VKCFetcherEvent.Reset();
+		VKCFetcherEvent.Wait();
+
+		std::string data;
+		fetcher->GetResponseAsString(&data);
+		memcpy(shaderCode, (void*)data.c_str(), data.length());
+		channel->io_task_runner()->PostTask(FROM_HERE, base::Bind(&VKCApi::resetURLFetcher, base::Unretained(this)));
+		return data.length();
 	}
+	return 0;
+}
 
-	if (protocol == "http" || protocol == "https") {
-		VKCLOG(INFO) << "protocol is http";
-		size_t hostNameIndex = address.find("/");
-		VKCLOG(INFO) << "hostNameIndex : " << hostNameIndex;
-		std::string hostName;
-		std::string path;
-		if (hostNameIndex != std::string::npos) {
-			hostName = address.substr(0, hostNameIndex);
-			path = address.substr(hostNameIndex);
-		} else {
-			hostName = address;
-			path = "/";
-		}
-		VKCLOG(INFO) << "hostName : " << hostName;
-		size_t portIndex = hostName.find(":");
-		int port = 80;
-		if (portIndex == std::string::npos) {
-			VKCLOG(INFO) << "hostname not has port number";
-		} else {
-			VKCLOG(INFO) << "portIndex : " << portIndex << ", port : " << hostName.substr(portIndex + 1);
-			port = stoi(hostName.substr(portIndex + 1));
-			hostName = hostName.substr(0, portIndex);
-		}
-		VKCLOG(INFO) << "hostName : " << hostName << ", port : " << port;
-		VKCLOG(INFO) << "path : " << path;
+void VKCApi::resetURLFetcher() {
+	fetcher.reset();
+	context.reset();
+	delegate.reset();
+}
 
-		struct hostent *host = gethostbyname(hostName.c_str());
+QuitDelegate::QuitDelegate(base::WaitableEvent* VKCFetcherEvent) : fetcherEvent(VKCFetcherEvent) {}
 
-		if (host == nullptr) {
-			VKCLOG(INFO) << "wrong url " << h_errno;
-			return 0;
-		}
-
-		sockfd = socket(PF_INET, SOCK_STREAM, 0);
-
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(port);
-		addr.sin_addr = *((struct in_addr *)host->h_addr);
-		memset(addr.sin_zero, '\0', sizeof addr.sin_zero);
-
-		c = connect(sockfd, (struct sockaddr *)&addr, sizeof addr);
-
-		for(int i = 0; i < 5; i++) {
-			if (c != -1) {
-				VKCLOG(INFO) << "connect fail " << c << ", " << i;
-				break;
-			} else if(c == -1 && i == 4) {
-				VKCLOG(INFO) << "connect fail " << c << ", " << i;
-				return 0;
-			}
-			sleep(1);
-			c = connect(sockfd, (struct sockaddr *)&addr, sizeof addr);
-			VKCLOG(INFO) << "connect fail " << c << ", " << i;
-			VKCLOG(INFO) << "errno : " << errno;
-		}
-		VKCLOG(INFO) << "connect";
-		std::string packet = "GET " + path + "\r\n\r\n";
-
-		send(sockfd, packet.c_str(), packet.size(), 0);
-
-		int bytes = 1000;
-
-		char buffer[bytes];
-		VKCuint index = 0;
-		int r = 1;
-		while(r > 0) // I'll work on dynamically setting the size later on.
-		{
-			r = recv(sockfd, buffer, 128, 0);
-			if (r <= 0) {
-				break;
-			}
-			memcpy(&shaderCode[index], buffer, r);
-			index += r;
-			if (index >= maxSourceLength) {
-				index = 0;
-				break;
-			}
-		}
-		VKCLOG(INFO) << "index : " << index;
-
-		close(sockfd);
-		return index;
-	} else if(protocol == "file") {
-		VKCLOG(INFO) << "protocol is File";
-		VKCuint size = 0;
-
-		size_t retval;
-
-		if (address[0] != '/') {
-			address = "/" + address;
-		}
-
-		FILE *fp = fopen(address.c_str(), "rb");
-		if (!fp){
-			VKCLOG(INFO) << "fp not open";
-			return 0;
-		}
-
-		fseek(fp, 0L, SEEK_END);
-		size = ftell(fp);
-
-		if (maxSourceLength < size) {
-			return 0;
-		}
-
-		fseek(fp, 0L, SEEK_SET);
-
-		retval = fread(shaderCode, size, 1, fp);
-		VKCLOG(INFO) << "readBinaryFile : " << (retval == 1);
-
-		VKCLOG(INFO) << "VkShaderModule loadShader : " << (size > 0);
-
-		return size;
-	} else {
-		return 0;
-	}
+void QuitDelegate::OnURLFetchComplete(const net::URLFetcher* source) {
+	fetcherEvent->Signal();
 }
 
 } // namesapce gpu

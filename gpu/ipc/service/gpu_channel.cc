@@ -3779,7 +3779,7 @@ void GpuChannel::OnCallVKCReleasePipelineLayout(const VKCPoint& vkcDevice, const
 
 void GpuChannel::OnCallVKCCreateShaderModuleWithUrl(const VKCPoint& vkcDevice, const std::string& shaderPath, VKCPoint* vkcShaderModule, int* result) {
   VKCLOG(INFO) << "OnCallVKCCreateShaderModuleWithUrl : " << vkcDevice << ", " << shaderPath;
-  *result = vkcApiImpl->vkcCreateShaderModuleWithUrl(vkcDevice, shaderPath, vkcShaderModule);
+  *result = vkcApiImpl->vkcCreateShaderModuleWithUrl(vkcDevice, shaderPath, vkcShaderModule, this);
 }
 
 void GpuChannel::OnCallVKCCreateShaderModuleWithSource(const VKCPoint& vkcDevice, const std::string& shaderCode, VKCPoint* vkcShaderModule, int* result) {

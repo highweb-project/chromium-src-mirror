@@ -37,6 +37,7 @@ if (enable_highweb_webvkc) {
     deps = [
       "//base",
       "//third_party/shaderc:libshaderc",
+      "//net",
     ]
   }
 }

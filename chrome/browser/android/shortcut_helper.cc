@@ -474,10 +474,10 @@ void ShortcutHelper::saveWebApp(const ShortcutInfo& info,
     appValue.SetString("app.launch.scoped_url", scope_url.spec());
     
     std::unique_ptr<base::ListValue> linked_icons1 = base::MakeUnique<base::ListValue>();
-    appValue.SetList("app.linked_icons", std::move(linked_icons1));
     std::unique_ptr<base::DictionaryValue> linked_icon(new base::DictionaryValue());
     linked_icon->SetString("best_icon", info.best_primary_icon_url.spec());
     linked_icons1->Append(std::move(linked_icon));
+    appValue.SetList("app.linked_icons", std::move(linked_icons1));
     appValue.SetString("app.icon_color", std::to_string(info.theme_color));
     appValue.SetInteger("app.orientation", (int)info.orientation);
     appValue.SetInteger("app.display", (int)info.display);
