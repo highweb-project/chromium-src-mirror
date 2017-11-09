@@ -1,0 +1,223 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+interface WebCLCommandQueue {
+	[RaisesException] void enqueueCopyBuffer(
+			WebCLBuffer srcBuffer,
+			WebCLBuffer dstBuffer,
+			unsigned long srcOffset,
+			unsigned long dstOffset,
+			unsigned long numBytes,
+			optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event);
+	[RaisesException] void enqueueCopyBufferRect(
+			WebCLBuffer srcBuffer,
+			WebCLBuffer dstBuffer,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> dstOrigin,
+			sequence<unsigned long> region,
+			unsigned long srcRowPitch,
+			unsigned long srcSlicePitch,
+			unsigned long dstRowPitch,
+			unsigned long dstSlicePitch,
+			optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event);
+	[RaisesException] void enqueueCopyImage(
+			WebCLImage srcImage,
+			WebCLImage dstImage,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> dstOrigin,
+			sequence<unsigned long> region,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException] void enqueueCopyImageToBuffer(
+			WebCLImage srcImage,
+			WebCLBuffer dstBuffer,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> srcRegion,
+			unsigned long dstOffset,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException] void enqueueCopyBufferToImage(
+			WebCLBuffer srcBuffer,
+			WebCLImage dstImage,
+			unsigned long srcOffset,
+			sequence<unsigned long> dstOrigin,
+			sequence<unsigned long> dstRegion,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadBuffer(
+			WebCLBuffer buffer,
+			boolean blockingRead,
+			unsigned long bufferOffset,
+			unsigned long numBytes,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingRead,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> hostOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			unsigned long hostRowPitch,
+			unsigned long hostSlicePitch,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadImage(
+			WebCLImage image,
+			boolean blockingRead,
+			sequence<unsigned long> origin,
+			sequence<unsigned long> region,
+			unsigned long hostRowPitch,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBuffer(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			unsigned long bufferOffset,
+			unsigned long numBytes,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> hostOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			unsigned long hostRowPitch,
+			unsigned long hostSlicePitch,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[Custom, RaisesException] void enqueueWriteImage(
+			WebCLImage image,
+			boolean blockingWrite,
+			sequence<unsigned long> origin,
+			sequence<unsigned long> region,
+			unsigned long hostRowPitch,
+			ArrayBufferView hostPtr,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+
+	[Custom, RaisesException] void enqueueNDRangeKernel(
+			WebCLKernel kernel,
+			unsigned long workDim,
+			sequence<unsigned long>? globalWorkOffset,
+			sequence<unsigned long> globalWorkSize,
+			optional sequence<unsigned long>? localWorkSize,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+
+	[RaisesException] void enqueueMarker(WebCLEvent event);
+	[RaisesException] void enqueueBarrier();
+	[RaisesException] void enqueueWaitForEvents(sequence<WebCLEvent> eventWaitList);
+	[RaisesException] void finish(optional WebCLCallback whenFinished);
+	[RaisesException] void flush();
+
+	[RaisesException, CallWith=ScriptState] any getInfo(long name);
+	[RaisesException] void release();
+
+	/*
+	 * WEBCL_html_video extension
+	 */
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBuffer(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			unsigned long bufferOffset,
+			ImageData srcPixels,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBuffer(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			unsigned long bufferOffset,
+			HTMLCanvasElement srcCanvas,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBuffer(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			unsigned long bufferOffset,
+			HTMLImageElement srcImage,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			ImageData srcPixels,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			HTMLCanvasElement srcCanvas,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueWriteBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingWrite,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> srcOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			HTMLImageElement srcImage,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadBuffer(
+			WebCLBuffer buffer,
+			boolean blockingRead,
+			unsigned long bufferOffset,
+			unsigned long numBytes,
+			HTMLCanvasElement dstCanvas,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadBufferRect(
+			WebCLBuffer buffer,
+			boolean blockingRead,
+			sequence<unsigned long> bufferOrigin,
+			sequence<unsigned long> dstOrigin,
+			sequence<unsigned long> region,
+			unsigned long bufferRowPitch,
+			unsigned long bufferSlicePitch,
+			HTMLCanvasElement dstCanvas,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReadImage(
+			WebCLImage image,
+			boolean blockingRead,
+			sequence<unsigned long> origin,
+			sequence<unsigned long> region,
+			HTMLCanvasElement dstCanvas,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event);
+	//cl_gl_sharing
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueAcquireGLObjects(
+			sequence<any> memObjects,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event = null);
+	[RaisesException, LegacyInterfaceTypeChecking] void enqueueReleaseGLObjects(
+			sequence<any> memObjects,
+			optional sequence<WebCLEvent>? eventWaitList,
+			optional WebCLEvent? event = null);
+};

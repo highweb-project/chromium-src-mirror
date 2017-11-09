@@ -40,14 +40,14 @@ config("find_bad_constructs") {
       "check-auto-raw-pointer",
     ]
 
-    if (is_linux || is_android) {
-      cflags += [
-        "-Xclang",
-        "-plugin-arg-find-bad-constructs",
-        "-Xclang",
-        "check-ipc",
-      ]
-    }
+#    if (is_linux || is_android) {
+#      cflags += [
+#        "-Xclang",
+#        "-plugin-arg-find-bad-constructs",
+#        "-Xclang",
+#        "check-ipc",
+#      ]
+#    }
   }
 }
 

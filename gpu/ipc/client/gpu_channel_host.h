@@ -28,6 +28,13 @@
 #include "ui/gfx/gpu_memory_buffer.h"
 #include "ui/latency/latency_info.h"
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "gpu/opencl/opencl_include.h"
+#endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "gpu/native_vulkan/vulkan_include.h"
+#endif
+
 namespace base {
 class WaitableEvent;
 }
@@ -75,6 +82,312 @@ class GPU_EXPORT GpuChannelHost
     : public IPC::Sender,
       public base::RefCountedThreadSafe<GpuChannelHost> {
  public:
+#if defined(ENABLE_HIGHWEB_WEBCL)
+	cl_int webcl_getPlatformIDs(cl_uint, cl_platform_id*, cl_uint*);
+	cl_int webcl_getInfoTest(
+				cl_platform_id platform,
+				char* result
+	);
+	cl_int webcl_clGetPlatformInfo(
+			cl_platform_id,
+			cl_platform_info,
+			size_t,
+			std::string*,
+			size_t*
+	);
+	cl_int webcl_clGetDeviceIDs(
+			cl_platform_id platform_id,
+			cl_device_type device_type,
+			cl_uint num_entries,
+			cl_device_id* devices,
+			cl_uint* num_devices
+	);
+	cl_int webcl_clGetDeviceInfo(
+			cl_device_id device,
+			cl_device_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+	cl_context webcl_clCreateContextFromType(
+			cl_context_properties* properties,
+			cl_device_type device_type,
+			void(CL_CALLBACK* pfn_notify)(const char*, const void*, size_t, void*),
+			void* user_data,
+			cl_int* errcode_ret
+	);
+	cl_int webcl_clWaitForEvents(
+			cl_uint num_events,
+			const cl_event* event_ist
+	);
+	cl_int webcl_clGetMemObjectInfo(
+			cl_mem memobj,
+			cl_mem_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+	cl_mem webcl_clCreateSubBuffer(
+			cl_mem buffer,
+			cl_mem_flags flags,
+			cl_buffer_create_type buffer_create_type,
+			void* buffer_create_info,
+			cl_int* errcode_ret
+	);
+	cl_sampler webcl_clCreateSampler(
+			cl_context context,
+			cl_bool normalized_coords,
+			cl_addressing_mode addressing_mode,
+			cl_filter_mode filter_mode,
+			cl_int* errcode_ret
+	);
+	cl_int webcl_clGetSamplerInfo(
+			cl_sampler sampler,
+			cl_sampler_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+	cl_int webcl_clReleaseSampler(
+			cl_sampler sampler
+	);
+	cl_int webcl_clGetImageInfo(
+			cl_mem image,
+			cl_image_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+	cl_int webcl_clGetContextInfo(
+			cl_context context,
+			cl_context_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+
+	cl_int webcl_clGetEventInfo(
+			cl_event,
+			cl_event_info,
+			size_t,
+			void*,
+			size_t*
+	);
+
+	cl_int webcl_clGetEventProfilingInfo(
+			cl_event,
+			cl_profiling_info,
+			size_t,
+			void*,
+			size_t*
+	);
+
+	cl_int webcl_clSetEventCallback(
+			cl_event,
+			cl_int,
+			int,
+			int,
+			int
+	);
+
+	cl_int webcl_clReleaseEvent(
+			cl_event
+	);
+	cl_context webcl_clCreateContext(
+			cl_context_properties* properties,
+			cl_uint num_devices,
+			const cl_device_id* devices,
+			void(CL_CALLBACK* pfn_notify)(const char*, const void*, size_t, void*),
+			void* user_data,
+			cl_int* errcode_ret
+	);
+
+	cl_int webcl_clSetUserEventStatus(
+			cl_event event,
+			cl_int executionStatus
+	);
+
+	cl_event webcl_clCreateUserEvent(
+			cl_context mContext,
+			cl_int* errcodeRet
+	);
+	cl_int webcl_clGetSupportedImageFormats(
+			cl_context context,
+			cl_mem_flags flags,
+			cl_mem_object_type image_type,
+			cl_uint num_entries,
+			cl_image_format* image_formats,
+			cl_uint* num_image_formats
+	);
+	cl_int webcl_clReleaseCommon(
+			OPENCL_OBJECT_TYPE objectType,
+			cl_point object
+	);
+	cl_command_queue webcl_clCreateCommandQueue(
+			cl_context context,
+			cl_device_id device,
+			cl_command_queue_properties properties,
+			cl_int* errcode_ret
+	);
+	cl_int webcl_clGetCommandQueueInfo(
+			cl_command_queue command_queue,
+			cl_command_queue_info param_name,
+			size_t param_value_size,
+			void* param_value,
+			size_t* param_value_size_ret
+	);
+
+	cl_int webcl_clEnqueueMarker(
+			cl_command_queue command_queue,
+			cl_event* event);
+
+	cl_int webcl_clEnqueueBarrier(
+			cl_command_queue command_queue);
+
+	cl_int webcl_clEnqueueWaitForEvents(
+			cl_command_queue command_queue,
+			cl_uint num_events,
+			const cl_event* event_list);
+
+	cl_int webcl_clFinish(
+			cl_command_queue command_queue);
+
+	cl_int webcl_clFlush(
+			cl_command_queue command_queue);
+
+	cl_int webcl_clGetKernelInfo(
+			cl_kernel,
+			cl_kernel_info,
+			size_t,
+			void*,
+			size_t*);
+	cl_int webcl_clGetKernelWorkGroupInfo(
+			cl_kernel,
+			cl_device_id,
+			cl_kernel_work_group_info,
+			size_t,
+			void*,
+			size_t*);
+	cl_int webcl_clGetKernelArgInfo(
+			cl_kernel,
+			cl_uint,
+			cl_kernel_arg_info,
+			size_t,
+			void*,
+			size_t*);
+
+	cl_int webcl_clReleaseKernel(
+			cl_kernel);
+
+	cl_int webcl_clGetProgramInfo(
+			cl_program,
+			cl_program_info,
+			size_t,
+			void*,
+			size_t*);
+
+	cl_program webcl_clCreateProgramWithSource(
+			cl_context,
+			cl_uint,
+			const char**,
+			const size_t*,
+			cl_int*);
+
+	cl_int webcl_clGetProgramBuildInfo(
+			cl_program,
+			cl_device_id,
+			cl_program_build_info,
+			size_t,
+			void*,
+			size_t*);
+
+	cl_int webcl_clBuildProgram(
+			cl_program,
+			cl_uint,
+			const cl_device_id*,
+			const char*,
+			cl_point,
+			unsigned,
+			unsigned);
+
+	cl_kernel webcl_clCreateKernel(
+			cl_program,
+			const char*,
+			cl_int*);
+
+	cl_int webcl_clCreateKernelsInProgram(
+			cl_program,
+			cl_uint,
+			cl_kernel*,
+			cl_uint*);
+
+	cl_int webcl_clReleaseProgram(
+			cl_program);
+
+	// gl/cl sharing
+	cl_point webcl_getGLContext();
+	cl_point webcl_getGLDisplay();
+
+	bool webcl_ctrlSetSharedHandles(
+			base::SharedMemoryHandle,
+			base::SharedMemoryHandle,
+			base::SharedMemoryHandle,
+			base::SharedMemoryHandle);
+
+	bool webcl_ctrlClearSharedHandles();
+
+	bool webcl_ctrlTriggerSharedOperation(int operation);
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+	//vulkan
+	//sharedMemory
+	bool webvkc_SetSharedHandles(
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle);
+
+	bool webvkc_ClearSharedHandles();
+
+	bool webvkc_TriggerSharedOperation(int operation);
+
+	VKCResult webvkc_createInstance(std::string& applicationName, std::string& engineName,
+		uint32_t& applicationVersion, uint32_t& engineVersion, uint32_t& apiVersion,
+		std::vector<std::string>& enabledLayerNames, std::vector<std::string>& enabledExtensionNames, VKCPoint* vkcInstance);
+	VKCResult webvkc_destroyInstance(VKCPoint* vkcInstance);
+	VKCResult webvkc_enumeratePhysicalDeviceCount(VKCPoint* vkcInstance, VKCuint* physicalDeviceCount, VKCPoint* physicalDeviceList);
+	VKCResult webvkc_destroyPhysicalDevice(VKCPoint* physicalDeviceList);
+	VKCResult webvkc_createDevice(VKCuint& vdIndex, VKCPoint& physicalDeviceList, VKCPoint* vkcDevice, VKCPoint* vkcQueue);
+	VKCResult webvkc_destroyDevice(VKCPoint* vkcDevice, VKCPoint* vkcQueue);
+	VKCResult webvkc_getDeviceInfo(VKCuint&, VKCPoint&, VKCenum&, void*);
+	VKCResult webvkc_createBuffer(VKCPoint&, VKCPoint&, VKCuint&, VKCuint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releaseBuffer(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_fillBuffer(VKCPoint&, VKCPoint&, std::vector<VKCuint>&);
+	VKCResult webvkc_createCommandQueue(VKCPoint&, VKCPoint&, VKCuint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releaseCommandQueue(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorSetLayout(VKCPoint&, VKCuint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorSetLayout(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorPool(VKCPoint&, VKCuint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorPool(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createDescriptorSet(VKCPoint&, VKCPoint&, VKCPoint&, VKCPoint*);
+	VKCResult webvkc_releaseDescriptorSet(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createPipelineLayout(VKCPoint&, VKCPoint&, VKCPoint*);
+	VKCResult webvkc_releasePipelineLayout(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createShaderModuleWithUrl(VKCPoint&, std::string&, VKCPoint*);
+	VKCResult webvkc_createShaderModuleWithSource(VKCPoint&, std::string&, VKCPoint*);
+	VKCResult webvkc_releaseShaderModule(VKCPoint&, VKCPoint&);
+	VKCResult webvkc_createPipeline(VKCPoint&, VKCPoint&, VKCPoint&, VKCPoint*, VKCPoint*);
+	VKCResult webvkc_releasePipeline(VKCPoint&, VKCPoint&, VKCPoint&);
+	VKCResult webvkc_updateDescriptorSets(VKCPoint&, VKCPoint&, std::vector<VKCPoint>&);
+	VKCResult webvkc_beginQueue(VKCPoint&, VKCPoint, VKCPoint, VKCPoint);
+	VKCResult webvkc_endQueue(VKCPoint&);
+	VKCResult webvkc_dispatch(VKCPoint&, VKCuint&, VKCuint&, VKCuint&);
+	VKCResult webvkc_pipelineBarrier(VKCPoint&);
+	VKCResult webvkc_cmdCopyBuffer(VKCPoint&, VKCPoint, VKCPoint, VKCuint&);
+	VKCResult webvkc_queueSubmit(VKCPoint&, VKCPoint);
+	VKCResult webvkc_deviceWaitIdle(VKCPoint&);
+#endif
+
   // Must be called on the main thread (as defined by the factory).
   static scoped_refptr<GpuChannelHost> Create(
       GpuChannelHostFactory* factory,

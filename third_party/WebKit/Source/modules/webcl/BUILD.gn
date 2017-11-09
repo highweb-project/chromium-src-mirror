@@ -1,0 +1,69 @@
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Copyright 2016 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//third_party/WebKit/Source/modules/modules.gni")
+import("//build/config/highweb.gni")
+
+if (enable_highweb_webcl) {
+  blink_modules_sources("webcl") {
+      sources = [
+        "DOMWindowWebCL.cpp",
+        "DOMWindowWebCL.h",
+        "WebCL.cpp",
+        "WebCL.h",
+        "WebCLAPIBlocker.cpp",
+        "WebCLAPIBlocker.h",
+        "WebCLBuffer.cpp",
+        "WebCLBuffer.h",
+        "WebCLCallback.h",
+        "WebCLCallbackHandler.cpp",
+        "WebCLCallbackHandler.h",
+        "WebCLCommandQueue.cpp",
+        "WebCLCommandQueue.h",
+        "WebCLContext.cpp",
+        "WebCLContext.h",
+        "WebCLDevice.cpp",
+        "WebCLDevice.h",
+        "WebCLEvent.cpp",
+        "WebCLEvent.h",
+        "WebCLHTMLUtil.cpp",
+        "WebCLHTMLUtil.h",
+        "WebCLImage.cpp",
+        "WebCLImage.h",
+        "WebCLInclude.h",
+        "WebCLInputChecker.cpp",
+        "WebCLInputChecker.h",
+        "WebCLKernel.cpp",
+        "WebCLKernel.h",
+        "WebCLKernelArgInfoProvider.cpp",
+        "WebCLKernelArgInfoProvider.h",
+        "WebCLMemoryObject.cpp",
+        "WebCLMemoryObject.h",
+        "WebCLMemoryUtil.cpp",
+        "WebCLMemoryUtil.h",
+        "WebCLOperationHandler.cpp",
+        "WebCLOperationHandler.h",
+        "WebCLPlatform.cpp",
+        "WebCLPlatform.h",
+        "WebCLProgram.cpp",
+        "WebCLProgram.h",
+        "WebCLSampler.cpp",
+        "WebCLSampler.h",
+        "WebCLUserEvent.cpp",
+        "WebCLUserEvent.h",
+        "WebCLValueChecker.cpp",
+        "WebCLValueChecker.h",
+      ]
+
+    deps = [
+      "//third_party/WebKit/public:blink_headers",
+      "//gpu/ipc/client",
+      "//ipc:ipc",
+      "//gpu/ipc/common:ipc_common_sources",
+    ]
+
+    defines = [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+}

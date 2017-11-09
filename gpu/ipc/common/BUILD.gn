@@ -4,6 +4,7 @@
 
 import("//build/config/ui.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
+import("//build/config/highweb.gni")
 
 group("common") {
   if (is_component_build) {
@@ -62,7 +63,7 @@ source_set("command_buffer_traits_sources") {
 source_set("ipc_common_sources") {
   # External code should depend on this via //gpu/ipc/common above rather than
   # depending on this directly or the component build will break.
-  visibility = [ "//gpu/*" ]
+  visibility = [ "//gpu/*", "//third_party/WebKit/Source/modules/webcl", ]
 
   sources = [
     "gpu_memory_buffer_support.cc",
@@ -100,6 +101,13 @@ source_set("ipc_common_sources") {
     "//ui/latency/ipc",
     "//url/ipc:url_ipc",
   ]
+
+  if (enable_highweb_webcl) {
+    deps += [ "//gpu/opencl:opencl_sources", ]
+  }
+  if (enable_highweb_webvkc) {
+    deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
+  }
 
   if (is_android) {
     sources += [

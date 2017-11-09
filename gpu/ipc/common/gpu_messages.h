@@ -42,6 +42,14 @@
 #include "ui/gfx/mac/io_surface.h"
 #endif
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "gpu/opencl/opencl_include.h"
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "gpu/native_vulkan/vulkan_include.h"
+#endif
+
 #undef IPC_MESSAGE_EXPORT
 #define IPC_MESSAGE_EXPORT GPU_EXPORT
 
@@ -247,3 +255,723 @@ IPC_SYNC_MESSAGE_ROUTED2_1(GpuCommandBufferMsg_CreateStreamTexture,
 
 // Start or stop VSync sygnal production on GPU side (Windows only).
 IPC_MESSAGE_ROUTED1(GpuCommandBufferMsg_SetNeedsVSync, bool /* needs_vsync */)
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+IPC_SYNC_MESSAGE_CONTROL2_3(OpenCLChannelMsg_getPlatformsIDs,
+					cl_uint,
+					std::vector<bool>,
+					std::vector<cl_point>,
+					cl_uint,
+					cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_getPlatformInfo,
+					cl_point,
+					cl_platform_info,
+					size_t,
+					std::vector<bool>,
+					cl_int,
+					std::string,
+					size_t)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceIDs,
+							cl_point,
+							cl_device_type,
+							cl_uint,
+							std::vector<bool>,
+							std::vector<cl_point>,
+							cl_uint,
+							cl_int)
+
+// Call and respond OpenCL API clGetDeviceInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_cl_point,
+              cl_point,
+              cl_device_info,
+              size_t,
+              std::vector<bool>,
+              cl_point,
+              size_t,
+              cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_cl_uint,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							cl_uint,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_size_t_list,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							std::vector<size_t>,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_size_t,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							size_t,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_cl_ulong,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							cl_ulong,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_string,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							std::string,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetDeviceInfo_intptr_t_list,
+							cl_point,
+							cl_device_info,
+							size_t,
+							std::vector<bool>,
+							std::vector<intptr_t>,
+							size_t,
+							cl_int)
+
+// Call and respond OpenCL API clCreateContextFromType using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_2(OpenCLChannelMsg_CreateContextFromType,
+							std::vector<cl_context_properties>,
+							cl_device_type,
+							cl_point,
+							cl_point,
+							std::vector<bool>,
+							cl_int,
+							cl_point)
+
+// Call and respond OpenCL API clCreateContextFromType using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_2(OpenCLChannelMsg_CreateContext,
+							std::vector<cl_context_properties>,
+							std::vector<cl_point>,
+							cl_point,
+							cl_point,
+							std::vector<bool>,
+							cl_int,
+							cl_point)
+
+IPC_SYNC_MESSAGE_CONTROL2_1(OpenCLChannelMsg_WaitForEvents,
+							cl_uint,
+							std::vector<cl_point>,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetMemObjectInfo_cl_int,
+							cl_point,
+							cl_mem_info,
+							size_t,
+							std::vector<bool>,
+							cl_int,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetMemObjectInfo_cl_uint,
+							cl_point,
+							cl_mem_info,
+							size_t,
+							std::vector<bool>,
+							cl_uint,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetMemObjectInfo_cl_ulong,
+							cl_point,
+							cl_mem_info,
+							size_t,
+							std::vector<bool>,
+							cl_ulong,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetMemObjectInfo_size_t,
+							cl_point,
+							cl_mem_info,
+							size_t,
+							std::vector<bool>,
+							size_t,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetMemObjectInfo_cl_point,
+							cl_point,
+							cl_mem_info,
+							size_t,
+							std::vector<bool>,
+							cl_point,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_2(OpenCLChannelMsg_CreateSubBuffer,
+							cl_point,
+							cl_mem_flags,
+							cl_buffer_create_type,
+							size_t,
+							size_t,
+							cl_point,
+							cl_int)
+
+// Call and respond OpenCL API clCreateSampler using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_2(OpenCLChannelMsg_CreateSampler,
+							cl_point,
+							cl_bool,
+							cl_addressing_mode,
+							cl_filter_mode,
+							std::vector<bool>,
+							cl_int,
+							cl_point)
+
+// Call and respond OpenCL API clGetSamplerInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetSamplerInfo_cl_uint,
+														cl_point,
+														cl_sampler_info,
+														size_t,
+														std::vector<bool>,
+														cl_uint,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetSamplerInfo_cl_point,
+														cl_point,
+														cl_sampler_info,
+														size_t,
+														std::vector<bool>,
+														cl_point,
+														size_t,
+														cl_int)
+
+// Call and respond OpenCL API clReleaseSampler using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_ReleaseSampler,
+							cl_point,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetImageInfo_cl_int,
+							cl_point,
+							cl_image_info,
+							size_t,
+							std::vector<bool>,
+							cl_int,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetImageInfo_cl_uint_list,
+							cl_point,
+							cl_image_info,
+							size_t,
+							std::vector<bool>,
+							std::vector<cl_uint>,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetImageInfo_cl_point,
+							cl_point,
+							cl_image_info,
+							size_t,
+							std::vector<bool>,
+							cl_point,
+							size_t,
+							cl_int)
+
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetImageInfo_size_t,
+							cl_point,
+							cl_image_info,
+							size_t,
+							std::vector<bool>,
+							size_t,
+							size_t,
+							cl_int)
+// Call and respond OpenCL API clGetEventInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetEventInfo_cl_point,
+														cl_point,
+														cl_event_info,
+														size_t,
+														std::vector<bool>,
+														cl_point,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetEventInfo_cl_uint,
+														cl_point,
+														cl_event_info,
+														size_t,
+														std::vector<bool>,
+														cl_uint,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetEventInfo_cl_int,
+														cl_point,
+														cl_event_info,
+														size_t,
+														std::vector<bool>,
+														cl_int,
+														size_t,
+														cl_int)
+
+// Call and respond OpenCL API clGetEventProfilingInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetEventProfilingInfo_cl_ulong,
+														cl_point,
+														cl_profiling_info,
+														size_t,
+														std::vector<bool>,
+														cl_ulong,
+														size_t,
+														cl_int)
+
+// Call and respond OpenCL API clSetEventCallback using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL3_1(OpenCLChannelMsg_SetEventCallback,
+														cl_point,
+														cl_int,
+														std::vector<int>,
+														cl_int)
+
+// Call and respond OpenCL API clReleaseEvent using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_ReleaseEvent,
+														cl_point,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetContextInfo_cl_point,
+							cl_point,
+							cl_context_info,
+							size_t,
+							std::vector<bool>,
+							cl_point,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetContextInfo_cl_point_list,
+							cl_point,
+							cl_context_info,
+							size_t,
+							std::vector<bool>,
+							std::vector<cl_point>,
+							size_t,
+							cl_int)
+
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetContextInfo_cl_uint,
+							cl_point,
+							cl_context_info,
+							size_t,
+							std::vector<bool>,
+							cl_uint,
+							size_t,
+							cl_int)
+
+// Call and respond OpenCL API clSetUserEventStatus using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL2_1(OpenCLChannelMsg_SetUserEventStatus,
+							cl_point,
+							cl_int,
+							cl_int)
+
+// Call and respond OpenCL API clCreateUserEvent using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL2_2(OpenCLChannelMsg_CreateUserEvent,
+							cl_point,
+							std::vector<bool>,
+							cl_int,
+							cl_point)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetSupportedImageFormat,
+							cl_point,
+							cl_mem_flags,
+							cl_mem_object_type,
+							cl_uint,
+							std::vector<bool>,
+							std::vector<cl_uint>,
+							cl_uint,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL2_1(OpenCLChannelMsg_ReleaseCommon,
+							cl_point,
+							int,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_2(OpenCLChannelMsg_CreateCommandQueue,
+							cl_point,
+							cl_point,
+							cl_command_queue_properties,
+							std::vector<bool>,
+							cl_int,
+							cl_point)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetCommandQueueInfo_cl_point,
+							cl_point,
+							cl_context_info,
+							size_t,
+							std::vector<bool>,
+							cl_point,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetCommandQueueInfo_cl_ulong,
+							cl_point,
+							cl_context_info,
+							size_t,
+							std::vector<bool>,
+							cl_ulong,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_Flush,
+							cl_point,
+							cl_int)
+
+// Call and respond OpenCL API clGetKernelInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetKernelInfo_string,
+							cl_point,
+							cl_kernel_info,
+							size_t,
+							std::vector<bool>,
+							std::string,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetKernelInfo_cl_uint,
+							cl_point,
+							cl_kernel_info,
+							size_t,
+							std::vector<bool>,
+							cl_uint,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetKernelInfo_cl_point,
+							cl_point,
+							cl_kernel_info,
+							size_t,
+							std::vector<bool>,
+							cl_point,
+							size_t,
+							cl_int)
+
+// Call and respond OpenCL API clGetKernelWorkGroupInfo
+// using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelWorkGroupInfo_size_t_list,
+							cl_point,
+							cl_point,
+							cl_kernel_work_group_info,
+							size_t,
+							std::vector<bool>,
+							std::vector<size_t>,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelWorkGroupInfo_size_t,
+							cl_point,
+							cl_point,
+							cl_kernel_work_group_info,
+							size_t,
+							std::vector<bool>,
+							size_t,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelWorkGroupInfo_cl_ulong,
+							cl_point,
+							cl_point,
+							cl_kernel_work_group_info,
+							size_t,
+							std::vector<bool>,
+							cl_ulong,
+							size_t,
+							cl_int)
+
+// Call and respond OpenCL API clGetKernelArgInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelArgInfo_string,
+							cl_point,
+							cl_uint,
+							cl_kernel_arg_info,
+							size_t,
+							std::vector<bool>,
+							std::string,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelArgInfo_cl_uint,
+							cl_point,
+							cl_uint,
+							cl_kernel_arg_info,
+							size_t,
+							std::vector<bool>,
+							cl_uint,
+							size_t,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetKernelArgInfo_cl_ulong,
+							cl_point,
+							cl_uint,
+							cl_kernel_arg_info,
+							size_t,
+							std::vector<bool>,
+							cl_ulong,
+							size_t,
+							cl_int)
+
+IPC_MESSAGE_ROUTED3(OpenCLChannelMsg_Callback,
+              cl_point,
+							unsigned,
+							unsigned)
+
+// Call and respond OpenCL API clReleaseKernel using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_ReleaseKernel,
+														cl_point,
+														cl_int)
+
+// Call and respond OpenCL API clGetProgramInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_cl_uint,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														cl_uint,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_cl_point,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														cl_point,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_cl_point_list,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														std::vector<cl_point>,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_string,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														std::string,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_size_t_list,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														std::vector<size_t>,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_string_list,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														std::vector<std::string>,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_GetProgramInfo_size_t,
+														cl_point,
+														cl_program_info,
+														size_t,
+														std::vector<bool>,
+														size_t,
+														size_t,
+														cl_int)
+
+// Call and respond OpenCL API clCreateProgramWithSource
+// using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_2(OpenCLChannelMsg_CreateProgramWithSource,
+														cl_point,
+														cl_uint,
+														std::vector<std::string>,
+														std::vector<size_t>,
+														std::vector<bool>,
+														cl_int,
+														cl_point)
+
+// Call and respond OpenCL API clGetProgramBuildInfo using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetProgramBuildInfo_cl_int,
+														cl_point,
+														cl_point,
+														cl_program_build_info,
+														size_t,
+														std::vector<bool>,
+														cl_int,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetProgramBuildInfo_string,
+														cl_point,
+														cl_point,
+														cl_program_build_info,
+														size_t,
+														std::vector<bool>,
+														std::string,
+														size_t,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL5_3(OpenCLChannelMsg_GetProgramBuildInfo_cl_uint,
+														cl_point,
+														cl_point,
+														cl_program_build_info,
+														size_t,
+														std::vector<bool>,
+														cl_uint,
+														size_t,
+														cl_int)
+
+// Call and response OpenCL API clBGuildProgram usin Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL5_1(OpenCLChannelMsg_BuildProgram,
+														cl_point,
+														cl_uint,
+														std::vector<cl_point>,
+														std::string,
+														std::vector<cl_point>,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL1_2(OpenCLChannelMsg_EnqueueMarker,
+							cl_point,
+							cl_point,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_EnqueueBarrier,
+							cl_point,
+							cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL3_1(OpenCLChannelMsg_EnqueueWaitForEvents,
+							cl_point,
+							std::vector<cl_point>,
+							cl_uint,
+							cl_int)
+
+// Call and respond OpenCL API clCreateKernel using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL3_2(OpenCLChannelMsg_CreateKernel,
+														cl_point,
+														std::string,
+														std::vector<bool>,
+														cl_int,
+														cl_point)
+
+// Call and respond OpenCL API clCreateKernelsInProgram
+// using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL4_3(OpenCLChannelMsg_CreateKernelsInProgram,
+														cl_point,
+														cl_uint,
+														std::vector<cl_point>,
+														std::vector<bool>,
+														std::vector<cl_point>,
+														cl_uint,
+														cl_int)
+
+// Call and respond OpenCL API clReleaseProgram using Sync IPC Message
+IPC_SYNC_MESSAGE_CONTROL1_1(OpenCLChannelMsg_ReleaseProgram,
+														cl_point,
+														cl_int)
+
+IPC_SYNC_MESSAGE_CONTROL4_1(OpenCLChannelMsg_CTRL_SetSharedHandles,
+														base::SharedMemoryHandle,
+														base::SharedMemoryHandle,
+														base::SharedMemoryHandle,
+														base::SharedMemoryHandle,
+														bool)
+
+IPC_SYNC_MESSAGE_CONTROL0_1(OpenCLChannelMsg_CTRL_ClearSharedHandles,
+														bool)
+
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_setArg)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_createBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_createImage)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueCopyBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueCopyBufferRect)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueCopyBufferToImage)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueCopyImageToBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueCopyImage)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueReadBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueReadBufferRect)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueReadImage)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueWriteBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueWriteBufferRect)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueWriteImage)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueNDRangeKernel)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_finish)
+
+// gl/cl sharing
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_createBufferFromGLBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_createImageFromGLRenderbuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_createImageFromGLTexture)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_getGLObjectInfo)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueAcquireGLObjects)
+IPC_SYNC_MESSAGE_CONTROL0_0(OpenCLChannelMsg_CTRL_Trigger_enqueueReleaseGLObjects)
+
+IPC_SYNC_MESSAGE_CONTROL0_2(OpenCLChannelMsg_getGLContext,
+          cl_point, cl_point)
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+//vulkan IPC Messages
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_SetSharedHandles,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		base::SharedMemoryHandle,
+		bool)
+
+IPC_SYNC_MESSAGE_CONTROL0_1(VulkanComputeChannelMsg_ClearSharedHandles,
+		bool)
+IPC_SYNC_MESSAGE_CONTROL4_2(VulkanComputeChannelMsg_CreateInstance,
+		std::vector<std::string>, std::vector<uint32_t>,
+		std::vector<std::string>, std::vector<std::string>, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DestroyInstance, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_3(VulkanComputeChannelMsg_EnumeratePhysicalDevice, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DestroyPhysicalDevice, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_3(VulkanComputeChannelMsg_CreateDevice, VKCuint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_DestroyDevice, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_uint, VKCuint, VKCPoint, VKCenum, uint32_t, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_string, VKCuint, VKCPoint, VKCenum, std::string, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_GetDeviceInfo_array, VKCuint, VKCPoint, VKCenum, std::vector<VKCuint>, int)
+IPC_SYNC_MESSAGE_CONTROL4_3(VulkanComputeChannelMsg_CreateBuffer, VKCPoint, VKCPoint, VKCuint, VKCuint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseBuffer, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_FillBuffer, VKCPoint, VKCPoint, std::vector<VKCuint>, int)
+IPC_SYNC_MESSAGE_CONTROL0_0(VulkanComputeChannelMsg_Trigger_WriteBuffer)
+IPC_SYNC_MESSAGE_CONTROL0_0(VulkanComputeChannelMsg_Trigger_ReadBuffer)
+IPC_SYNC_MESSAGE_CONTROL3_3(VulkanComputeChannelMsg_CreateCommandQueue, VKCPoint, VKCPoint, VKCuint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseCommandQueue, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateDescriptorSetLayout, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseDescriptorSetLayout, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateDescriptorPool, VKCPoint, VKCuint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseDescriptorPool, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_2(VulkanComputeChannelMsg_CreateDescriptorSet, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleaseDescriptorSet, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreatePipelineLayout, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleasePipelineLayout, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateShaderModuleWithUrl, VKCPoint, std::string, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_2(VulkanComputeChannelMsg_CreateShaderModuleWithSource, VKCPoint, std::string, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_ReleaseShaderModule, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_3(VulkanComputeChannelMsg_CreatePipeline, VKCPoint, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_ReleasePipeline, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL3_1(VulkanComputeChannelMsg_UpdateDescriptorSets, VKCPoint, VKCPoint, std::vector<VKCPoint>, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_BeginQueue, VKCPoint, VKCPoint, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_EndQueue, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_Dispatch, VKCPoint, VKCuint, VKCuint, VKCuint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_PipelineBarrier, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL4_1(VulkanComputeChannelMsg_CmdCopyBuffer, VKCPoint, VKCPoint, VKCPoint, VKCuint, int)
+IPC_SYNC_MESSAGE_CONTROL2_1(VulkanComputeChannelMsg_QueueSubmit, VKCPoint, VKCPoint, int)
+IPC_SYNC_MESSAGE_CONTROL1_1(VulkanComputeChannelMsg_DeviceWaitIdle, VKCPoint, int);
+#endif

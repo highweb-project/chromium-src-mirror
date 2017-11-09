@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 import("//third_party/WebKit/Source/bindings/bindings.gni")
+import("//build/config/highweb.gni")
 
 # The paths in this file are absolute since this file is imported and the
 # file lists must be valid from multple "current directories".
@@ -698,6 +699,60 @@ modules_testing_dependency_idl_files =
         ],
         "abspath")
 
+if(enable_highweb_webcl) {
+  modules_idl_files +=
+      get_path_info([
+                      "webcl/WebCL.idl",
+                      "webcl/WebCLBuffer.idl",
+                      "webcl/WebCLCallback.idl",
+                      "webcl/WebCLCommandQueue.idl",
+                      "webcl/WebCLContext.idl",
+                      "webcl/WebCLDevice.idl",
+                      "webcl/WebCLEvent.idl",
+                      "webcl/WebCLImage.idl",
+                      "webcl/WebCLKernel.idl",
+                      "webcl/WebCLMemoryObject.idl",
+                      "webcl/WebCLPlatform.idl",
+                      "webcl/WebCLProgram.idl",
+                      "webcl/WebCLSampler.idl",
+                      "webcl/WebCLUserEvent.idl",
+                    ],
+                    "abspath")
+
+  modules_dictionary_idl_files +=
+      get_path_info([
+                      "webcl/WebCLGLObjectInfo.idl",
+                      "webcl/WebCLImageDescriptor.idl",
+                      "webcl/WebCLKernelArgInfo.idl",
+                    ],
+                    "abspath")
+
+  modules_dependency_idl_files +=
+      get_path_info(
+          [
+            "webcl/WindowWebCL.idl",
+          ],
+          "abspath")
+}
+
+if(enable_highweb_webvkc) {
+  modules_idl_files +=
+      get_path_info([
+                      "webvulkan/WebVKC.idl",
+                      "webvulkan/WebVKCBuffer.idl",
+                      "webvulkan/WebVKCCommandQueue.idl",
+                      "webvulkan/WebVKCDevice.idl",
+                      "webvulkan/WebVKCProgram.idl",
+                    ],
+                    "abspath")
+
+  modules_dependency_idl_files +=
+      get_path_info(
+          [
+            "webvulkan/WindowWebVKC.idl",
+          ],
+          "abspath")
+}
 modules_definition_idl_files = modules_dictionary_idl_files + modules_idl_files
 
 # Static IDL files

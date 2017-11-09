@@ -4,6 +4,7 @@
 
 import("//third_party/WebKit/Source/bindings/bindings.gni")
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 # The paths in this file are absolute since this file is imported and the
 # file lists must be valid from multple "current directories".
@@ -423,6 +424,19 @@ core_idl_files =
                     "xmlhttprequest/XMLHttpRequestUpload.idl",
                   ],
                   "abspath")
+
+if (enable_highweb_webcl) {
+  core_idl_files += get_path_info([
+                                   "dom/custom/WebCL/WebCLException.idl",
+                                 ],
+                                 "abspath")
+}
+if (enable_highweb_webvkc) {
+  core_idl_files += get_path_info([
+                                   "dom/custom/WebVulkan/WebVKCException.idl",
+                                 ],
+                                 "abspath")
+}
 
 # Files for which bindings (.cpp and .h files) will be generated.
 core_idl_with_modules_dependency_files =

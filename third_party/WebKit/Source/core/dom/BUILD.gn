@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 blink_core_sources("dom") {
   split_count = 5
@@ -333,6 +334,22 @@ blink_core_sources("dom") {
   ]
 
   jumbo_excluded_sources = [ "Modulator.cpp" ]  # https://crbug.com/716395
+  
+  defines = []
+  if (enable_highweb_webcl) {
+    sources += [
+      "custom/WebCL/WebCLException.cpp",
+      "custom/WebCL/WebCLException.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+  if (enable_highweb_webvkc) {
+    sources += [
+      "custom/WebVulkan/WebVKCException.cpp",
+      "custom/WebVulkan/WebVKCException.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
+  }
 
   configs += [
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.

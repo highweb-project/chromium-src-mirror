@@ -6,4 +6,5 @@ include_rules = [
   "+ui/latency",
   "+ui/ozone",
   "+ui/platform_window",
+  "+ui/native_vulkan"
 ]

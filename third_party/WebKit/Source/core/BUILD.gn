@@ -16,6 +16,7 @@ import("//third_party/WebKit/Source/core/core.gni")
 import("//third_party/WebKit/Source/build/scripts/scripts.gni")
 import("//third_party/WebKit/Source/modules/modules_idl_files.gni")
 import("//third_party/WebKit/Source/platform/platform_generated.gni")
+import("//build/config/highweb.gni")
 
 visibility = [
   "//third_party/WebKit/Source/*",
@@ -125,6 +126,13 @@ source_set("prerequisites") {
     "//url",
     "//v8",
   ]
+  if (enable_highweb_webcl) {
+    public_deps += [ "//gpu/opencl:opencl_sources", ]
+  }
+  if (enable_highweb_webvkc) {
+    public_deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
+  }
+
   deps = [
     "//third_party/WebKit/Source/bindings/core/v8:bindings_core_v8_generated",
 
@@ -1174,6 +1182,13 @@ target("jumbo_" + core_link_small_target_type, "core_generated") {
       "/wd4701",
       "/wd4702",
     ]
+  }
+
+  if (enable_highweb_webcl) {
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
   }
 }
 

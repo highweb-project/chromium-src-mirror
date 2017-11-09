@@ -9,6 +9,13 @@
 #include "platform/bindings/V8PrivateProperty.h"
 #include "platform/bindings/V8ThrowException.h"
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+#include "core/dom/custom/WebCL/WebCLException.h"
+#endif
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+#include "core/dom/custom/WebVulkan/WebVKCException.h"
+#endif
+
 namespace blink {
 
 namespace {
@@ -59,15 +66,59 @@ v8::Local<v8::Value> V8ThrowDOMException::CreateDOMException(
       return V8ThrowException::CreateReferenceError(isolate, sanitized_message);
   }
 
-  DOMException* dom_exception = DOMException::Create(
+  //check is WebCLException!
+  DOMException* dom_exception = nullptr;
+  #if defined(ENABLE_HIGHWEB_WEBCL)
+    WebCLException* webclException = nullptr;
+  #endif
+  #if defined(ENABLE_HIGHWEB_WEBVKC)
+    WebVKCException* webvkcException = nullptr;
+  #endif
+    v8::Local<v8::Object> exception_obj;
+    v8::Local<v8::Value> error;
+  
+  #if defined(ENABLE_HIGHWEB_WEBCL)
+    if(WebCLException::isWebCLException(exception_code)) {
+      webclException = WebCLException::create(exception_code, sanitized_message, unsanitized_message);
+      exception_obj =
+          ToV8(webclException, isolate->GetCurrentContext()->Global(), isolate)
+              .As<v8::Object>();
+      error = v8::Exception::Error(V8String(isolate, webclException->message()));
+    }
+  #endif
+  
+  #if defined(ENABLE_HIGHWEB_WEBCL) && defined(ENABLE_HIGHWEB_WEBVKC)
+    else if(WebVKCException::isWebVKCException(exception_code)) {
+  #elif defined(ENABLE_HIGHWEB_WEBVKC)
+    if (WebVKCException::isWebVKCException(exception_code)) {
+  #endif
+  
+  #if defined(ENABLE_HIGHWEB_WEBVKC)
+      webvkcException = WebVKCException::create(exception_code, sanitized_message, unsanitized_message);
+      exception_obj =
+          ToV8(webvkcException, isolate->GetCurrentContext()->Global(), isolate)
+              .As<v8::Object>();
+      error = v8::Exception::Error(V8String(isolate, webvkcException->message()));
+    }
+    else {
+  #else
+  #if defined(ENABLE_HIGHWEB_WEBCL)
+    else {
+  #else
+    {
+  #endif
+  #endif
+
+  dom_exception = DOMException::Create(
       exception_code, sanitized_message, unsanitized_message);
-  v8::Local<v8::Object> exception_obj =
+  exception_obj =
       ToV8(dom_exception, isolate->GetCurrentContext()->Global(), isolate)
           .As<v8::Object>();
   // Attach an Error object to the DOMException. This is then lazily used to
   // get the stack value.
-  v8::Local<v8::Value> error =
+  error =
       v8::Exception::Error(V8String(isolate, dom_exception->message()));
+  }
   exception_obj
       ->SetAccessor(isolate->GetCurrentContext(),
                     V8AtomicString(isolate, "stack"), DomExceptionStackGetter,

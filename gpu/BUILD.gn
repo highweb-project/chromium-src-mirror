@@ -5,9 +5,16 @@
 import("//testing/libfuzzer/fuzzer_test.gni")
 import("//testing/test.gni")
 import("//build/config/ui.gni")
+import("//build/config/highweb.gni")
 
 config("gpu_implementation") {
   defines = [ "GPU_IMPLEMENTATION" ]
+  if (enable_highweb_webcl) {
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC" ]
+  }
 }
 
 component("gpu") {
@@ -22,6 +29,12 @@ component("gpu") {
     "//gpu/ipc/common:ipc_common_sources",
     "//gpu/ipc/service:ipc_service_sources",
   ]
+  if (enable_highweb_webcl) {
+    public_deps += [ "//gpu/opencl:opencl_sources", ]
+  }
+  if (enable_highweb_webvkc) {
+    public_deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
+  }
 }
 
 shared_library("command_buffer_gles2") {

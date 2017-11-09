@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 # Make the files absolute so they can be imported to anywhere.
+
+import("//build/config/highweb.gni")
+
 bindings_modules_v8_custom_files =
     get_path_info([
                     "V8CustomSQLStatementErrorCallback.cpp",
@@ -10,3 +13,14 @@ bindings_modules_v8_custom_files =
                     "V8IDBObserverCustom.cpp",
                   ],
                   "abspath")
+
+if(enable_highweb_webcl) {
+  bindings_modules_v8_custom_files +=
+    get_path_info([
+                    "V8WebCLCommandQueueCustom.cpp",
+                    "V8WebCLKernelCustom.cpp",
+                    "V8WebCLProgramCustom.cpp",
+                    "V8WebCLCustom.cpp",
+                  ],
+                  "abspath")
+}

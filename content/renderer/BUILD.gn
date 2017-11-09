@@ -12,6 +12,7 @@ import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
 import("//third_party/webrtc/webrtc.gni")
 import("//tools/ipc_fuzzer/ipc_fuzzer.gni")
+import("//build/config/highweb.gni")
 
 if (is_component_build) {
   link_target_type = "source_set"
@@ -989,6 +990,13 @@ target(link_target_type, "renderer") {
 
   if (is_chromecast) {
     defines += [ "MEDIA_EVENT_LOG_UTILITY=LOG(INFO)" ]
+  }
+  
+  if (enable_highweb_webcl) {
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
   }
 }
 

@@ -106,7 +106,7 @@ deps = {
   'src/third_party/freetype/src':
     (Var("chromium_git")) + '/chromium/src/third_party/freetype2.git@38bdf22bfe68432aebdd33c198a0bd11b4ebb96f',
   'src/third_party/glslang/src':
-    (Var("chromium_git")) + '/external/github.com/google/glslang.git@210c6bf4d8119dc5f8ac21da2d4c87184f7015e0',
+    (Var("chromium_git")) + '/external/github.com/google/glslang.git@9a931b39bc21ca5c7230acc19a66d94b67add987',
   'src/third_party/googletest/src':
     (Var("chromium_git")) + '/external/github.com/google/googletest.git@42bc671f47b122fad36db5eccbc06868afdf7862',
   'src/third_party/hunspell_dictionaries':

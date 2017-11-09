@@ -1530,8 +1530,8 @@ ImageData* BaseRenderingContext2D::createImageData(
     result = ImageData::Create(size);
   }
 
-  if (!result)
-    exception_state.ThrowRangeError("Out of memory at ImageData creation");
+  // if (!result)
+  //   exceptionState.throwRangeError("Out of memory at ImageData creation");
   return result;
 }
 

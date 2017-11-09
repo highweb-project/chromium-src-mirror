@@ -1,0 +1,8 @@
+include_rules = [
+  "+third_party/opencl",
+  "+base",
+  "+base/memory",
+  "+content/common",
+  "+gpu/command_buffer",
+  "+third_party/khronos",
+]

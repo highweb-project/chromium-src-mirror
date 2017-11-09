@@ -8,6 +8,7 @@ import("//third_party/WebKit/public/public_features.gni")
 import("//third_party/WebKit/Source/config.gni")
 import("//third_party/WebKit/Source/core/core.gni")
 import("//tools/grit/grit_rule.gni")
+import("//build/config/highweb.gni")
 
 if (is_android) {
   import("//build/config/android/rules.gni")
@@ -663,6 +664,14 @@ source_set("blink_headers") {
     "//mojo/public/cpp/system:system",
     "//v8:v8_headers",
   ]
+
+  defines = []
+  if (enable_highweb_webcl) {
+    defines += [ "ENABLE_HIGHWEB_WEBCL", ]
+  }
+  if (enable_highweb_webvkc) {
+    defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
+  }
 }
 
 group("blink_devtools_frontend_resources") {

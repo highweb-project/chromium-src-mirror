@@ -1,0 +1,12 @@
+// Copyright (C) 2011 Samsung Electronics Corporation. All rights reserved.
+// Copyright (C) 2015 Intel Corporation All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+dictionary WebCLKernelArgInfo {
+	DOMString name = "";
+	DOMString typeName = "";         // 'char', 'float', 'uint4', 'image2d_t', 'sampler_t', etc.
+	DOMString addressQualifier = ""; // 'global', 'local', 'constant', or 'private'
+	DOMString accessQualifier = "";  // 'read_only', 'write_only', or 'none'
+	boolean isBuffer = false; // if pointer type or buffer set true
+};

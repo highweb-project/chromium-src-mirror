@@ -127,6 +127,21 @@ GpuChannel* GpuChannelManager::LookupChannel(int32_t client_id) const {
   return it != gpu_channels_.end() ? it->second.get() : nullptr;
 }
 
+#if defined(ENABLE_HIGHWEB_WEBCL)
+unsigned int GpuChannelManager::LookupGLServiceId(unsigned int resource_id, GLResourceType glResourceType) {
+  for (const auto& kv : gpu_channels_) {
+    GpuChannel* channel = kv.second.get();
+    GLuint serviceId = channel->LookupGLServiceId(resource_id, glResourceType);
+
+    if(serviceId != 0) {
+      return serviceId;
+    }
+  }
+
+  return 0;
+}
+#endif
+
 GpuChannel* GpuChannelManager::EstablishChannel(int client_id,
                                                 uint64_t client_tracing_id,
                                                 bool is_gpu_host) {

@@ -7,6 +7,7 @@ import("//build/config/ui.gni")
 if (is_mac) {
   import("//build/config/mac/mac_sdk.gni")
 }
+import("//build/config/highweb.gni")
 
 group("service") {
   if (is_component_build) {
@@ -127,6 +128,16 @@ target(link_target_type, "ipc_service_sources") {
   }
   if (use_ozone) {
     deps += [ "//ui/ozone" ]
+  }
+  if (enable_highweb_webcl) {
+    deps += [ "//gpu/opencl:opencl_sources", ]
+    sources += [
+      "gpu_channel_opencl_proxy.cc",
+      "gpu_channel_opencl_proxy.h",
+    ]
+  }
+  if (enable_highweb_webvkc) {
+    deps += [ "//gpu/native_vulkan:native_vulkan_sources", ]
   }
 }
 

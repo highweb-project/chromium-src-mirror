@@ -24,6 +24,14 @@ config("glslang_local_config") {
       "-Wno-reorder",
       "-Wno-sign-compare",
       "-Wno-unused-variable",
+      "-Wno-ignored-qualifiers",
+    ]
+  } else if (is_android){
+    cflags = [
+      "-Wno-reorder",
+      "-Wno-sign-compare",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
     ]
   }
 }
@@ -111,10 +119,13 @@ static_library("glslang") {
     "src/glslang/MachineIndependent/glslang_tab.cpp",
     "src/glslang/MachineIndependent/glslang_tab.cpp.h",
     "src/glslang/MachineIndependent/intermOut.cpp",
+    "src/glslang/MachineIndependent/iomapper.cpp",
+    "src/glslang/MachineIndependent/iomapper.h",
     "src/glslang/MachineIndependent/limits.cpp",
     "src/glslang/MachineIndependent/linkValidate.cpp",
     "src/glslang/MachineIndependent/localintermediate.h",
     "src/glslang/MachineIndependent/parseConst.cpp",
+    "src/glslang/MachineIndependent/ParseContextBase.cpp",
     "src/glslang/MachineIndependent/parseVersions.h",
     "src/glslang/MachineIndependent/preprocessor/Pp.cpp",
     "src/glslang/MachineIndependent/preprocessor/PpAtom.cpp",
@@ -149,10 +160,14 @@ static_library("glslang") {
 
 static_library("HLSL") {
   sources = [
+    "src/hlsl/hlslAttributes.cpp",
+    "src/hlsl/hlslAttributes.h",
     "src/hlsl/hlslGrammar.cpp",
     "src/hlsl/hlslGrammar.h",
     "src/hlsl/hlslOpMap.cpp",
     "src/hlsl/hlslOpMap.h",
+    "src/hlsl/hlslParseables.cpp",
+    "src/hlsl/hlslParseables.h",
     "src/hlsl/hlslParseHelper.cpp",
     "src/hlsl/hlslParseHelper.h",
     "src/hlsl/hlslScanContext.cpp",

@@ -72,8 +72,13 @@ namespace device {
 class Gamepads;
 }
 
+#if defined(OS_LINUX)
+#include "base/memory/shared_memory.h"
+#endif
+
 namespace gpu {
 class GpuMemoryBufferManager;
+class GpuChannelHost;
 }
 
 namespace service_manager {
@@ -714,6 +719,26 @@ class BLINK_PLATFORM_EXPORT Platform {
   virtual std::unique_ptr<WebFeaturePolicy> DuplicateFeaturePolicyWithOrigin(
       const WebFeaturePolicy&,
       const WebSecurityOrigin&);
+
+#if defined(ENABLE_HIGHWEB_WEBCL)
+  // WebCL create gpu channel context
+  virtual gpu::GpuChannelHost* createWebCLGPUChannelContext() { return nullptr; }
+
+  //WebCL Shared Memory API------------------------------------------------
+#if defined(OS_LINUX)
+  virtual base::SharedMemory* getSharedMemoryForWebCL(int size) { return nullptr; };
+#endif
+#endif
+
+#if defined(ENABLE_HIGHWEB_WEBVKC)
+  // WebVKC create gpu channel context
+  virtual gpu::GpuChannelHost* createWebVKCGPUChannelContext() { return nullptr; }
+
+  //WebVKC Shared Memory API-----------------------------------------------
+#if defined(OS_LINUX)
+  virtual base::SharedMemory* getSharedMemoryForWebVKC(int size) { return nullptr; };
+#endif
+#endif
 
  protected:
   Platform();
