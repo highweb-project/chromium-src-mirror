@@ -85,6 +85,10 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
   void Detach();
   bool IsAttachedTo(content::DevToolsAgentHost* agent_host);
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void executeJavaScriptInDevTools(const std::string& script);
+#endif
+
  private:
   void HandleMessageFromDevToolsFrontend(const std::string& message);
 

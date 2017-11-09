@@ -371,6 +371,8 @@ class CORE_EXPORT ChromeClient : public PlatformChromeClient {
 
   DECLARE_TRACE();
 
+  virtual bool executeJavaScriptInDevTools(const String& script) { return false; }
+
  protected:
   ~ChromeClient() override {}
 

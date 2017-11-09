@@ -71,6 +71,9 @@ class WebDevToolsAgentClient {
 
   virtual bool RequestDevToolsForFrame(WebLocalFrame*) { return false; }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  virtual bool executeJavaScriptInDevTools(WebLocalFrame*, const WebString& script) { return false; }
+#endif
   virtual void EnableTracing(const WebString& category_filter) {}
   virtual void DisableTracing() {}
 

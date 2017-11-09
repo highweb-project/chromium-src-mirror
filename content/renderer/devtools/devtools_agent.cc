@@ -105,6 +105,9 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsAgent, message)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnAttach)
+  #if defined(ENABLE_HIGHWEB_SVGCONVERT)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_SendMessageFromDevTools, OnSendMessageFromDevTools)
+  #endif
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Reattach, OnReattach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DispatchOnInspectorBackend,
@@ -161,6 +164,21 @@ void DevToolsAgent::WillEnterDebugLoop() {
 void DevToolsAgent::DidExitDebugLoop() {
   paused_ = false;
 }
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+bool DevToolsAgent::executeJavaScriptInDevTools(blink::WebLocalFrame* webFrame, const WebString& script) {
+  RenderFrameImpl* frame = RenderFrameImpl::FromWebFrame(webFrame);
+  if (!frame)
+    return false;
+  Send(new DevToolsAgentHostMsg_ExecuteJavaScriptInDevTools(routing_id(),
+      frame->GetRoutingID(), script.Utf8()));
+  return true;
+}
+
+
+void DevToolsAgent::OnSendMessageFromDevTools(const std::string& message) {
+  GetWebAgent()->sendMessageFromDevTools(WebString::FromUTF8(message));
+}
+#endif
 
 bool DevToolsAgent::RequestDevToolsForFrame(blink::WebLocalFrame* webFrame) {
   RenderFrameImpl* frame = RenderFrameImpl::FromWebFrame(webFrame);

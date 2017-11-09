@@ -369,4 +369,7 @@ source_set("browser_sources") {
   if (enable_highweb_deviceapi) {
     defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }

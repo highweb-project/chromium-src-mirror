@@ -59,6 +59,10 @@ class CONTENT_EXPORT DevToolsManagerDelegate {
   // Returns frontend resource data by |path|.
   virtual std::string GetFrontendResource(const std::string& path);
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  virtual bool executeJavaScriptInDevTools(content::DevToolsAgentHost* agent, const std::string& script);
+#endif
+
   virtual ~DevToolsManagerDelegate();
 };
 

@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 blink_core_sources("exported") {
   sources = [
@@ -98,5 +99,9 @@ blink_core_sources("exported") {
     "WebSearchableFormData.cpp",
   ]
 
-  defines = [ "BLINK_IMPLEMENTATION=1" ]
+  defines = [ "BLINK_IMPLEMENTATION=1", ]
+
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }

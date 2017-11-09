@@ -680,6 +680,9 @@ source_set("blink_headers") {
     ]
     defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }
 
 group("blink_devtools_frontend_resources") {

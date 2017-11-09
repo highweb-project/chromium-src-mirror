@@ -1428,6 +1428,12 @@ void DevToolsWindow::SetLoadCompletedCallback(const base::Closure& closure) {
   load_completed_callback_ = closure;
 }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void DevToolsWindow::executeJavaScriptInDevTools(const std::string& script) {
+  bindings_->executeJavaScriptInDevTools(script);
+}
+#endif
+
 bool DevToolsWindow::ForwardKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   return event_forwarder_->ForwardEvent(event);

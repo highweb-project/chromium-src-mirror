@@ -1,0 +1,3 @@
+callback interface DevToolsCallback {
+    void handleEvent(DOMString result);
+};

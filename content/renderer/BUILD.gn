@@ -1009,6 +1009,9 @@ target(link_target_type, "renderer") {
     ]
     defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }
 
 # See comment at the top of //content/BUILD.gn for how this works.

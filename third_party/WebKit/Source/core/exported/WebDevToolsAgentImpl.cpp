@@ -561,6 +561,15 @@ void WebDevToolsAgentImpl::PageLayoutInvalidated(bool resized) {
     it.value->PageLayoutInvalidated(resized);
 }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void WebDevToolsAgentImpl::sendMessageFromDevTools(const WebString& message)
+{
+  DOMWindow* domWindow = web_local_frame_impl_->ViewImpl()->GetPage()->MainFrame()->DomWindow();
+
+  domWindow->sendMessageFromDevTools(message);
+}
+#endif
+
 void WebDevToolsAgentImpl::WaitForCreateWindow(LocalFrame* frame) {
   if (!Attached())
     return;

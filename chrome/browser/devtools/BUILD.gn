@@ -8,6 +8,7 @@ if (!is_android) {
   import("//build/config/features.gni")
   import("//chrome/common/features.gni")
   import("//tools/grit/grit_rule.gni")
+  import("//build/config/highweb.gni")
 }
 
 action("devtools_protocol_constants") {
@@ -143,6 +144,10 @@ static_library("devtools") {
         "device/cast_device_provider.cc",
         "device/cast_device_provider.h",
       ]
+    }
+    defines = []
+    if (enable_highweb_svgconvert) {
+      defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
     }
   }
 

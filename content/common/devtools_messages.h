@@ -112,6 +112,15 @@ IPC_MESSAGE_ROUTED1(DevToolsAgentMsg_RequestNewWindow_ACK,
 //-----------------------------------------------------------------------------
 // These are messages sent from renderer's DevToolsAgent to browser.
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+IPC_MESSAGE_ROUTED2(DevToolsAgentHostMsg_ExecuteJavaScriptInDevTools,
+                    int /* frame_route_id */,
+                    std::string /* script */)
+
+IPC_MESSAGE_ROUTED1(DevToolsAgentMsg_SendMessageFromDevTools,
+                    std::string /* message */)
+#endif
+
 // Requests new DevTools window being opened for frame in the same process
 // with given routing id.
 IPC_MESSAGE_ROUTED1(DevToolsAgentHostMsg_RequestNewWindow,

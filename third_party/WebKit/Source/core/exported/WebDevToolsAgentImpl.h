@@ -105,6 +105,11 @@ class CORE_EXPORT WebDevToolsAgentImpl final
   void FailedToRequestDevTools() override;
   WebString EvaluateInWebInspectorOverlay(const WebString& script) override;
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  void sendMessageFromDevTools(const WebString& message) override;
+#endif
+
+
  private:
   WebDevToolsAgentImpl(WebLocalFrameBase*,
                        WebDevToolsAgentClient*,

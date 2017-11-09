@@ -112,6 +112,11 @@
 #include "public/web/WebWindowFeatures.h"
 #include "web/WebLocalFrameImpl.h"
 
+#include "core/exported/WebDevToolsAgentImpl.h"
+#include "public/web/WebDevToolsAgentClient.h"
+#include "public/web/WebFrame.h"
+#include "web/WebViewImpl.h"
+
 namespace blink {
 
 namespace {
@@ -1122,4 +1127,24 @@ WebAutofillClient* ChromeClientImpl::AutofillClientFromFrame(
   return WebLocalFrameImpl::FromFrame(frame)->AutofillClient();
 }
 
-}  // namespace blink
+bool ChromeClientImpl::executeJavaScriptInDevTools(const String& script) {
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  WebViewImpl* webview = static_cast<WebViewImpl*>(GetWebView());
+
+  if(webview) {
+    WebDevToolsAgentImpl* devToolsAgentImpl = webview->MainFrameDevToolsAgentImpl();
+
+    if(devToolsAgentImpl) {
+      WebDevToolsAgentClient* devToolsAgentClient = devToolsAgentImpl->Client();
+
+      if(devToolsAgentClient) {
+        devToolsAgentClient->executeJavaScriptInDevTools(webview->MainFrame()->ToWebLocalFrame(), script);
+        return true;
+      }
+    }
+  }
+#endif
+  return false;
+}
+
+} // namespace blink

@@ -204,6 +204,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
   void scroll(const ScrollToOptions& scroll_to_options) const {
     scrollTo(scroll_to_options);
   }
+
+  void executeJavaScriptInDevTools(const String& script) const override;
+  void setDevToolsCallback(DevToolsCallback*) override;
+  void sendMessageFromDevTools(const String& message) override;
+
   void moveBy(int x, int y) const;
   void moveTo(int x, int y) const;
 
@@ -377,6 +382,7 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
 
   HeapHashSet<Member<PostMessageTimer>> post_message_timers_;
   HeapHashSet<WeakMember<EventListenerObserver>> event_listener_observers_;
+  Member<DevToolsCallback> m_devToolsCallback;
 };
 
 DEFINE_TYPE_CASTS(LocalDOMWindow,

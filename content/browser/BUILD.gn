@@ -2195,6 +2195,9 @@ source_set("browser") {
       "device_websocket/device_websocket_handler.h",
     ]
   }
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }
 
 buildflag_header("accessibility_flags") {

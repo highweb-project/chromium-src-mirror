@@ -4,6 +4,7 @@
 
 import("//build/split_static_library.gni")
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 blink_core_sources("html") {
   split_count = 5
@@ -626,4 +627,9 @@ blink_core_sources("html") {
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
     "//build/config/compiler:no_size_t_to_int_warning",
   ]
+
+  defines = []
+  if (enable_highweb_svgconvert) {
+    defines += [ "ENABLE_HIGHWEB_SVGCONVERT", ]
+  }
 }

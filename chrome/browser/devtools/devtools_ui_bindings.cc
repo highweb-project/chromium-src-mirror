@@ -78,6 +78,9 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/page_transition_types.h"
 
+#include "content/browser/devtools/render_frame_devtools_agent_host.h"
+#include "content/browser/devtools/devtools_agent_host_impl.h"
+
 using base::DictionaryValue;
 using content::BrowserThread;
 
@@ -592,6 +595,12 @@ DevToolsUIBindings::~DevToolsUIBindings() {
   instances->erase(it);
 }
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+void DevToolsUIBindings::executeJavaScriptInDevTools(const std::string& script) {
+  web_contents_->GetMainFrame()->ExecuteJavaScript(base::UTF8ToUTF16(script));
+}
+#endif
+
 // content::DevToolsFrontendHost::Delegate implementation ---------------------
 void DevToolsUIBindings::HandleMessageFromDevToolsFrontend(
     const std::string& message) {
@@ -611,6 +620,16 @@ void DevToolsUIBindings::HandleMessageFromDevToolsFrontend(
     LOG(ERROR) << "Invalid message was sent to embedder: " << message;
     return;
   }
+
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if(method == "DevToolsResultCallback") {
+    content::RenderFrameDevToolsAgentHost* renderFrameAgentHost = static_cast<content::RenderFrameDevToolsAgentHost*>(agent_host());
+    renderFrameAgentHost->SendMessageFromDevTools(message);
+
+    return;
+  }
+#endif
+
   int id = 0;
   dict->GetInteger(kFrontendHostId, &id);
   embedder_message_dispatcher_->Dispatch(

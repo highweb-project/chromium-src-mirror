@@ -277,6 +277,13 @@ class HTMLTreeBuilder final
   TextPosition script_to_process_start_position_;
 
   HTMLParserOptions options_;
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  size_t svgtagCount = 0;
+  bool needSVGConvert = false;
+  bool svgConvertAttribute = false;
+  String svgTagData;
+  Vector<String> svgTagDataVector;
+#endif
 };
 
 }  // namespace blink

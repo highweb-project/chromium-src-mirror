@@ -607,6 +607,8 @@ Timeline.TimelinePanel = class extends UI.Panel {
     } else if (this._state === Timeline.TimelinePanel.State.Recording) {
       this._stopRecording();
     }
+
+    Timeline.TimelineUIUtils._lastAggregatedStats = null;
   }
 
   _recordReload() {

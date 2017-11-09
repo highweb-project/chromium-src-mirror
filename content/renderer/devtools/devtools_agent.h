@@ -75,6 +75,10 @@ class CONTENT_EXPORT DevToolsAgent
   void DidExitDebugLoop() override;
 
   bool RequestDevToolsForFrame(blink::WebLocalFrame* frame) override;
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  bool executeJavaScriptInDevTools(blink::WebLocalFrame* frame, const blink::WebString& script) override;
+  void OnSendMessageFromDevTools(const std::string& message);
+#endif
 
   void EnableTracing(const blink::WebString& category_filter) override;
   void DisableTracing() override;

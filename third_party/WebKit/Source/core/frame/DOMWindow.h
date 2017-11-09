@@ -24,6 +24,7 @@ class Location;
 class MessageEvent;
 class SerializedScriptValue;
 class WindowProxyManager;
+class DevToolsCallback;
 
 class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
                               public DOMWindowBase64 {
@@ -85,6 +86,9 @@ class CORE_EXPORT DOMWindow : public EventTargetWithInlineData,
   void focus(ExecutionContext*);
   virtual void blur() = 0;
   void close(ExecutionContext*);
+  virtual void executeJavaScriptInDevTools(const String& script) const { }
+  virtual void setDevToolsCallback(DevToolsCallback*) { }
+  virtual void sendMessageFromDevTools(const String& message) { }
 
   // Indexed properties
   DOMWindow* AnonymousIndexedGetter(uint32_t index) const;

@@ -237,6 +237,8 @@ class WEB_EXPORT ChromeClientImpl final : public ChromeClient {
       const PaintImage&,
       std::unique_ptr<WTF::Function<void(bool)>> callback) override;
 
+  bool executeJavaScriptInDevTools(const String& script) override;
+
  private:
   explicit ChromeClientImpl(WebViewBase*);
 

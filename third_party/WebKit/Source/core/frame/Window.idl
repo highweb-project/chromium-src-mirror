@@ -138,6 +138,9 @@
     // https://github.com/WICG/ViewportAPI
     [RuntimeEnabled=VisualViewportAPI, Replaceable, SameObject] readonly attribute VisualViewport visualViewport;
 
+    void executeJavaScriptInDevTools(DOMString script);
+    void setDevToolsCallback(DevToolsCallback callback);
+
     // client
     [Replaceable] readonly attribute long screenX;
     [Replaceable] readonly attribute long screenY;

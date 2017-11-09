@@ -422,6 +422,7 @@ core_idl_files =
                     "xmlhttprequest/XMLHttpRequest.idl",
                     "xmlhttprequest/XMLHttpRequestEventTarget.idl",
                     "xmlhttprequest/XMLHttpRequestUpload.idl",
+                    "dom/DevToolsCallback.idl",
                   ],
                   "abspath")
 

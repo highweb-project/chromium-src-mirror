@@ -66,6 +66,10 @@ class WebDevToolsAgent {
   // tools.
   virtual bool CacheDisabled() = 0;
 
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  virtual void sendMessageFromDevTools(const WebString& message) = 0;
+#endif
+
   class MessageDescriptor {
    public:
     virtual ~MessageDescriptor() {}

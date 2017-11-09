@@ -94,6 +94,7 @@
 #include "public/platform/Platform.h"
 #include "public/platform/WebScreenInfo.h"
 #include "public/platform/site_engagement.mojom-blink.h"
+#include "core/dom/DevToolsCallback.h"
 
 namespace blink {
 
@@ -1160,6 +1161,29 @@ double LocalDOMWindow::devicePixelRatio() const {
   return GetFrame()->DevicePixelRatio();
 }
 
+void LocalDOMWindow::sendMessageFromDevTools(const String& message)
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  if(m_devToolsCallback) {
+    m_devToolsCallback->handleEvent(message);
+  }
+#endif
+}
+
+void LocalDOMWindow::setDevToolsCallback(DevToolsCallback* callback)
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  m_devToolsCallback = callback;
+#endif
+}
+
+void LocalDOMWindow::executeJavaScriptInDevTools(const String& script) const
+{
+#if defined(ENABLE_HIGHWEB_SVGCONVERT)
+  GetFrame()->GetPage()->GetChromeClient().executeJavaScriptInDevTools(script);
+#endif
+}
+
 void LocalDOMWindow::scrollBy(double x,
                               double y,
                               ScrollBehavior scroll_behavior) const {
@@ -1641,6 +1665,7 @@ DEFINE_TRACE(LocalDOMWindow) {
   visitor->Trace(post_message_timers_);
   visitor->Trace(visualViewport_);
   visitor->Trace(event_listener_observers_);
+  visitor->Trace(m_devToolsCallback);
   DOMWindow::Trace(visitor);
   Supplementable<LocalDOMWindow>::Trace(visitor);
 }
