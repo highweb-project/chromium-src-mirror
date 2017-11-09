@@ -17,6 +17,7 @@ enum ConsumerType {
   CONSUMER_TYPE_MOTION = 1 << 0,
   CONSUMER_TYPE_ORIENTATION = 1 << 1,
   CONSUMER_TYPE_ORIENTATION_ABSOLUTE = 1 << 2,
+  CONSUMER_TYPE_PROXIMITY = 1 << 3,
 };
 
 // Specifies the sampling rate for sensor data updates.

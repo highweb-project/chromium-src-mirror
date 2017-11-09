@@ -129,6 +129,25 @@ void ZoomMenuModel::Build() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// WebD2DMenuModel
+
+class AppMenuModel::WebD2DMenuModel : public ui::SimpleMenuModel {
+ public:
+  WebD2DMenuModel(ui::SimpleMenuModel::Delegate* delegate,
+                Browser* browser)
+      : SimpleMenuModel(delegate) {
+    Build(browser);
+  }
+
+ private:
+  void Build(Browser* browser) {
+    AddItemWithStringId(IDC_WEBD2D_URL_SHARE, IDS_WEBD2D_URL_SHARE);
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(WebD2DMenuModel);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // HelpMenuModel
 
 #if defined(GOOGLE_CHROME_BUILD)
@@ -186,18 +205,6 @@ ToolsMenuModel::~ToolsMenuModel() {}
 // - Option to enable profiling.
 void ToolsMenuModel::Build(Browser* browser) {
   AddItemWithStringId(IDC_SAVE_PAGE, IDS_SAVE_PAGE);
-
-  if (extensions::util::IsNewBookmarkAppsEnabled()) {
-    int string_id = IDS_ADD_TO_DESKTOP;
-#if defined(OS_MACOSX)
-    string_id = IDS_ADD_TO_APPLICATIONS;
-#endif
-#if defined(USE_ASH)
-    string_id = IDS_ADD_TO_SHELF;
-#endif  // defined(USE_ASH)
-    AddItemWithStringId(IDC_CREATE_HOSTED_APP, string_id);
-  }
-
   AddSeparator(ui::NORMAL_SEPARATOR);
   AddItemWithStringId(IDC_CLEAR_BROWSING_DATA, IDS_CLEAR_BROWSING_DATA);
   AddItemWithStringId(IDC_MANAGE_EXTENSIONS, IDS_SHOW_EXTENSIONS);
@@ -541,7 +548,6 @@ void AppMenuModel::LogMenuMetrics(int command_id) {
         UMA_HISTOGRAM_MEDIUM_TIMES("WrenchMenu.TimeToAction.About", delta);
       LogMenuAction(MENU_ACTION_ABOUT);
       break;
-
     // Help menu.
     case IDC_HELP_PAGE_VIA_MENU:
       base::RecordAction(UserMetricsAction("ShowHelpTabViaWrenchMenu"));
@@ -735,6 +741,25 @@ void AppMenuModel::Build() {
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kEnableDomDistiller))
     AddItemWithStringId(IDC_DISTILL_PAGE, IDS_DISTILL_PAGE);
+
+  bool show_create_shortcuts = true;
+  #if defined(OS_CHROMEOS) || defined(OS_MACOSX) || defined(USE_ASH)
+    show_create_shortcuts = false;
+  #endif
+  
+  if (extensions::util::IsNewBookmarkAppsEnabled()) {
+    int string_id = IDS_ADD_TO_DESKTOP;
+  #if defined(OS_MACOSX)
+    string_id = IDS_ADD_TO_APPLICATIONS;
+  #endif
+  #if defined(USE_ASH)
+    string_id = IDS_ADD_TO_SHELF;
+  #endif  // defined(USE_ASH)
+    AddItemWithStringId(IDC_CREATE_HOSTED_APP, string_id);
+  } else if (show_create_shortcuts) {
+    AddItemWithStringId(IDC_CREATE_SHORTCUTS, IDS_CREATE_SHORTCUTS);
+  }
+  
   tools_menu_model_.reset(new ToolsMenuModel(this, browser_));
   AddSubMenuWithStringId(
       IDC_MORE_TOOLS_MENU, IDS_MORE_TOOLS_MENU, tools_menu_model_.get());
@@ -759,6 +784,11 @@ void AppMenuModel::Build() {
     AddCheckItemWithStringId(IDC_TOGGLE_REQUEST_TABLET_SITE,
                              IDS_TOGGLE_REQUEST_TABLET_SITE);
 #endif
+
+  // AddItem(IDC_WEBD2D, l10n_util::GetStringUTF16(IDS_WEBD2D));
+  webd2d_menu_model_.reset(new WebD2DMenuModel(this, browser_));
+  AddSubMenuWithStringId(IDC_WEBD2D, IDS_WEBD2D,
+                         webd2d_menu_model_.get());
 
   if (browser_defaults::kShowExitMenuItem) {
     AddSeparator(ui::NORMAL_SEPARATOR);

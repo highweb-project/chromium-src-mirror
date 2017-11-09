@@ -753,6 +753,7 @@ bool ProfileIOData::IsHandledProtocol(const std::string& scheme) {
     url::kBlobScheme,
     url::kFileSystemScheme,
     chrome::kChromeSearchScheme,
+    content::kHighwebScheme,
   };
   for (size_t i = 0; i < arraysize(kProtocolList); ++i) {
     if (scheme == kProtocolList[i])

@@ -33,6 +33,9 @@ class StartupTimeBomb;
 class ShutdownWatcherHelper;
 class ThreeDAPIObserver;
 class WebUsbDetector;
+#if defined(OS_LINUX)
+class DeviceWebsocketServer;
+#endif
 
 namespace chrome_browser {
 // For use by ShowMissingLocaleMessageBox.
@@ -192,6 +195,10 @@ class ChromeBrowserMainParts : public content::BrowserMainParts {
   // PreMainMessageLoopRunThreadsCreated.
   PrefService* local_state_;
   base::FilePath user_data_dir_;
+
+#if defined(OS_LINUX)
+  std::unique_ptr<DeviceWebsocketServer> device_websocket_server_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserMainParts);
 };

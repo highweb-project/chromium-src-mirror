@@ -8,6 +8,7 @@ import("//third_party/WebKit/Source/bindings/bindings.gni")
 import("//third_party/WebKit/Source/config.gni")
 import("//third_party/WebKit/Source/core/core.gni")
 import("//third_party/WebKit/Source/modules/modules.gni")
+import("//build/config/highweb.gni")
 
 visibility = [ "//third_party/WebKit/*" ]
 
@@ -61,6 +62,10 @@ component("web") {
   if (remove_webcore_debug_symbols) {
     configs -= [ "//build/config/compiler:default_symbols" ]
     configs += remove_webcore_symbols_config
+  }
+
+  if (enable_highweb_deviceapi) {
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
 }
 

@@ -33,7 +33,8 @@ class AddToHomescreenManager : public AddToHomescreenDataFetcher::Observer {
   // Adds a shortcut to the current URL to the Android home screen.
   void AddShortcut(JNIEnv* env,
                    const base::android::JavaParamRef<jobject>& obj,
-                   const base::android::JavaParamRef<jstring>& title);
+                   const base::android::JavaParamRef<jstring>& title,
+                   const bool addHomeScreen);
 
   // Starts the add-to-homescreen process.
   void Start(content::WebContents* web_contents);

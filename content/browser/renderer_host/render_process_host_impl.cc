@@ -261,6 +261,11 @@
 #define IntToStringType base::IntToString
 #endif
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "content/browser/device_api/device_api_permission_check_message_filter.h"
+#include "content/browser/device_api/device_api_applauncher_message_filter.h"
+#endif
+
 namespace content {
 namespace {
 
@@ -1811,6 +1816,11 @@ void RenderProcessHostImpl::CreateMessageFilters() {
       new SynchronousCompositorBrowserFilter(GetID());
   AddFilter(synchronous_compositor_filter_.get());
 #endif
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  AddFilter(new DeviceApiPermissionCheckMessageFilter(GetID()));
+  AddFilter(new DeviceApiApplauncherMessageFilter(GetID()));
+#endif
 }
 
 void RenderProcessHostImpl::RegisterMojoInterfaces() {
@@ -1832,7 +1842,6 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
       registry.get(),
       base::Bind(&ForwardShapeDetectionRequest<
                  shape_detection::mojom::TextDetectionRequest>));
-
   AddUIThreadInterface(
       registry.get(),
       base::Bind(&PermissionServiceContext::CreateService,

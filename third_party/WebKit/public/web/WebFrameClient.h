@@ -123,6 +123,11 @@ struct WebPopupMenuInfo;
 struct WebRect;
 struct WebURLError;
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+class WebDeviceApiPermissionCheckClient;
+class WebDeviceApiApplauncherClient;
+#endif
+
 class BLINK_EXPORT WebFrameClient {
  public:
   virtual ~WebFrameClient() {}
@@ -828,6 +833,12 @@ class BLINK_EXPORT WebFrameClient {
     NOTREACHED();
     return nullptr;
   }
+  
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  // DeviceAPI ------------------------------------------------------------
+  virtual WebDeviceApiPermissionCheckClient* deviceApiPermissionClient() { return nullptr; }
+  virtual WebDeviceApiApplauncherClient* deviceApiApplauncherClient() { return nullptr; }
+#endif
 };
 
 }  // namespace blink

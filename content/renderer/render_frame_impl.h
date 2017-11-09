@@ -681,6 +681,11 @@ class CONTENT_EXPORT RenderFrameImpl
       base::SingleThreadTaskRunner* task_runner) override;
   void DraggableRegionsChanged() override;
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  blink::WebDeviceApiPermissionCheckClient* deviceApiPermissionClient() override;
+  blink::WebDeviceApiApplauncherClient* deviceApiApplauncherClient() override;
+#endif
+
   // WebFrameSerializerClient implementation:
   void DidSerializeDataForFrame(
       const blink::WebCString& data,
@@ -1355,6 +1360,11 @@ class CONTENT_EXPORT RenderFrameImpl
 
   // Whether or not this RenderFrame is currently pasting.
   bool is_pasting_;
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  blink::WebDeviceApiPermissionCheckClient* device_api_client_;
+  blink::WebDeviceApiApplauncherClient* device_api_applauncher_client_;
+#endif
 
   // Whether we must stop creating nested run loops for modal dialogs. This
   // is necessary because modal dialogs have a ScopedPageLoadDeferrer on the

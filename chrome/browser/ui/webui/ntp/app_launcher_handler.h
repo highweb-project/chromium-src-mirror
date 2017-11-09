@@ -37,6 +37,10 @@ namespace user_prefs {
 class PrefRegistrySyncable;
 }
 
+namespace highweb_pwa {
+extern const char kHighwebPwaAppId[];
+}
+
 // The handler for Javascript messages related to the "apps" view.
 class AppLauncherHandler
     : public content::WebUIMessageHandler,
@@ -183,6 +187,8 @@ class AppLauncherHandler
 
   // True if the extension should be displayed.
   bool ShouldShow(const extensions::Extension* extension) const;
+
+  bool NotDisplayHighweb(const extensions::Extension* extension) const;
 
   // The apps are represented in the extensions model, which
   // outlives us since it's owned by our containing profile.

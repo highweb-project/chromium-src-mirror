@@ -411,6 +411,11 @@ enum NotificationType {
   // which was installed.
   NOTIFICATION_APP_INSTALLED_TO_NTP,
 
+  // Send when an app is uninstalled and an NTP has been shown. Source is the
+  // WebContents that was shown, and Details is the string ID of the extension
+  // which was uninstalled.
+  NOTIFICATION_APP_UNINSTALL_TO_NTP,
+
 #if defined(USE_ASH)
   // Sent when wallpaper show animation has finished.
   NOTIFICATION_WALLPAPER_ANIMATION_FINISHED,

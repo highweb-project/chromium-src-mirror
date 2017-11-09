@@ -26,8 +26,10 @@ NTPResourceCacheFactory::NTPResourceCacheFactory()
     : BrowserContextKeyedServiceFactory(
         "NTPResourceCache",
         BrowserContextDependencyManager::GetInstance()) {
+#if !defined(OS_ANDROID)
   DependsOn(SigninManagerFactory::GetInstance());
   DependsOn(ThemeServiceFactory::GetInstance());
+#endif  
 }
 
 NTPResourceCacheFactory::~NTPResourceCacheFactory() {}

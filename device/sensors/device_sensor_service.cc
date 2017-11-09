@@ -16,6 +16,9 @@ DeviceSensorService::DeviceSensorService()
     : num_motion_readers_(0),
       num_orientation_readers_(0),
       num_orientation_absolute_readers_(0),
+    #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      num_proximity_readers_(0),
+    #endif
       is_shutdown_(false) {
   base::MessageLoop::current()->AddDestructionObserver(this);
 }
@@ -65,6 +68,11 @@ bool DeviceSensorService::ChangeNumberConsumers(ConsumerType consumer_type,
       num_orientation_absolute_readers_ += delta;
       DCHECK_GE(num_orientation_absolute_readers_, 0);
       return true;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      num_proximity_readers_ += delta;
+      return true;
+  #endif
     default:
       NOTREACHED();
   }
@@ -79,6 +87,10 @@ int DeviceSensorService::GetNumberConsumers(ConsumerType consumer_type) const {
       return num_orientation_readers_;
     case CONSUMER_TYPE_ORIENTATION_ABSOLUTE:
       return num_orientation_absolute_readers_;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      return num_proximity_readers_;
+  #endif
     default:
       NOTREACHED();
   }

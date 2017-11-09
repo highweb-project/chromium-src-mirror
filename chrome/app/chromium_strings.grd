@@ -647,6 +647,13 @@ Chromium is unable to recover your settings.
         Customize and control Chromium
       </message>
 
+      <message name="IDS_WEBD2D" desc="ETRI WebD2D">
+        WebD2D
+      </message>
+      <message name="IDS_WEBD2D_URL_SHARE" desc="ETRI WebD2D URL Share">
+        URL Share
+      </message>
+
       <if expr="use_titlecase and not chromeos">
         <message name="IDS_ABOUT" desc="In Title Case: The text label of the About Chrome menu item">
           About &amp;Chromium
@@ -1271,6 +1278,12 @@ Please check your email at <ph name="ACCOUNT_EMAIL">$2<ex>jane.doe@example.com</
           Select <ph name="SMALL_PRODUCT_LOGO">&lt;div class="logo-small"&gt;&lt;/div&gt;</ph> <ph name="BEGIN_BOLD">&lt;strong&gt;</ph>Chromium<ph name="END_BOLD">&lt;/strong&gt;</ph>
         </message>
       </if>
+      <message name="IDS_HIGHWEB_PWA_NAME" desc="Name for the Highweb PWA app in the app launcher.">
+        Progressive Web Apps
+      </message>
+      <message name="IDS_HIGHWEB_PWA_DESCRIPTION" desc="Description for the Highweb PWA app.">
+        A handful of nice examples showcasing what Progressive Web Apps can look like.
+      </message>
     </messages>
   </release>
 </grit>

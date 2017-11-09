@@ -105,6 +105,7 @@ void ShowClearBrowsingDataDialog(Browser* browser);
 void ShowPasswordManager(Browser* browser);
 void ShowImportDialog(Browser* browser);
 void ShowAboutChrome(Browser* browser);
+void ShowWebD2D(Browser* browser);
 void ShowSearchEngineSettings(Browser* browser);
 
 #if !defined(OS_ANDROID)

@@ -75,7 +75,17 @@
         "content_renderer": [ "browser" ],
         "content_utility": [ "browser" ],
         "data_decoder": [ "image_decoder" ],
-        "device": [ "device:generic_sensor", "device:nfc", "device:wake_lock" ],
+        "device": [ "device:generic_sensor", "device:nfc", "device:wake_lock",
+          "device:sensors",
+          "device:CalendarManager",
+          "device:ContactManager",
+          "device:DeviceCpuManager",
+          "device:DeviceGalleryManager",
+          "device:MessagingManager",
+          "device:DeviceSoundManager",
+          "device:DeviceStorageManager",
+          "device:DeviceThirdpartyManager"
+        ],
         "file": [ "file:filesystem", "file:leveldb" ],
         "media": [ "media:media" ],
         "network": [

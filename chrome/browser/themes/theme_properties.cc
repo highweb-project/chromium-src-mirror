@@ -10,7 +10,9 @@
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "build/build_config.h"
+#if !defined(OS_ANDROID)
 #include "chrome/browser/themes/browser_theme_pack.h"
+#endif
 #include "chrome/common/chrome_features.h"
 #include "ui/base/material_design/material_design_controller.h"
 #include "ui/gfx/color_palette.h"

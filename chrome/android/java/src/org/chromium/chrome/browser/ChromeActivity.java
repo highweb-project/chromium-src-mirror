@@ -11,6 +11,7 @@ import android.app.SearchManager;
 import android.app.assist.AssistContent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -27,6 +28,7 @@ import android.support.annotation.CallSuper;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -238,6 +240,10 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
     /** Whether or not {@link #postDeferredStartupIfNeeded()} has already successfully run. */
     private boolean mDeferredStartupPosted;
 
+    static int automatic_start  = -1;
+    static int org_automatic_start = -1;
+    static int app_mode = -1;
+    
     private boolean mTabModelsInitialized;
     private boolean mNativeInitialized;
     private boolean mRemoveWindowBackgroundDone;
@@ -2011,6 +2017,95 @@ public abstract class ChromeActivity extends AsyncInitializationActivity
                 builder.setView(DistilledPagePrefsView.create(this));
                 builder.show();
             }
+        } else if (id == R.id.webd2d_id) {
+            // Log.w("chromium", "webd2d, getUrl() : " + currentTab.getUrl());
+            // Log.w("chromium", "webd2d, getTitle() : " + currentTab.getTitle());
+            final String webd2d_url = currentTab.getUrl();
+            final String webd2d_title = currentTab.getTitle();
+            final String webd2d_cmd = getApplicationContext().getString(R.string.webd2d_commands);
+            final String webd2d_server = getApplicationContext().getString(R.string.webd2d_server);
+            final String webd2d_cmd_option_default = getApplicationContext().getString(R.string.webd2d_commands_default);
+            final String webd2d_cmd_option_menu = getApplicationContext().getString(R.string.webd2d_commands_options);
+            final int cmd_number;
+
+            CharSequence[] lists = webd2d_cmd.split(",");
+            CharSequence[] lists_cmd_menu = webd2d_cmd_option_menu.split(",");
+            String ss;
+
+            for(int i=0; i < lists.length; i++){
+                ss = lists[i].toString();
+                lists[i] = ss.trim();
+            }
+
+            Log.w("chromium", ">>>>> webd2d commands : " + webd2d_cmd);
+            Log.w("chromium", ">>>>> webd2d commands2 : " + lists[0] +", list.length: " + lists.length);
+            Log.w("chromium", ">>>>> webd2d server : " + webd2d_server);
+
+            cmd_number = lists.length - 1;
+            if (automatic_start == -1) { //set initial value
+                if (webd2d_cmd_option_default.indexOf("Manual") != -1)
+                    automatic_start = 0;
+                else if (webd2d_cmd_option_default.indexOf("Automatic") != -1)
+                    automatic_start = 1;
+                else ; //error application mode
+            }
+
+            for (int i = 0; i < lists_cmd_menu.length; i++) {
+                ss = lists_cmd_menu[i].toString();
+                lists_cmd_menu[i] = ss.trim();
+            }
+
+            final AlertDialog.Builder ab = new AlertDialog.Builder(this);
+            ab.setTitle("Application Mode");
+            ab.setSingleChoiceItems(lists_cmd_menu, automatic_start,
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    if (whichButton == 0) {  //manuall
+                        app_mode = 0;
+                    }
+                    if (whichButton == 1) {  //automatic
+                        app_mode = 1;
+                    }
+                }
+            }).setPositiveButton("Ok",
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    automatic_start = app_mode;
+                    onMenuOrKeyboardAction(R.id.webd2d_id, false);
+            }
+            }).setNegativeButton("Cancel",
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    automatic_start = org_automatic_start;
+                    app_mode = -1;
+                    onMenuOrKeyboardAction(R.id.webd2d_id, false);
+                }
+            });
+            ab.create();
+
+            org_automatic_start  = automatic_start;
+
+            //CharSequence lists[] = new CharSequence[]{"URL Share", "Hello World", "HELO"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            //builder.setTitle("WebD2D Share");
+            builder.setTitle(getApplicationContext().getString(R.string.webd2d_title));
+            builder.setItems(lists, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    // Log.w("chromium", "DialogInterface.OnClickListener, i : " + i);
+
+                    if(i == 0) {
+                        // createContextualSearchTab("http://180.66.229.97/rand/webd2d.html?url=" + webd2d_url + "&title=" + webd2d_title);
+                        // createContextualSearchTab("http://localhost:9000/webd2dtest.html?url=http://localhost:9000/webd2dtest.html?url=" + webd2d_url);
+                        //createContextualSearchTab(webd2d_server + webd2d_url);
+                        createContextualSearchTab(webd2d_server + webd2d_url + "?mode=" + automatic_start);
+                    }
+                    if(i == cmd_number) {  //last menu is settings
+                        ab.show();
+                    }
+                }
+            });
+            builder.show();
         } else {
             return false;
         }

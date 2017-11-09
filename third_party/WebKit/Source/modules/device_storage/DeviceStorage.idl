@@ -1,0 +1,28 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+[
+	NoInterfaceObject
+]
+interface DeviceStorage {
+	// Exception code
+	const long SUCCESS = 0;
+	const long FAILURE = -1;
+	const long NOT_ENABLED_PERMISSION = -2;
+	const long NOT_SUPPORT_API = 9999;
+
+	//device_storage_type
+	const long DEVICE_UNKNOWN = 1;
+	const long DEVICE_HARDDISK = 2;
+	const long DEVICE_FLOPPYDISK = 3;
+	const long DEVICE_OPTICAL = 4;
+	//android storage type
+	const long DEVICE_INTERNAL = 5;
+	const long DEVICE_EXTERNAL = 6;
+	const long DEVICE_SDCARD = 7;
+	const long DEVICE_USB = 8;
+
+	void getDeviceStorage(DeviceStorageScriptCallback callback);
+};

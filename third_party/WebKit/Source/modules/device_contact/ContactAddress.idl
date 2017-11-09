@@ -1,0 +1,10 @@
+[
+	Constructor
+] interface ContactAddress {
+	attribute DOMString type;
+	attribute DOMString streetAddress;
+	attribute DOMString locality;
+	attribute DOMString region;
+	attribute DOMString postalCode;
+	attribute DOMString country;
+};

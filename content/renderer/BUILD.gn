@@ -998,6 +998,17 @@ target(link_target_type, "renderer") {
   if (enable_highweb_webvkc) {
     defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
   }
+  if (enable_highweb_deviceapi) {
+    sources += [
+      "device_sensors/device_proximity_event_pump.cc",
+      "device_sensors/device_proximity_event_pump.h",
+      "device_api/device_api_applauncher_client.cc",
+      "device_api/device_api_applauncher_client.h",
+      "device_api/device_api_permission_client.cc",
+      "device_api/device_api_permission_client.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+  }
 }
 
 # See comment at the top of //content/BUILD.gn for how this works.

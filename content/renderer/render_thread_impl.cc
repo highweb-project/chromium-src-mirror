@@ -1293,6 +1293,11 @@ void RenderThreadImpl::RegisterSchemes() {
   WebSecurityPolicy::RegisterURLSchemeAsNotAllowingJavascriptURLs(
       chrome_scheme);
 
+  WebString highweb_scheme(WebString::FromASCII(kHighwebScheme));
+  WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(highweb_scheme);
+  WebSecurityPolicy::RegisterURLSchemeAsNotAllowingJavascriptURLs(
+      highweb_scheme);
+
   // chrome-devtools:
   WebString devtools_scheme(WebString::FromASCII(kChromeDevToolsScheme));
   WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(devtools_scheme);

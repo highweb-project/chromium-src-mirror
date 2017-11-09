@@ -709,6 +709,7 @@ const char* const kChromeHostURLs[] = {
     content::kChromeUIServiceWorkerInternalsHost,
     content::kChromeUITracingHost,
     content::kChromeUIWebRTCInternalsHost,
+    kChromeUIAppLauncherPageHost,
 #if !defined(OS_ANDROID)
 #if !defined(OS_CHROMEOS)
     kChromeUIAppLauncherPageHost,

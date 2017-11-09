@@ -1685,7 +1685,6 @@ const char kDevToolsRemoteEnabled[] = "devtools.remote_enabled";
 // when on-line authentication is not available.
 const char kGoogleServicesPasswordHash[] = "google.services.password_hash";
 
-#if !defined(OS_ANDROID)
 // Tracks the number of times that we have shown the sign in promo at startup.
 const char kSignInPromoStartupCount[] = "sync_promo.startup_count";
 
@@ -1701,7 +1700,6 @@ const char kSignInPromoShowOnFirstRunAllowed[] =
 // Boolean that specifies if we should show a bubble in the new tab page.
 // The bubble is used to confirm that the user is signed into sync.
 const char kSignInPromoShowNTPBubble[] = "sync_promo.show_ntp_bubble";
-#endif
 
 #if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
 // Boolean tracking whether the user chose to opt out of the x-device promo.

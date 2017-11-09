@@ -193,6 +193,22 @@ void WebContentsDelegate::RequestMediaAccessPermission(
                std::unique_ptr<MediaStreamUI>());
 }
 
+void WebContentsDelegate::RequestDeviceApiPermission(WebContents* web_contents, const DeviceApiPermissionRequest& request)
+{
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  request.callback_.Run(DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+  #endif
+}
+
+void WebContentsDelegate::RequestApplauncherRequestFunction(WebContents* web_contents, const DeviceApiApplauncherRequest& request) {
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  DeviceApiApplauncherRequestResult result;
+  result.resultCode = applauncher_code_list::APPLAUNCHER_NOT_SUPPORT_API;
+  request.callback_.Run(result);
+  LOG(WARNING) << "WebContentsDelegate::RequestApplauncherRequestFunction not implement";
+  #endif
+}
+
 bool WebContentsDelegate::CheckMediaAccessPermission(
     WebContents* web_contents,
     const GURL& security_origin,

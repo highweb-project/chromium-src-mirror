@@ -1936,13 +1936,19 @@ From <ph name="DOWNLOAD_DOMAIN">$3<ex>example.com</ex></ph>
         </message>
       </if>
       <if expr="not use_titlecase">
+        <message name="IDS_CREATE_SHORTCUTS" desc="Default installation menu label">
+          Create application &amp;shortcuts...
+        </message>
         <message name="IDS_ADD_TO_DESKTOP" desc="Button text for adding a bookmark app to the desktop.">
-          Add to desktop...
+          Add to Webapp...
         </message>
       </if>
       <if expr="use_titlecase">
+        <message name="IDS_CREATE_SHORTCUTS" desc="In Title Case: Default installation menu label">
+          Create Application &amp;Shortcuts...
+        </message>
         <message name="IDS_ADD_TO_DESKTOP" desc="Button text for adding a bookmark app to the desktop.">
-          Add to Desktop...
+          Add to Webapp...
         </message>
       </if>
 
@@ -8251,7 +8257,7 @@ I don't think this site should be blocked!
       </message>
 
       <!-- Strings used for non-Android builds -->
-      <if expr="not is_android">
+      <!-- <if expr="not is_android"> -->
         <message name="IDS_APP_DEFAULT_PAGE_NAME"
                  desc="Default name for the first 'Apps' page on the New Tab Page.">
           Apps
@@ -8291,7 +8297,7 @@ I don't think this site should be blocked!
                  desc="The name for the 'Most Visited' navigation control on the New Tab Page.">
           Most visited
         </message>
-      </if>
+      <!-- </if> -->
 
       <message name="IDS_NEW_TAB_RESTORE_THUMBNAILS_SHORT_LINK"
                desc="The link that restores previously removed thumbnails. Context is 'Thumbnail removed. Undo | Restore all'">
@@ -9298,7 +9304,7 @@ Please help our engineers fix this problem. Tell us what happened right before y
       </if>
 
       <!-- Android uses native UI to handle Sync settings -->
-      <if expr="not is_android">
+      <!-- <if expr="not is_android"> -->
         <!-- Sync options dialog strings -->
         <message name="IDS_SYNC_OPTIONS_GROUP_NAME" desc="The name of the sync group in the options dialog.">
           Sign in
@@ -9573,7 +9579,7 @@ Please help our engineers fix this problem. Tell us what happened right before y
         <message name="IDS_SYNC_PROMO_NOT_SIGNED_IN_STATUS_LINK" desc="The linkified portion of the sync sign in promo on the NTP. Clicking this text allows the user to sign in to sync.">
           sign in
         </message>
-      </if>
+      <!-- </if> -->
 
       <if expr="chromeos">
         <!-- The URL for the Google mailto service. -->
@@ -10511,7 +10517,35 @@ Please help our engineers fix this problem. Tell us what happened right before y
       <message name="IDS_MEDIA_CAPTURE_BLOCK" desc="Label for a button that blocks access to a web page, so they can't use a camera and/or a microphone.">
         Block
       </message>
-
+      
+      <!-- Device API -->
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to permit executing <ph name="HOST">$1<ex>html5rocks.com</ex></ph> ?
+      </message>
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST_VIEW" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to allow <ph name="HOST">$1<ex>html5rocks.com</ex></ph> to viewing?
+      </message>
+      <message name="IDS_DEVICE_API_PERMISSION_REQUEST_MODIFY" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Do you want to allow <ph name="HOST">$1<ex>html5rocks.com</ex></ph> to modifying?
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_CONTACT" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Contact API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_CALENDAR" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Calendar API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_GALLERY" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Gallery API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_MESSAGING" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        Messaging API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_APPLICATION_LAUNCHER" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        ApplicationLauncher API
+      </message>
+      <message name="IDS_DEVICE_API_TITLE_SYSTEM_INFORMATION" desc="Question asked on the info bar whenever a web page requests execute Device API.">
+        SystemInformation API
+      </message>      
       <!-- Quota messages -->
       <if expr="is_android">
         <message name="IDS_REQUEST_QUOTA_INFOBAR_QUESTION" desc="Mobile: For Android device. Question asked on the info bar whenever webapp requests new (larger) quota to persistently store data on the device (e.g. for persistent-type filesystem).">

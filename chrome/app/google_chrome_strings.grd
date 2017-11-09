@@ -651,6 +651,13 @@ Google Chrome is unable to recover your settings.
         Customize and control Google Chrome
       </message>
 
+      <message name="IDS_WEBD2D" desc="ETRI WebD2D">
+        WebD2D
+      </message>
+      <message name="IDS_WEBD2D_URL_SHARE" desc="ETRI WebD2D URL Share">
+        URL Share
+      </message>
+
       <if expr="use_titlecase and not chromeos">
         <message name="IDS_ABOUT" desc="In Title Case: The text label of the About Chrome menu item">
           About &amp;Google Chrome

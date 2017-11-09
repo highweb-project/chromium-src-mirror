@@ -121,6 +121,7 @@ bool IsComponentExtensionWhitelisted(int manifest_resource_id) {
     case IDR_QUICKOFFICE_MANIFEST:
 #endif  // defined(GOOGLE_CHROME_BUILD)
 #endif  // defined(OS_CHROMEOS)
+    case IDR_HIGHWEB_PWA_MANIFEST:
       return true;
   }
 

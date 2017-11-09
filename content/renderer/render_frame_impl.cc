@@ -107,6 +107,8 @@
 #include "content/renderer/content_security_policy_util.h"
 #include "content/renderer/context_menu_params_builder.h"
 #include "content/renderer/devtools/devtools_agent.h"
+#include "content/renderer/device_api/device_api_permission_client.h"
+#include "content/renderer/device_api/device_api_applauncher_client.h"
 #include "content/renderer/dom_automation_controller.h"
 #include "content/renderer/effective_connection_type_helper.h"
 #include "content/renderer/external_popup_menu.h"
@@ -1188,6 +1190,10 @@ RenderFrameImpl::RenderFrameImpl(const CreateParams& params)
       effective_connection_type_(
           blink::WebEffectiveConnectionType::kTypeUnknown),
       is_pasting_(false),
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      device_api_client_(NULL),
+      device_api_applauncher_client_(NULL),
+#endif
       suppress_further_dialogs_(false),
       blame_context_(nullptr),
 #if BUILDFLAG(ENABLE_PLUGINS)
@@ -4759,6 +4765,24 @@ void RenderFrameImpl::UnregisterProtocolHandler(const WebString& scheme,
   Send(new FrameHostMsg_UnregisterProtocolHandler(routing_id_, scheme.Utf8(),
                                                   url, user_gesture));
 }
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+blink::WebDeviceApiPermissionCheckClient* RenderFrameImpl::deviceApiPermissionClient()
+{
+	if(!device_api_client_) {
+		device_api_client_ = new DeviceApiPermissionClient(this);
+	}
+
+	return device_api_client_;
+}
+
+blink::WebDeviceApiApplauncherClient* RenderFrameImpl::deviceApiApplauncherClient() {
+  if (!device_api_applauncher_client_) {
+    device_api_applauncher_client_ = new DeviceApiApplauncherClient(this);
+  }
+  return device_api_applauncher_client_;
+}
+#endif
 
 void RenderFrameImpl::DidSerializeDataForFrame(
     const WebCString& data,

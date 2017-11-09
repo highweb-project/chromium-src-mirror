@@ -14,6 +14,7 @@
 #include "chrome/browser/android/feature_utilities.h"
 #include "chrome/browser/android/hung_renderer_infobar_delegate.h"
 #include "chrome/browser/chrome_notification_types.h"
+#include "chrome/browser/device_api/permission_bubble_device_api_handler.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/infobars/infobar_service.h"
 #include "chrome/browser/media/protected_media_identifier_permission_context.h"
@@ -48,6 +49,10 @@
 
 #if BUILDFLAG(ENABLE_PLUGINS)
 #include "chrome/browser/pepper_broker_infobar_delegate.h"
+#endif
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "chrome/browser/android/device_api/android_applauncher_api_handler_impl.h"
 #endif
 
 using base::android::AttachCurrentThread;
@@ -275,6 +280,18 @@ void TabWebContentsDelegateAndroid::RequestMediaAccessPermission(
   MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
       web_contents, request, callback, nullptr);
 }
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void TabWebContentsDelegateAndroid::RequestDeviceApiPermission(content::WebContents* web_contents, const content::DeviceApiPermissionRequest& request)
+{
+	PermissionBubbleDeviceApiHandler::GetInstance()->CheckPermission(web_contents, request);
+}
+
+void TabWebContentsDelegateAndroid::RequestApplauncherRequestFunction(
+    content::WebContents* web_contents, const content::DeviceApiApplauncherRequest& request) {
+  ApplauncherApiHandlerImpl::GetInstance()->RequestFunction(nullptr, request);
+}
+#endif
 
 bool TabWebContentsDelegateAndroid::CheckMediaAccessPermission(
     content::WebContents* web_contents,

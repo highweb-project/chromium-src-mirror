@@ -6,6 +6,7 @@ import("//build/config/features.gni")
 import("//services/catalog/public/tools/catalog.gni")
 import("//services/service_manager/public/cpp/service.gni")
 import("//services/service_manager/public/service_manifest.gni")
+import("//build/config/highweb.gni")
 
 if (is_android) {
   import("//build/config/android/rules.gni")
@@ -39,17 +40,34 @@ source_set("lib") {
     "//ui/gfx",
   ]
 
+  defines = []
   if (is_android) {
     sources += [
       "//services/device/android/register_jni.cc",
       "//services/device/android/register_jni.h",
     ]
     deps += [ ":device_service_jni_headers" ]
+    if (enable_highweb_deviceapi) {
+      defines += ["ENABLE_HIGHWEB_DEVICEAPI",]
+    }
   } else {
     deps += [
       "//services/device/battery",
       "//services/device/vibration",
     ]
+    if (enable_highweb_deviceapi) {
+      deps += [
+        "//services/device/calendar",
+        "//services/device/contact",
+        "//services/device/cpu",
+        "//services/device/gallery",
+        "//services/device/messaging",
+        "//services/device/sound",
+        "//services/device/storage",
+        "//services/device/thirdparty",
+      ]
+      defines += ["ENABLE_HIGHWEB_DEVICEAPI",]
+    }
   }
 }
 
@@ -200,6 +218,14 @@ if (is_android) {
       "//services/device/wake_lock/power_save_blocker:java",
       "//services/service_manager/public/interfaces:interfaces_java",
       "//services/service_manager/public/java:service_manager_java",
+      "//services/device/calendar/android:calendar_manager_java",
+      "//services/device/contact/android:contact_manager_java",
+      "//services/device/cpu/android:devicecpu_manager_java",
+      "//services/device/gallery/android:devicegallery_manager_java",
+      "//services/device/messaging/android:messaging_manager_java",
+      "//services/device/sound/android:devicesound_manager_java",
+      "//services/device/storage/android:devicestorage_manager_java",
+      "//services/device/thirdparty/android:thirdparty_deviceapi_java",
     ]
   }
 }

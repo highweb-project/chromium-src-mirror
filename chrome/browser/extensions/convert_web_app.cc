@@ -37,6 +37,7 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "url/gurl.h"
+#include "ui/base/webui/web_ui_util.h"
 
 namespace extensions {
 
@@ -117,10 +118,15 @@ scoped_refptr<Extension> ConvertWebAppToExtension(
                                              web_app.generated_icon_color));
   }
 
+  int32_t saved_icon_size = 0;
+
   // Add the icons and linked icon information.
   auto icons = base::MakeUnique<base::DictionaryValue>();
   auto linked_icons = base::MakeUnique<base::ListValue>();
   for (const auto& icon : web_app.icons) {
+    if (icon.width > 0 && icon.width <= 256 && saved_icon_size < icon.width) {
+      saved_icon_size = icon.width;
+    }
     std::string size = base::StringPrintf("%i", icon.width);
     std::string icon_path = base::StringPrintf("%s/%s.png", kIconsDirName,
                                                size.c_str());
@@ -137,6 +143,12 @@ scoped_refptr<Extension> ConvertWebAppToExtension(
   root->Set(keys::kIcons, std::move(icons));
   root->Set(keys::kLinkedAppIcons, std::move(linked_icons));
 
+  for(const auto& icon:web_app.icons) {
+    if (icon.width == saved_icon_size) {
+      std::string bitmapDataUrl = webui::GetBitmapDataUrl(icon.data);
+      root->SetString("icon_url", bitmapDataUrl);
+    }
+  }
   // Write the manifest.
   base::FilePath manifest_path = temp_dir.GetPath().Append(kManifestFilename);
   JSONFileValueSerializer serializer(manifest_path);
@@ -183,7 +195,7 @@ scoped_refptr<Extension> ConvertWebAppToExtension(
     LOG(ERROR) << error;
     return NULL;
   }
-
+ 
   temp_dir.Take();  // The caller takes ownership of the directory.
   return extension;
 }

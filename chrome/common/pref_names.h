@@ -607,12 +607,10 @@ extern const char kDevToolsRemoteEnabled[];
 
 extern const char kGoogleServicesPasswordHash[];
 
-#if !defined(OS_ANDROID)
 extern const char kSignInPromoStartupCount[];
 extern const char kSignInPromoUserSkipped[];
 extern const char kSignInPromoShowOnFirstRunAllowed[];
 extern const char kSignInPromoShowNTPBubble[];
-#endif
 
 #if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
 extern const char kCrossDevicePromoOptedOut[];

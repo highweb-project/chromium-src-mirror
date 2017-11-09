@@ -14,11 +14,20 @@
           "device::mojom::LightSensor",
           "device::mojom::MotionSensor",
           "device::mojom::OrientationAbsoluteSensor",
-          "device::mojom::OrientationSensor"
+          "device::mojom::OrientationSensor",
+          "device::mojom::ProximitySensor"
         ],
         "device:time_zone_monitor": [ "device::mojom::TimeZoneMonitor" ],
         "device:vibration": [ "device::mojom::VibrationManager" ],
-        "device:wake_lock": [ "device::mojom::WakeLockProvider" ]
+        "device:wake_lock": [ "device::mojom::WakeLockProvider" ],
+        "device:CalendarManager": ["device::mojom::CalendarManager" ],
+        "device:ContactManager": ["device::mojom::ContactManager" ],
+        "device:DeviceCpuManager": ["device::mojom::DeviceCpuManager" ],
+        "device:DeviceGalleryManager": ["device::mojom::DeviceGalleryManager" ],
+        "device:MessagingManager": ["device::mojom::MessagingManager" ],
+        "device:DeviceSoundManager": ["device::mojom::DeviceSoundManager" ],
+        "device:DeviceStorageManager": ["device::mojom::DeviceStorageManager" ],
+        "device:DeviceThirdpartyManager": ["device::mojom::DeviceThirdpartyManager" ]
       },
       "requires": {
         "service_manager": [ "service_manager:all_users" ]

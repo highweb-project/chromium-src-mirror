@@ -64,8 +64,8 @@ public class AddToHomescreenManager {
      * Adds a shortcut for the current Tab.
      * @param userRequestedTitle Title of the shortcut displayed on the homescreen.
      */
-    public void addShortcut(String userRequestedTitle) {
-        nativeAddShortcut(mNativeAddToHomescreenManager, userRequestedTitle);
+    public void addShortcut(String userRequestedTitle, boolean addHomeScreen) {
+        nativeAddShortcut(mNativeAddToHomescreenManager, userRequestedTitle, addHomeScreen);
     }
 
     @CalledByNative
@@ -95,6 +95,6 @@ public class AddToHomescreenManager {
 
     private native long nativeInitializeAndStart(WebContents webContents);
     private native void nativeAddShortcut(
-            long nativeAddToHomescreenManager, String userRequestedTitle);
+            long nativeAddToHomescreenManager, String userRequestedTitle, boolean addHomeScreen);
     private native void nativeDestroy(long nativeAddToHomescreenManager);
 }

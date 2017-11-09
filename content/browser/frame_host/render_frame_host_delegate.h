@@ -32,6 +32,11 @@
 #include "services/device/public/interfaces/nfc.mojom.h"
 #endif
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "content/public/common/device_api_permission_request.h"
+#include "content/public/common/device_api_applauncher_request.h"
+#endif
+
 class GURL;
 
 namespace IPC {
@@ -159,6 +164,11 @@ class CONTENT_EXPORT RenderFrameHostDelegate {
   virtual void RequestMediaAccessPermission(
       const MediaStreamRequest& request,
       const MediaResponseCallback& callback);
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  virtual void RequestDeviceApiPermission(const DeviceApiPermissionRequest& request);
+  virtual void RequestApplauncherRequestFunction(const DeviceApiApplauncherRequest& request);
+#endif
 
   // Checks if we have permission to access the microphone or camera. Note that
   // this does not query the user. |type| must be MEDIA_DEVICE_AUDIO_CAPTURE

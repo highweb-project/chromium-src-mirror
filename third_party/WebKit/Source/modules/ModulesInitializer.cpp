@@ -63,6 +63,11 @@
 #include "public/platform/InterfaceRegistry.h"
 #include "public/platform/WebSecurityOrigin.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_api/DeviceApiPermissionController.h"
+#include "modules/applauncher/DeviceApiApplauncherController.h"
+#endif
+
 namespace blink {
 
 void ModulesInitializer::Initialize() {
@@ -148,6 +153,10 @@ void ModulesInitializer::Initialize() {
                                        new AudioOutputDeviceClientImpl(frame));
     }
     InstalledAppController::ProvideTo(frame, client->GetRelatedAppsFetcher());
+    #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      DeviceApiPermissionController::ProvideTo(frame, client->deviceApiPermissionClient());
+      DeviceApiApplauncherController::ProvideTo(frame, client->deviceApiApplauncherClient());
+    #endif
   });
 
   // DedicatedWorker callbacks for modules initialization.

@@ -1,0 +1,3 @@
+callback interface ContactSuccessCallback {
+	void handleResult(ContactObject[] contactObjs);
+};

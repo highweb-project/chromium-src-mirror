@@ -1,0 +1,11 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+dictionary DeviceStorageInfo {
+	long type = 0;
+	long long capacity = 0;
+	long long availableCapacity = 0;
+	boolean isRemovable = false;
+};

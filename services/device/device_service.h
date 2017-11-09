@@ -27,6 +27,18 @@
 #include "base/android/scoped_java_ref.h"
 #endif
 
+#include "device/sensors/public/interfaces/proximity.mojom.h"
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "services/device/public/interfaces/calendar_manager.mojom.h"
+#include "services/device/public/interfaces/contact_manager.mojom.h"
+#include "services/device/public/interfaces/devicecpu_manager.mojom.h"
+#include "services/device/public/interfaces/devicegallery_manager.mojom.h"
+#include "services/device/public/interfaces/messaging_manager.mojom.h"
+#include "services/device/public/interfaces/devicesound_manager.mojom.h"
+#include "services/device/public/interfaces/devicestorage_manager.mojom.h"
+#include "services/device/public/interfaces/devicethirdparty_manager.mojom.h"
+#endif
+
 namespace base {
 class SingleThreadTaskRunner;
 }
@@ -80,10 +92,22 @@ class DeviceService : public service_manager::Service {
   void BindOrientationAbsoluteSensorRequest(
       mojom::OrientationAbsoluteSensorRequest request);
 
+  void BindProximitySensorRequest(mojom::ProximitySensorRequest reqiest);
+
 #if !defined(OS_ANDROID)
   void BindBatteryMonitorRequest(mojom::BatteryMonitorRequest request);
   void BindNFCProviderRequest(mojom::NFCProviderRequest request);
   void BindVibrationManagerRequest(mojom::VibrationManagerRequest request);
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  void BindCalendarManagerRequest(mojom::CalendarManagerRequest request);
+  void BindContactManagerRequest(mojom::ContactManagerRequest request);
+  void BindDeviceCpuManagerRequest(mojom::DeviceCpuManagerRequest request);
+  void BindDeviceGalleryManagerRequest(mojom::DeviceGalleryManagerRequest request);
+  void BindMessagingManagerRequest(mojom::MessagingManagerRequest request);
+  void BindDeviceSoundManagerRequest(mojom::DeviceSoundManagerRequest request);
+  void BindDeviceStorageManagerRequest(mojom::DeviceStorageManagerRequest request);
+  void BindDeviceThirdpartyManagerRequest(mojom::DeviceThirdpartyManagerRequest request);
+  #endif
 #endif
 
   void BindPowerMonitorRequest(mojom::PowerMonitorRequest request);

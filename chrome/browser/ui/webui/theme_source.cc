@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -10,7 +13,9 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/resources_util.h"
 #include "chrome/browser/search/instant_io_context.h"
+#if !defined(OS_ANDROID)
 #include "chrome/browser/themes/browser_theme_pack.h"
+#endif
 #include "chrome/browser/themes/theme_properties.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
@@ -173,9 +178,13 @@ ThemeSource::TaskRunnerForRequestPath(const std::string& path) const {
 
   // If it's not a themeable image, we don't need to go to the UI thread.
   int resource_id = ResourcesUtil::GetThemeResourceId(parsed_path);
+#if !defined(OS_ANDROID)
   return BrowserThemePack::IsPersistentImageID(resource_id)
              ? content::URLDataSource::TaskRunnerForRequestPath(path)
              : nullptr;
+#else
+  return content::URLDataSource::TaskRunnerForRequestPath(path);
+#endif
 }
 
 bool ThemeSource::AllowCaching() const {
@@ -201,6 +210,7 @@ void ThemeSource::SendThemeBitmap(
     int resource_id,
     float scale) {
   ui::ScaleFactor scale_factor = ui::GetSupportedScaleFactor(scale);
+#if !defined(OS_ANDROID)
   if (BrowserThemePack::IsPersistentImageID(resource_id)) {
     DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
     scoped_refptr<base::RefCountedMemory> image_data(
@@ -209,6 +219,9 @@ void ThemeSource::SendThemeBitmap(
     callback.Run(image_data.get());
   } else {
     DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+#else
+  {
+#endif
     const ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     callback.Run(rb.LoadDataResourceBytesForScale(resource_id, scale_factor));
   }
@@ -219,6 +232,7 @@ void ThemeSource::SendThemeImage(
     int resource_id,
     float scale) {
   scoped_refptr<base::RefCountedBytes> data(new base::RefCountedBytes());
+#if !defined(OS_ANDROID)
   if (BrowserThemePack::IsPersistentImageID(resource_id)) {
     DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
     const ui::ThemeProvider& tp = ThemeService::GetThemeProviderForProfile(
@@ -227,6 +241,9 @@ void ThemeSource::SendThemeImage(
     callback.Run(data.get());
   } else {
     DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+#else
+  {
+#endif
     // Fetching image data in ResourceBundle should happen on the UI thread. See
     // crbug.com/449277
     content::BrowserThread::PostTaskAndReply(

@@ -319,7 +319,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
   // This will get called a lot to check all URLs, so do a quick check of other
   // schemes to filter out most URLs.
   if (!url.SchemeIs(content::kChromeDevToolsScheme) &&
-      !url.SchemeIs(content::kChromeUIScheme)) {
+      !url.SchemeIs(content::kChromeUIScheme) &&
+      !url.SchemeIs(content::kHighwebScheme)) {
     return NULL;
   }
 
@@ -402,6 +403,14 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
   /****************************************************************************
    * OS Specific #defines
    ***************************************************************************/
+
+#if defined(OS_ANDROID)
+  if (!url.SchemeIs(content::kChromeUIScheme) && 
+      url.host_piece() == chrome::kChromeUIAppLauncherPageHost) {
+    return &NewWebUI<AppLauncherPageUI>;
+  }
+#endif
+
 #if !defined(OS_ANDROID)
 #if !defined(OS_CHROMEOS)
   // AppLauncherPage is not needed on Android or ChromeOS.
@@ -674,10 +683,10 @@ WebUIController* ChromeWebUIControllerFactory::CreateWebUIControllerForURL(
     const GURL& url) const {
   Profile* profile = Profile::FromWebUI(web_ui);
   WebUIFactoryFunction function = GetWebUIFactoryFunction(web_ui, profile, url);
-  if (!function)
+  if (!function) 
     return NULL;
 
-  if (web_ui->HasRenderFrame())
+  if (web_ui->HasRenderFrame()) 
     webui::LogWebUIUrl(url);
 
   return (*function)(web_ui, url);
@@ -795,13 +804,13 @@ base::RefCountedMemory* ChromeWebUIControllerFactory::GetFaviconResourceBytes(
   if (page_url.host_piece() == chrome::kChromeUIHistoryHost)
     return history_ui::GetFaviconResourceBytes(scale_factor);
 
-#if !defined(OS_ANDROID)
 #if !defined(OS_CHROMEOS)
   // The Apps launcher page is not available on android or ChromeOS.
   if (page_url.host_piece() == chrome::kChromeUIAppLauncherPageHost)
     return AppLauncherPageUI::GetFaviconResourceBytes(scale_factor);
 #endif  // !defined(OS_CHROMEOS)
 
+#if !defined(OS_ANDROID)
   // Flash is not available on android.
   if (page_url.host_piece() == chrome::kChromeUIFlashHost)
     return FlashUI::GetFaviconResourceBytes(scale_factor);

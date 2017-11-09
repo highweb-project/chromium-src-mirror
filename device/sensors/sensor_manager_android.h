@@ -15,6 +15,7 @@
 #include "device/sensors/device_sensors_consts.h"
 #include "device/sensors/public/cpp/device_motion_hardware_buffer.h"
 #include "device/sensors/public/cpp/device_orientation_hardware_buffer.h"
+#include "device/sensors/public/cpp/device_proximity_hardware_buffer.h"
 
 namespace base {
 template <typename T>
@@ -64,6 +65,8 @@ class DEVICE_SENSOR_EXPORT SensorManagerAndroid {
                        double beta,
                        double gamma);
 
+  void GotProximity(JNIEnv*, jobject, double value);
+
   // Shared memory related methods.
   void StartFetchingDeviceMotionData(DeviceMotionHardwareBuffer* buffer);
   void StopFetchingDeviceMotionData();
@@ -75,6 +78,11 @@ class DEVICE_SENSOR_EXPORT SensorManagerAndroid {
   void StartFetchingDeviceOrientationAbsoluteData(
       DeviceOrientationHardwareBuffer* buffer);
   void StopFetchingDeviceOrientationAbsoluteData();
+
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  void StartFetchingDeviceProximityData(DeviceProximityHardwareBuffer* buffer);
+  void StopFetchingDeviceProximityData();
+  #endif
 
   void Shutdown();
 
@@ -118,6 +126,10 @@ class DEVICE_SENSOR_EXPORT SensorManagerAndroid {
   void SetMotionBufferReadyStatus(bool ready);
   void ClearInternalMotionBuffers();
 
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  void SetProximityBufferValue(double value);
+  #endif
+
   // The Java provider of sensors info.
   base::android::ScopedJavaGlobalRef<jobject> device_sensors_;
   int number_active_device_motion_sensors_;
@@ -127,6 +139,9 @@ class DEVICE_SENSOR_EXPORT SensorManagerAndroid {
   DeviceMotionHardwareBuffer* device_motion_buffer_;
   DeviceOrientationHardwareBuffer* device_orientation_buffer_;
   DeviceOrientationHardwareBuffer* device_orientation_absolute_buffer_;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  DeviceProximityHardwareBuffer* device_proximity_buffer_;
+  #endif
 
   bool motion_buffer_initialized_;
   bool orientation_buffer_initialized_;
@@ -135,6 +150,9 @@ class DEVICE_SENSOR_EXPORT SensorManagerAndroid {
   base::Lock motion_buffer_lock_;
   base::Lock orientation_buffer_lock_;
   base::Lock orientation_absolute_buffer_lock_;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  base::Lock proximity_buffer_lock_;
+  #endif
 
   bool is_shutdown_;
   base::ThreadChecker thread_checker_;

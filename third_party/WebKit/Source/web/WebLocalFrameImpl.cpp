@@ -236,6 +236,10 @@
 #include "public/web/WebTreeScopeType.h"
 #include "skia/ext/platform_canvas.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_api/DeviceApiPermissionController.h"
+#endif
+
 namespace blink {
 
 static int g_frame_count = 0;

@@ -16,6 +16,9 @@
 #include "content/common/content_export.h"
 #include "content/public/browser/bluetooth_chooser.h"
 #include "content/public/browser/invalidate_type.h"
+#include "content/public/browser/navigation_type.h"
+#include "content/public/common/device_api_permission_request.h"
+#include "content/public/common/device_api_applauncher_request.h"
 #include "content/public/common/media_stream_request.h"
 #include "content/public/common/previews_state.h"
 #include "content/public/common/window_container_type.mojom.h"
@@ -477,6 +480,9 @@ class CONTENT_EXPORT WebContentsDelegate {
       WebContents* web_contents,
       const MediaStreamRequest& request,
       const MediaResponseCallback& callback);
+
+  virtual void RequestDeviceApiPermission(WebContents* web_contents, const DeviceApiPermissionRequest& request);
+  virtual void RequestApplauncherRequestFunction(WebContents* web_contents, const DeviceApiApplauncherRequest& request);
 
   // Checks if we have permission to access the microphone or camera. Note that
   // this does not query the user. |type| must be MEDIA_DEVICE_AUDIO_CAPTURE

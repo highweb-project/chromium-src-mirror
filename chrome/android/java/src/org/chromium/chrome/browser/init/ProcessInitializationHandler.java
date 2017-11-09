@@ -89,6 +89,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import org.chromium.chrome.browser.DeviceWebsocketServer;
+
 /**
  * Handles the initialization dependences of the browser process.  This is meant to handle the
  * initialization that is not tied to any particular Activity, and the logic that should only be
@@ -111,6 +113,7 @@ public class ProcessInitializationHandler {
     private boolean mInitializedPostNative;
     private boolean mInitializedDeferredStartupTasks;
     private DevToolsServer mDevToolsServer;
+    private DeviceWebsocketServer mWebsocketServer;
 
     /**
      * @return The ProcessInitializationHandler for use during the lifetime of the browser process.
@@ -399,6 +402,14 @@ public class ProcessInitializationHandler {
             @Override
             public void run() {
                 BackgroundTaskSchedulerFactory.getScheduler().checkForOSUpgrade(application);
+            }
+        });
+
+        deferredStartupHandler.addDeferredTask(new Runnable() {
+            @Override
+            public void run() {
+                mWebsocketServer = new DeviceWebsocketServer();
+                mWebsocketServer.setDeviceWebsocketEnabled(true);
             }
         });
     }

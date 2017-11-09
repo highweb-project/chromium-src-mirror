@@ -17,6 +17,19 @@ mojom("interfaces") {
     "wake_lock.mojom",
     "wake_lock_context.mojom",
     "wake_lock_provider.mojom",
+    "calendar_manager.mojom",
+    "calendar_ResultCode.mojom",
+    "contact_manager.mojom",
+    "devicecpu_manager.mojom",
+    "devicecpu_ResultCode.mojom",
+    "devicegallery_manager.mojom",
+    "devicegallery_ResultCode.mojom",
+    "devicesound_manager.mojom",
+    "devicesound_resultData.mojom",
+    "devicestorage_manager.mojom",
+    "devicestorage_ResultCode.mojom",
+    "devicethirdparty_manager.mojom",
+    "messaging_manager.mojom",
   ]
 
   public_deps = [

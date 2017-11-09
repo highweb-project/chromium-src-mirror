@@ -153,6 +153,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
 
  private:
   class HelpMenuModel;
+  class WebD2DMenuModel;
   // Testing constructor used for mocking.
   friend class ::MockAppMenuModel;
 
@@ -208,6 +209,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
   // Help menu.
   std::unique_ptr<HelpMenuModel> help_menu_model_;
 #endif
+  std::unique_ptr<WebD2DMenuModel> webd2d_menu_model_;
 
   // Tools menu.
   std::unique_ptr<ToolsMenuModel> tools_menu_model_;

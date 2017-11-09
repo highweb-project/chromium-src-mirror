@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 import("//third_party/WebKit/Source/core/core.gni")
+import("//build/config/highweb.gni")
 
 blink_core_sources("frame") {
   sources = [
@@ -155,4 +156,8 @@ blink_core_sources("frame") {
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
     "//build/config/compiler:no_size_t_to_int_warning",
   ]
+  defines = []
+  if (enable_highweb_deviceapi) {
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+  }
 }

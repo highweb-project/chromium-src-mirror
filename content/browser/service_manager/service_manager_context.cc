@@ -298,7 +298,6 @@ ServiceManagerContext::ServiceManagerContext() {
   base::android::ScopedJavaGlobalRef<jobject> java_nfc_delegate;
   java_nfc_delegate.Reset(Java_ContentNfcDelegate_create(env));
   DCHECK(!java_nfc_delegate.is_null());
-
   // See the comments on wake_lock_context_host.h and ContentNfcDelegate.java
   // respectively for comments on those parameters.
   device_info.factory =

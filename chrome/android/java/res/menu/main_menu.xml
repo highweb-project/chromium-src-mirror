@@ -56,7 +56,7 @@
         <item android:id="@+id/find_in_page_id"
             android:title="@string/menu_find_in_page" />
         <item android:id="@+id/add_to_homescreen_id"
-            android:title="@string/menu_add_to_homescreen" />
+            android:title="@string/menu_add_to_webapp" />
         <item android:id="@+id/open_webapk_id"
             android:title="@string/menu_open_webapk" />
         <item android:id="@+id/request_desktop_site_row_menu_id"
@@ -78,6 +78,8 @@
             android:title="@string/menu_help" />
         <item android:id="@+id/enter_vr_id"
             android:title="@string/enter_vr" />
+        <item android:id="@+id/webd2d_id"
+            android:title="@string/webd2d_menu_title" />
     </group>
 
     <!-- Items shown only in the tab switcher -->

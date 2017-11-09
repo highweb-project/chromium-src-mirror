@@ -116,6 +116,8 @@ enum IPCMessageStart {
   SurfaceViewManagerMsgStart,
   ExtensionWorkerMsgStart,
   SubresourceFilterMsgStart,
+  DeviceApiPermissionCheckMsgStart,
+  DeviceApiApplauncherMsgStart,
   LastIPCMsgStart  // Must come last.
 };
 

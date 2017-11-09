@@ -104,8 +104,13 @@ class ShortcutHelper {
   // Fetches information on all the WebAPKs installed on the device and returns
   // the info to the |callback|.
   static void RetrieveWebApks(const WebApkInfoCallback& callback);
-
+  
+  static void saveWebApp(const ShortcutInfo& info,
+                         const std::string& webapp_id,
+                         const SkBitmap& icon_bitmap);
  private:
+  static std::map<std::string, std::string>* webapp_map;
+
   DISALLOW_IMPLICIT_CONSTRUCTORS(ShortcutHelper);
 };
 

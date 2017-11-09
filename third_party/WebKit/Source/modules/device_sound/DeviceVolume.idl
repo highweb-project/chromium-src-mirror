@@ -1,0 +1,14 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+dictionary DeviceVolume {
+	float MediaVolume = 0;
+	float NotificationVolume = 0;
+	float AlarmVolume = 0;
+	float BellVolume = 0;
+	float CallVolume = 0;
+	float SystemVolume = 0;
+	float DTMFVolume = 0;
+};

@@ -601,6 +601,9 @@ void BrowserCommandController::ExecuteCommandWithDisposition(
     case IDC_ABOUT:
       ShowAboutChrome(browser_);
       break;
+    case IDC_WEBD2D_URL_SHARE:
+      ShowWebD2D(browser_);
+      break;
     case IDC_UPGRADE_DIALOG:
       OpenUpdateChromeDialog(browser_);
       break;
@@ -1058,6 +1061,8 @@ void BrowserCommandController::UpdateCommandsForFullscreenMode() {
   command_updater_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_ABOUT, show_main_ui);
+  command_updater_.UpdateCommandEnabled(IDC_WEBD2D, show_main_ui);
+  command_updater_.UpdateCommandEnabled(IDC_WEBD2D_URL_SHARE, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_APP_MENU, show_main_ui);
 
   if (base::debug::IsProfilingSupported())

@@ -14,6 +14,8 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.CheckBox;
 
 import org.chromium.base.VisibleForTesting;
 import org.chromium.chrome.R;
@@ -27,6 +29,8 @@ public class AddToHomescreenDialog implements AddToHomescreenManager.Observer {
     private View mProgressBarView;
     private ImageView mIconView;
     private EditText mInput;
+    private TextView mTextView;
+    private CheckBox mCheckBox;
 
     private AddToHomescreenManager mManager;
 
@@ -70,6 +74,11 @@ public class AddToHomescreenDialog implements AddToHomescreenManager.Observer {
         mProgressBarView = view.findViewById(R.id.spinny);
         mIconView = (ImageView) view.findViewById(R.id.icon);
         mInput = (EditText) view.findViewById(R.id.text);
+        mTextView = (TextView) view.findViewById(R.id.textview);
+        mCheckBox = (CheckBox) view.findViewById(R.id.checkbox);
+
+        mTextView.setText(R.string.menu_add_to_homescreen);
+        mCheckBox.setChecked(false);
 
         // The dialog's text field is disabled till the "user title" is fetched,
         mInput.setEnabled(false);
@@ -112,7 +121,7 @@ public class AddToHomescreenDialog implements AddToHomescreenManager.Observer {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        mManager.addShortcut(mInput.getText().toString());
+                        mManager.addShortcut(mInput.getText().toString(), mCheckBox.isChecked());
                     }
                 });
 

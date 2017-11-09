@@ -335,9 +335,15 @@ bool SecurityOrigin::CanDisplay(const KURL& url) const {
   if (SchemeRegistry::CanDisplayOnlyIfCanRequest(protocol))
     return CanRequest(url);
 
-  if (SchemeRegistry::ShouldTreatURLSchemeAsDisplayIsolated(protocol))
+  if (SchemeRegistry::ShouldTreatURLSchemeAsDisplayIsolated(protocol)) {
+    if (protocol_ == "highweb" && protocol == "chrome") {
+      protocol = "highweb";
+    } else if (protocol_ == "chrome" && protocol == "highweb") {
+      protocol = "chrome";
+    }
     return protocol_ == protocol ||
            SecurityPolicy::IsAccessToURLWhiteListed(this, url);
+  }
 
   if (SchemeRegistry::ShouldTreatURLSchemeAsLocal(protocol))
     return CanLoadLocalResources() ||

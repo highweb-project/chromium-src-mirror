@@ -56,6 +56,9 @@ SensorManagerAndroid::SensorManagerAndroid()
     : number_active_device_motion_sensors_(0),
       device_motion_buffer_(nullptr),
       device_orientation_buffer_(nullptr),
+    #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      device_proximity_buffer_(nullptr),
+    #endif
       motion_buffer_initialized_(false),
       orientation_buffer_initialized_(false),
       is_shutdown_(false) {
@@ -192,6 +195,21 @@ void SensorManagerAndroid::GotRotationRate(JNIEnv*,
     received_motion_data_[RECEIVED_MOTION_DATA_ROTATION_RATE] = 1;
     CheckMotionBufferReadyToRead();
   }
+}
+
+void SensorManagerAndroid::GotProximity(JNIEnv*, jobject, double value) {
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  base::AutoLock autolock(proximity_buffer_lock_);
+
+  DLOG(INFO) << "GotProximity, value=" << value;
+
+  if (!device_proximity_buffer_)
+	  return;
+
+  device_proximity_buffer_->seqlock.WriteBegin();
+  device_proximity_buffer_->data.value = value;
+  device_proximity_buffer_->seqlock.WriteEnd();
+  #endif
 }
 
 bool SensorManagerAndroid::Start(ConsumerType consumer_type) {
@@ -388,6 +406,51 @@ void SensorManagerAndroid::StopFetchingDeviceOrientationAbsoluteData() {
     }
   }
 }
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+// --- Device Proximity
+void SensorManagerAndroid::StartFetchingDeviceProximityData(DeviceProximityHardwareBuffer* buffer) {
+  DLOG(INFO) << "SensorManagerAndroid::StartFetchingDeviceProximityData";
+  DCHECK(thread_checker_.CalledOnValidThread());
+  DCHECK(buffer);
+
+  if (is_shutdown_)
+    return;
+
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    device_proximity_buffer_ = buffer;
+    SetProximityBufferValue(-1);
+  }
+  bool success = Start(CONSUMER_TYPE_PROXIMITY);
+  if (!success) {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    SetProximityBufferValue(-1);
+  }
+}
+
+void SensorManagerAndroid::StopFetchingDeviceProximityData() {
+  DCHECK(thread_checker_.CalledOnValidThread());
+  if (is_shutdown_)
+    return;
+
+  Stop(CONSUMER_TYPE_PROXIMITY);
+  {
+    base::AutoLock autolock(proximity_buffer_lock_);
+    if (device_proximity_buffer_) {
+      SetProximityBufferValue(-1);
+      device_proximity_buffer_ = nullptr;
+    }
+  }
+}
+
+void SensorManagerAndroid::SetProximityBufferValue(double value)
+{
+	  device_proximity_buffer_->seqlock.WriteBegin();
+	  device_proximity_buffer_->data.value = value;
+	  device_proximity_buffer_->seqlock.WriteEnd();
+}
+#endif
 
 void SensorManagerAndroid::Shutdown() {
   DCHECK(thread_checker_.CalledOnValidThread());

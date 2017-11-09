@@ -71,5 +71,9 @@ template class DEVICE_SENSOR_EXPORT
 template class DEVICE_SENSOR_EXPORT
     DeviceSensorHost<device::mojom::OrientationAbsoluteSensor,
                      CONSUMER_TYPE_ORIENTATION_ABSOLUTE>;
-
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+template class DEVICE_SENSOR_EXPORT
+    DeviceSensorHost<device::mojom::ProximitySensor,
+                     CONSUMER_TYPE_PROXIMITY>;
+#endif
 }  // namespace device

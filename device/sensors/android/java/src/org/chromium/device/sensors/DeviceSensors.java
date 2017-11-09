@@ -78,6 +78,8 @@ class DeviceSensors implements SensorEventListener {
             CollectionUtil.newHashSet(Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_MAGNETIC_FIELD);
     static final Set<Integer> DEVICE_MOTION_SENSORS = CollectionUtil.newHashSet(
             Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_LINEAR_ACCELERATION, Sensor.TYPE_GYROSCOPE);
+    static final Set<Integer> DEVICE_PROXIMITY_SENSORS = CollectionUtil.newHashSet(
+            Sensor.TYPE_PROXIMITY);
 
     @VisibleForTesting
     final Set<Integer> mActiveSensors = new HashSet<Integer>();
@@ -92,6 +94,7 @@ class DeviceSensors implements SensorEventListener {
     boolean mDeviceOrientationAbsoluteIsActiveWithBackupSensors;
     boolean mOrientationNotAvailable;
     boolean mOrientationAbsoluteNotAvailable;
+    boolean mDeviceProximityIsActive = false;
 
     protected DeviceSensors() {
         mOrientationSensorSets = CollectionUtil.newArrayList(DEVICE_ORIENTATION_SENSORS_A,
@@ -188,6 +191,9 @@ class DeviceSensors implements SensorEventListener {
                     // note: device motion spec does not require all sensors to be available
                     success = registerSensors(DEVICE_MOTION_SENSORS, rateInMicroseconds, false);
                     break;
+                case ConsumerType.PROXIMITY:
+                    success = registerSensors(DEVICE_PROXIMITY_SENSORS, rateInMicroseconds, true);
+                    break;
                 default:
                     Log.e(TAG, "Unknown event type: %d", eventType);
                     return false;
@@ -251,6 +257,10 @@ class DeviceSensors implements SensorEventListener {
 
             if (mDeviceMotionIsActive && eventType != ConsumerType.MOTION) {
                 sensorsToRemainActive.addAll(DEVICE_MOTION_SENSORS);
+            }
+
+            if (mDeviceProximityIsActive && eventType != ConsumerType.PROXIMITY) {
+                sensorsToRemainActive.addAll(DEVICE_PROXIMITY_SENSORS);
             }
 
             Set<Integer> sensorsToDeactivate = new HashSet<Integer>(mActiveSensors);
@@ -328,6 +338,11 @@ class DeviceSensors implements SensorEventListener {
                     }
                     System.arraycopy(
                             values, 0, mMagneticFieldVector, 0, mMagneticFieldVector.length);
+                }
+                break;
+            case Sensor.TYPE_PROXIMITY:
+                if (mDeviceProximityIsActive) {
+                    gotProximity(values[0]);
                 }
                 break;
             default:
@@ -499,6 +514,9 @@ class DeviceSensors implements SensorEventListener {
             case ConsumerType.MOTION:
                 mDeviceMotionIsActive = active;
                 return;
+            case ConsumerType.PROXIMITY:
+                mDeviceProximityIsActive = active;
+                return;
         }
     }
 
@@ -606,6 +624,14 @@ class DeviceSensors implements SensorEventListener {
         }
     }
 
+    protected void gotProximity(double value) {
+        synchronized (mNativePtrLock) {
+            if (mNativePtr != 0) {
+                nativeGotProximity(mNativePtr, value);
+            }
+        }
+    }
+
     private Handler getHandler() {
         // TODO(timvolodine): Remove the mHandlerLock when sure that getHandler is not called
         // from multiple threads. This will be the case when device motion and device orientation
@@ -659,6 +685,9 @@ class DeviceSensors implements SensorEventListener {
      */
     private native void nativeGotRotationRate(
             long nativeSensorManagerAndroid, double alpha, double beta, double gamma);
+
+    private native void nativeGotProximity(
+            long nativeSensorManagerAndroid, double value);
 
     /**
      * Need the an interface for SensorManager for testing.

@@ -5,6 +5,7 @@
 import("//third_party/WebKit/Source/modules/modules.gni")
 import("//third_party/WebKit/Source/bindings/scripts/scripts.gni")
 import("//third_party/WebKit/Source/build/scripts/scripts.gni")
+import("//build/config/highweb.gni")
 
 group("bindings_modules_generated") {
   visibility = [ "//third_party/WebKit/*" ]
@@ -64,6 +65,13 @@ generate_event_interfaces("modules_bindings_generated_event_interfaces") {
   ]
   output_file = "EventModulesInterfaces.json5"
   suffix = "Modules"
+
+  if (enable_highweb_deviceapi) {
+    sources += [
+      "//third_party/WebKit/Source/modules/device_proximity/DeviceProximityEvent.idl",
+      "//third_party/WebKit/Source/modules/device_messaging/MessagingEvent.idl",
+    ]
+  }
 }
 
 make_event_factory("event_modules") {

@@ -32,7 +32,8 @@ ChromeFaviconClient::~ChromeFaviconClient() {
 
 bool ChromeFaviconClient::IsNativeApplicationURL(const GURL& url) {
   return url.SchemeIs(content::kChromeUIScheme) ||
-         url.SchemeIs(extensions::kExtensionScheme);
+         url.SchemeIs(extensions::kExtensionScheme) ||
+         url.SchemeIs(content::kHighwebScheme);
 }
 
 base::CancelableTaskTracker::TaskId

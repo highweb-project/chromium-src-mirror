@@ -23,6 +23,7 @@ import("//sandbox/features.gni")
 import("//services/service_manager/public/service_manifest.gni")
 import("//third_party/protobuf/proto_library.gni")
 import("//ui/base/ui_features.gni")
+import("//build/config/highweb.gni")
 
 # //build/config/android/rules.gni imports //tools/grit/grit_rule.gni, which
 # produces a conflict for the "grit" template so we have to only include one.
@@ -1449,6 +1450,8 @@ split_static_library("browser") {
     "win/taskbar_icon_finder.h",
     "win/titlebar_config.cc",
     "win/titlebar_config.h",
+    "device_websocket_server/device_websocket_server.cc",
+    "device_websocket_server/device_websocket_server.h",
   ]
 
   configs += [
@@ -3064,6 +3067,10 @@ split_static_library("browser") {
       "sync/profile_sync_service_android.cc",
       "sync/profile_sync_service_android.h",
       "sync/sessions/sync_sessions_metrics_android.cc",
+      "android/pwa_utils/manifest_utils.cc",
+      "android/pwa_utils/manifest_utils.h",
+      "android/device_websocket_server/android_device_websocket_server.cc",
+      "android/device_websocket_server/android_device_websocket_server.h",
     ]
     deps += [
       ":client_discourse_context_proto",
@@ -3945,6 +3952,34 @@ split_static_library("browser") {
       "password_manager/password_store_signin_notifier_impl.h",
     ]
   }
+
+  if(enable_highweb_deviceapi) {
+    sources += [
+      "device_api/permission_bubble_device_api_handler.cc",
+      "device_api/permission_bubble_device_api_handler.h",
+      "device_api/device_api_infobar_delegate.cc",
+      "device_api/device_api_infobar_delegate.h",
+    ]
+
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+
+    if (!is_android) {
+      sources += [
+        "device_api/applauncher/applauncher_api_handler_impl.cc",
+        "device_api/applauncher/applauncher_api_handler_impl.h",
+      ]
+    }
+
+    if (is_android) {
+      sources += [
+        "android/device_api/android_applauncher_api_handler_impl.cc",
+        "android/device_api/android_applauncher_api_handler_impl.h",
+      ]
+      deps += [
+        "//components/resources",
+      ]
+    }
+  }
 }
 
 if (is_android) {
@@ -3962,6 +3997,7 @@ if (is_android) {
       "../android/java/src/org/chromium/chrome/browser/ChromeHttpAuthHandler.java",
       "../android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java",
       "../android/java/src/org/chromium/chrome/browser/DevToolsServer.java",
+      "../android/java/src/org/chromium/chrome/browser/DeviceWebsocketServer.java",
       "../android/java/src/org/chromium/chrome/browser/IntentHelper.java",
       "../android/java/src/org/chromium/chrome/browser/JavascriptAppModalDialog.java",
       "../android/java/src/org/chromium/chrome/browser/PasswordUIView.java",
@@ -4162,6 +4198,7 @@ if (is_android) {
       "../android/java/src/org/chromium/chrome/browser/webapps/WebApkUpdateDataFetcher.java",
       "../android/java/src/org/chromium/chrome/browser/webapps/WebApkUpdateManager.java",
       "../android/java/src/org/chromium/chrome/browser/webapps/WebappRegistry.java",
+      "../android/java/src/org/chromium/chrome/browser/webapps/ManifestUtils.java",
     ]
 
     # Used for testing only, should not be shipped to end users.

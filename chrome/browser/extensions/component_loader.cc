@@ -502,6 +502,7 @@ void ComponentLoader::AddDefaultComponentExtensions(
   if (!skip_session_components) {
     AddWebStoreApp();
     AddChromeApp();
+    AddHighwebPwaApp();
   }
 
   AddKeyboardApp();
@@ -703,5 +704,12 @@ void ComponentLoader::FinishAddComponentFromDir(
     done_cb.Run();
 }
 #endif
+
+void ComponentLoader::AddHighwebPwaApp() {
+  AddWithNameAndDescription(
+      IDR_HIGHWEB_PWA_MANIFEST, base::FilePath(FILE_PATH_LITERAL("highweb_pwa")),
+      l10n_util::GetStringUTF8(IDS_HIGHWEB_PWA_NAME),
+      l10n_util::GetStringUTF8(IDS_WEBSTORE_APP_DESCRIPTION));
+}
 
 }  // namespace extensions

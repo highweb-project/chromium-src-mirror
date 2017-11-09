@@ -15,6 +15,7 @@ import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
 import("//rlz/features/features.gni")
 import("//ui/base/ui_features.gni")
+import("//build/config/highweb.gni")
 
 config("ui_warnings") {
   if (is_clang) {
@@ -655,6 +656,21 @@ split_static_library("ui") {
     sources += [
       "webui/sandbox_internals_ui.cc",
       "webui/sandbox_internals_ui.h",
+    ]
+  }
+
+  if (is_android) {
+    sources += [
+      "webui/ntp/app_resource_cache_factory.cc",
+      "webui/ntp/app_resource_cache_factory.h",
+      "webui/ntp/ntp_resource_cache.cc",
+      "webui/ntp/ntp_resource_cache.h",
+      "webui/ntp/ntp_resource_cache_factory.cc",
+      "webui/ntp/ntp_resource_cache_factory.h",
+      "webui/app_launcher_login_handler.cc",
+      "webui/app_launcher_login_handler.h",
+      "webui/ntp/android_app_launcher_handler.cc",
+      "webui/ntp/android_app_launcher_handler.h",
     ]
   }
 
@@ -2053,6 +2069,14 @@ split_static_library("ui") {
     # This is the only component that can interact with gtk.
     deps += [ "//chrome/browser/ui/libgtkui" ]
   }
+
+  if (is_android) {
+    sources += [
+      "webui/app_launcher_page_ui.cc",
+      "webui/app_launcher_page_ui.h",
+    ]
+  }
+
   if (is_win || is_mac || is_desktop_linux) {
     sources += [
       "avatar_button_error_controller.cc",
@@ -2277,6 +2301,16 @@ split_static_library("ui") {
     } else {
       sources += [ "webui/print_preview/printer_backend_proxy.cc" ]
     }
+  }
+
+  if (is_android) {
+    sources += [
+      #"browser_window.h",
+      "webui/theme_source.cc",
+      "webui/theme_source.h",
+    ]
+
+    deps += [ "//chrome/browser:theme_properties" ]
   }
 
   if (is_android) {
@@ -3621,6 +3655,10 @@ split_static_library("ui") {
       "webui/local_discovery/local_discovery_ui_handler.cc",
       "webui/local_discovery/local_discovery_ui_handler.h",
     ]
+  }
+
+  if (enable_highweb_deviceapi) {
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
   }
 }
 

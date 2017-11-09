@@ -1,0 +1,42 @@
+# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/features.gni")
+import("//mojo/public/tools/bindings/mojom.gni")
+import("//build/config/highweb.gni")
+
+if (!is_android) {
+  component("cpu") {
+    output_name = "device_cpu"
+
+    sources = [
+      "devicecpu_export.h",
+      "devicecpu_manager_impl.h",
+      "devicecpu_manager_impl_default.cc",
+    ]
+
+    defines = [ "DEVICE_CPU_IMPLEMENTATION" ]
+
+    public_deps = [
+      "//services/device/public/interfaces",
+    ]
+
+    deps = [
+      "//base",
+      "//base/third_party/dynamic_annotations",
+      "//mojo/public/cpp/bindings",
+    ]
+
+    if (is_linux && enable_highweb_deviceapi) {
+      sources -= [ "devicecpu_manager_impl_default.cc" ]
+      sources += [
+        "devicecpu_manager_linux.cc",
+        "devicecpu_manager_linux.h",
+        "devicecpu_service_linux.cc",
+        "devicecpu_service_linux.h",
+      ]
+    }
+  }
+}

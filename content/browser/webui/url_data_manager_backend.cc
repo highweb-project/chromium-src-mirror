@@ -663,6 +663,11 @@ bool URLDataManagerBackend::CheckURLIsValid(const GURL& url) {
     return false;
   }
 
+#if defined(OS_ANDROID)
+  if (url.SchemeIs(content::kChromeUIScheme) && url.host() == "apps")
+    return false;
+#endif
+
   return true;
 }
 

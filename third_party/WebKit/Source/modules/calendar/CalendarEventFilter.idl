@@ -1,0 +1,8 @@
+[NoInterfaceObject
+]
+interface CalendarEventFilter : CalendarEvent {
+    attribute DOMString startBefore;
+    attribute DOMString startAfter;
+    attribute DOMString endBefore;
+    attribute DOMString endAfter;
+};

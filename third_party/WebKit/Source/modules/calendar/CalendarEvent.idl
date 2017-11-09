@@ -1,0 +1,14 @@
+[Constructor
+]
+interface CalendarEvent {
+             attribute DOMString           id;
+             attribute DOMString           description;
+             attribute DOMString?          location;
+             attribute DOMString?          summary;
+             attribute DOMString           start;
+             attribute DOMString?          end;
+             attribute DOMString?          status;
+             attribute DOMString?          transparency;
+             attribute CalendarRepeatRule? recurrence;
+             attribute DOMString?          reminder;
+};

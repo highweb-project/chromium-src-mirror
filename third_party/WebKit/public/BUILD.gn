@@ -672,6 +672,14 @@ source_set("blink_headers") {
   if (enable_highweb_webvkc) {
     defines += [ "ENABLE_HIGHWEB_WEBVKC", ]
   }
+  if (enable_highweb_deviceapi) {
+    sources += [
+      "platform/modules/device_api/WebDeviceApiApplauncherClient.h",
+      "platform/modules/device_api/WebDeviceApiPermissionCheckClient.h",
+      "platform/modules/device_api/WebDeviceApiPermissionCheckRequest.h",
+    ]
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+  }
 }
 
 group("blink_devtools_frontend_resources") {

@@ -109,6 +109,10 @@
 #include "public/web/WebViewClient.h"
 #include "v8/include/v8.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "modules/device_proximity/DeviceProximityController.h"
+#endif
+
 namespace blink {
 
 namespace {
@@ -192,6 +196,9 @@ void LocalFrameClientImpl::DispatchDidClearWindowObjectInMainWorld() {
         // Call this in order to ensure the object is created.
         PresentationReceiver::From(*document);
       }
+    #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+      DeviceProximityController::From(*document);
+    #endif
     }
   }
   // FIXME: when extensions go out of process, this whole concept stops working.

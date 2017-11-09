@@ -1,0 +1,13 @@
+[NoInterfaceObject
+]
+interface CalendarRepeatRule {
+    attribute DOMString?      frequency;
+    attribute unsigned short? interval;
+    attribute DOMString?      expires;
+    attribute DOMString[]     exceptionDates;
+    attribute short[]         daysInWeek;
+    attribute short[]         daysInMonth;
+    attribute short[]         daysInYear;
+    attribute short[]         weeksInMonth;
+    attribute short[]         monthsInYear;
+};

@@ -1,0 +1,31 @@
+# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/features.gni")
+import("//mojo/public/tools/bindings/mojom.gni")
+
+if (!is_android) {
+  component("gallery") {
+    output_name = "device_gallery"
+
+    sources = [
+      "devicegallery_export.h",
+      "devicegallery_manager_impl.h",
+      "devicegallery_manager_impl_default.cc",
+    ]
+
+    defines = [ "DEVICE_GALLERY_IMPLEMENTATION" ]
+
+    public_deps = [
+      "//services/device/public/interfaces",
+    ]
+
+    deps = [
+      "//base",
+      "//base/third_party/dynamic_annotations",
+      "//mojo/public/cpp/bindings",
+    ]
+  }
+}

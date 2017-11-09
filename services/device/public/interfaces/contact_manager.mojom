@@ -1,0 +1,57 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device.mojom;
+
+enum contact_ErrorCodeList{
+  //result code list
+   UNKNOWN_ERROR = 0,
+   INVALID_ARGUMENT_ERROR = 1,
+   TIMEOUT_ERROR = 3,
+   PENDING_OPERATION_ERROR = 4,
+   IO_ERROR = 5,
+   NOT_SUPPORTED_ERROR = 6,
+   PERMISSION_DENIED_ERROR = 20,
+   MESSAGE_SIZE_EXCEEDED = 30,
+   SUCCESS = 40,
+   NOT_SUPPORT_API = 9999,
+};
+
+struct ContactObject {
+	string id;
+	string displayName;
+	string phoneNumber;
+	string emails;
+	string address;
+	array<string>? categories;
+	string accountName;
+	string accountType;
+	ContactName structuredName;
+	ContactAddress structuredAddress;
+};
+
+struct ContactName {
+	string familyName;
+	string givenName;
+	string middleName;
+	string honorificPrefix;
+	string honorificSuffix;
+};
+
+struct ContactAddress {
+	string type;
+	string streetAddress;
+	string locality;
+	string region;
+	string postalCode;
+	string country;
+};
+
+interface ContactManager {
+  FindContact(int32 requestID, uint32 target, uint32 maxItem, string condition) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  AddContact(int32 requestID, ContactObject contact) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  DeleteContact(int32 requestID, uint32 target, uint32 maxItem, string condition) => (int32 requestID, uint32 error, array<ContactObject>? results);
+  UpdateContact(int32 requestID, ContactObject contact) => (int32 requestID, uint32 error, array<ContactObject>? results);
+};

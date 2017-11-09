@@ -30,6 +30,7 @@ import("//build/config/ui.gni")
 import("//build/nocompile.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 import("//testing/test.gni")
+import("//build/config/highweb.gni")
 
 declare_args() {
   # Override this value to give a specific build date.
@@ -2771,6 +2772,9 @@ if (is_android) {
     defines = []
     if (is_java_debug || dcheck_always_on) {
       defines += [ "_DCHECK_IS_ON" ]
+    }
+    if (enable_highweb_deviceapi) {
+      defines += [ "_ENABLE_HIGHWEB_DEVICEAPI", ]
     }
   }
 

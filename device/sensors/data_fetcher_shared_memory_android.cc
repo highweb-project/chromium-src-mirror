@@ -9,6 +9,10 @@
 #include "device/sensors/public/cpp/device_orientation_hardware_buffer.h"
 #include "device/sensors/sensor_manager_android.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "device/sensors/public/cpp/device_proximity_hardware_buffer.h"
+#endif
+
 namespace device {
 
 DataFetcherSharedMemory::DataFetcherSharedMemory() {}
@@ -32,6 +36,12 @@ bool DataFetcherSharedMemory::Start(ConsumerType consumer_type, void* buffer) {
           ->StartFetchingDeviceOrientationAbsoluteData(
               static_cast<DeviceOrientationHardwareBuffer*>(buffer));
       return true;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      SensorManagerAndroid::GetInstance()->StartFetchingDeviceProximityData(
+          static_cast<DeviceProximityHardwareBuffer*>(buffer));
+      return true;
+  #endif
     default:
       NOTREACHED();
   }
@@ -50,6 +60,11 @@ bool DataFetcherSharedMemory::Stop(ConsumerType consumer_type) {
       SensorManagerAndroid::GetInstance()
           ->StopFetchingDeviceOrientationAbsoluteData();
       return true;
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      SensorManagerAndroid::GetInstance()->StopFetchingDeviceProximityData();
+      return true;
+  #endif
     default:
       NOTREACHED();
   }

@@ -11,6 +11,10 @@ import org.chromium.chrome.browser.infobar.SimpleConfirmInfoBarBuilder;
 import org.chromium.chrome.browser.tab.Tab;
 import org.chromium.ui.base.ActivityWindowAndroid;
 
+import java.util.Vector;
+
+import org.chromium.base.Log;
+
 /**
  * The window that has access to the main activity and is able to create and receive intents,
  * and show error messages.
@@ -22,6 +26,31 @@ public class ChromeWindow extends ActivityWindowAndroid {
      */
     public ChromeWindow(ChromeActivity activity) {
         super(activity);
+        try{
+            String[] permissionList = {
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "android.permission.READ_CALENDAR",
+                "android.permission.WRITE_CALENDAR",
+                "android.permission.READ_CONTACTS",
+                "android.permission.WRITE_CONTACTS",
+                "android.permission.READ_SMS",
+                "android.permission.SEND_SMS",
+                "android.permission.RECEIVE_SMS",
+                "android.permission.READ_PHONE_STATE" };
+            ;
+            Vector<String> requestPermission = new Vector<String>();
+            for(String permission : permissionList) {
+                if (!hasPermission(permission) && canRequestPermission(permission)) {
+                    requestPermission.add(permission);
+                }
+            }
+            if (!requestPermission.isEmpty()) {
+                requestPermissions(requestPermission.toArray(new String[requestPermission.size()]), null);
+            }
+        } catch(Exception e) {
+            Log.e("chromium", "request permission error");
+            e.printStackTrace();
+        }
     }
 
     /**

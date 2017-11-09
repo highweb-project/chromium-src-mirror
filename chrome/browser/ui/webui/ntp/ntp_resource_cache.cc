@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 // Copyright 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -24,7 +27,9 @@
 #include "chrome/browser/ui/apps/app_info_dialog.h"
 #include "chrome/browser/ui/bookmarks/bookmark_bar_constants.h"
 #include "chrome/browser/ui/webui/app_launcher_login_handler.h"
+#if !defined(OS_ANDROID)
 #include "chrome/browser/ui/webui/ntp/app_launcher_handler.h"
+#endif
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/features.h"
 #include "chrome/common/pref_names.h"
@@ -41,8 +46,10 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
+#if !defined(OS_ANDROID)
 #include "extensions/common/extension.h"
 #include "extensions/common/extension_urls.h"
+#endif
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/template_expressions.h"
@@ -144,9 +151,11 @@ bool ShouldShowApps() {
 
 NTPResourceCache::NTPResourceCache(Profile* profile)
     : profile_(profile), is_swipe_tracking_from_scroll_events_enabled_(false) {
+#if !defined(OS_ANDROID)
   registrar_.Add(this, chrome::NOTIFICATION_BROWSER_THEME_CHANGED,
                  content::Source<ThemeService>(
                      ThemeServiceFactory::GetForProfile(profile)));
+#endif
 
   base::Closure callback = base::Bind(&NTPResourceCache::OnPreferenceChanged,
                                       base::Unretained(this));
@@ -302,10 +311,14 @@ void NTPResourceCache::CreateNewTabIncognitoHTML() {
   replacements["learnMoreLink"] = kLearnMoreIncognitoUrl;
   replacements["title"] = l10n_util::GetStringUTF8(IDS_NEW_TAB_TITLE);
 
+#if !defined(OS_ANDROID)
   const ui::ThemeProvider& tp =
       ThemeService::GetThemeProviderForProfile(profile_);
   replacements["hasCustomBackground"] =
       tp.HasCustomImage(IDR_THEME_NTP_BACKGROUND) ? "true" : "false";
+#else
+  replacements["hasCustomBackground"] = "true";
+#endif
 
   const std::string& app_locale = g_browser_process->GetApplicationLocale();
   webui::SetLoadTimeDataDefaults(app_locale, &replacements);
@@ -404,18 +417,11 @@ void NTPResourceCache::CreateNewTabHTML() {
       l10n_util::GetStringUTF16(IDS_EXTENSION_WEB_STORE_TITLE));
   load_time_data.SetString("webStoreTitleShort",
       l10n_util::GetStringUTF16(IDS_EXTENSION_WEB_STORE_TITLE_SHORT));
-  load_time_data.SetString("attributionintro",
-      l10n_util::GetStringUTF16(IDS_NEW_TAB_ATTRIBUTION_INTRO));
+  
   load_time_data.SetString("appuninstall",
       l10n_util::GetStringUTF16(IDS_EXTENSIONS_UNINSTALL));
-  load_time_data.SetString("appoptions",
-      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_OPTIONS));
-  load_time_data.SetString("appdetails",
-      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_DETAILS));
   load_time_data.SetString("appinfodialog",
       l10n_util::GetStringUTF16(IDS_APP_CONTEXT_MENU_SHOW_INFO));
-  load_time_data.SetString("appcreateshortcut",
-      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_CREATE_SHORTCUT));
   load_time_data.SetString("appDefaultPageName",
       l10n_util::GetStringUTF16(IDS_APP_DEFAULT_PAGE_NAME));
   load_time_data.SetString("applaunchtypepinned",
@@ -430,6 +436,15 @@ void NTPResourceCache::CreateNewTabHTML() {
       l10n_util::GetStringUTF16(IDS_SYNC_START_SYNC_BUTTON_LABEL));
   load_time_data.SetString("syncLinkText",
       l10n_util::GetStringUTF16(IDS_SYNC_ADVANCED_OPTIONS));
+  load_time_data.SetString("attributionintro",
+      l10n_util::GetStringUTF16(IDS_NEW_TAB_ATTRIBUTION_INTRO));
+#if !defined(OS_ANDROID)
+  load_time_data.SetString("appoptions",
+      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_OPTIONS));
+  load_time_data.SetString("appdetails",
+      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_DETAILS));
+  load_time_data.SetString("appcreateshortcut",
+      l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_CREATE_SHORTCUT));
   load_time_data.SetBoolean("shouldShowSyncLogin",
                             AppLauncherLoginHandler::ShouldShow(profile_));
   load_time_data.SetString("learnMore",
@@ -439,6 +454,13 @@ void NTPResourceCache::CreateNewTabHTML() {
       "webStoreLink", google_util::AppendGoogleLocaleParam(
                           extension_urls::GetWebstoreLaunchURL(), app_locale)
                           .spec());
+#else
+  load_time_data.SetBoolean("shouldShowSyncLogin", false);
+  load_time_data.SetString("learnMore", l10n_util::GetStringUTF16(IDS_LEARN_MORE));
+  const std::string& app_locale = g_browser_process->GetApplicationLocale();
+  const GURL url("https://example.com/");
+  load_time_data.SetString("webStoreLink", google_util::AppendGoogleLocaleParam(url, app_locale).spec());
+#endif
   load_time_data.SetString("appInstallHintText",
       l10n_util::GetStringUTF16(IDS_NEW_TAB_APP_INSTALL_HINT_LABEL));
   load_time_data.SetString("learn_more",
@@ -458,9 +480,10 @@ void NTPResourceCache::CreateNewTabHTML() {
                             is_swipe_tracking_from_scroll_events_enabled_);
 
   load_time_data.SetBoolean("showApps", ShouldShowApps());
+
+#if !defined(OS_ANDROID)
   load_time_data.SetBoolean("showWebStoreIcon",
                             !prefs->GetBoolean(prefs::kHideWebStoreIcon));
-
   load_time_data.SetBoolean("enableNewBookmarkApps",
                             extensions::util::IsNewBookmarkAppsEnabled());
 
@@ -474,6 +497,16 @@ void NTPResourceCache::CreateNewTabHTML() {
   AppLauncherLoginHandler::GetLocalizedValues(profile_, &load_time_data);
 
   webui::SetLoadTimeDataDefaults(app_locale, &load_time_data);
+#else
+  load_time_data.SetBoolean("showWebStoreIcon", false);
+  load_time_data.SetBoolean("enableNewBookmarkApps", true);
+  load_time_data.SetBoolean("canHostedAppsOpenInWindows", false);
+  load_time_data.SetBoolean("canShowAppInfoDialog", false);
+  
+  AppLauncherLoginHandler::GetLocalizedValues(profile_, &load_time_data);
+
+  webui::SetLoadTimeDataDefaults(app_locale, &load_time_data);
+#endif
 
   // Control fade and resize animations.
   load_time_data.SetBoolean("anim",
@@ -492,6 +525,7 @@ void NTPResourceCache::CreateNewTabHTML() {
 }
 
 void NTPResourceCache::CreateNewTabIncognitoCSS() {
+#if !defined(OS_ANDROID)
   // TODO(estade): this returns a subtly incorrect theme provider because
   // |profile_| is actually not the incognito profile. See crbug.com/568388
   const ui::ThemeProvider& tp =
@@ -503,6 +537,9 @@ void NTPResourceCache::CreateNewTabIncognitoCSS() {
           ? GetThemeColor(tp, ThemeProperties::COLOR_NTP_BACKGROUND)
           : ThemeProperties::GetDefaultColor(
                 ThemeProperties::COLOR_NTP_BACKGROUND, true /* incognito */);
+#else
+  SkColor color_background = SkColorSetRGB(0x32, 0x32, 0x32);
+#endif
 
   // Generate the replacements.
   ui::TemplateReplacements substitutions;
@@ -514,9 +551,15 @@ void NTPResourceCache::CreateNewTabIncognitoCSS() {
   // Colors.
   substitutions["colorBackground"] =
       color_utils::SkColorToRgbaString(color_background);
+#if !defined(OS_ANDROID)
   substitutions["backgroundBarDetached"] = GetNewTabBackgroundCSS(tp, false);
   substitutions["backgroundBarAttached"] = GetNewTabBackgroundCSS(tp, true);
   substitutions["backgroundTiling"] = GetNewTabBackgroundTilingCSS(tp);
+#else
+  substitutions["backgroundBarDetached"] = "-64px";
+  substitutions["backgroundBarAttached"] = "-64px";
+  substitutions["backgroundTiling"] = "no-repeat";
+#endif
 
   // Get our template.
   static const base::StringPiece new_tab_theme_css(
@@ -531,9 +574,12 @@ void NTPResourceCache::CreateNewTabIncognitoCSS() {
 }
 
 void NTPResourceCache::CreateNewTabCSS() {
+#if !defined(OS_ANDROID)
   const ui::ThemeProvider& tp =
       ThemeService::GetThemeProviderForProfile(profile_);
+#endif
 
+#if !defined(OS_ANDROID)
   // Get our theme colors
   SkColor color_background =
       GetThemeColor(tp, ThemeProperties::COLOR_NTP_BACKGROUND);
@@ -543,6 +589,13 @@ void NTPResourceCache::CreateNewTabCSS() {
 
   SkColor color_header =
       GetThemeColor(tp, ThemeProperties::COLOR_NTP_HEADER);
+#else
+  // Get our theme colors
+  SkColor color_background = SkColorSetARGB(1, 255, 255, 255);
+  SkColor color_text = SkColorSetRGB(128, 128, 128);
+  SkColor color_text_light = SkColorSetRGB(128, 128, 128);
+  SkColor color_header = SkColorSetRGB(128, 128, 128);
+#endif
   // Generate a lighter color for the header gradients.
   color_utils::HSL header_lighter;
   color_utils::SkColorToHSL(color_header, &header_lighter);
@@ -561,15 +614,25 @@ void NTPResourceCache::CreateNewTabCSS() {
   ui::TemplateReplacements substitutions;
 
   // Cache-buster for background.
+#if !defined(OS_ANDROID)
   substitutions["themeId"] =
       profile_->GetPrefs()->GetString(prefs::kCurrentThemeID);
+#else
+  substitutions["themeId"] = "";
+#endif
 
   // Colors.
   substitutions["colorBackground"] =
       color_utils::SkColorToRgbaString(color_background);
+#if !defined(OS_ANDROID)
   substitutions["backgroundBarDetached"] = GetNewTabBackgroundCSS(tp, false);
   substitutions["backgroundBarAttached"] = GetNewTabBackgroundCSS(tp, true);
   substitutions["backgroundTiling"] = GetNewTabBackgroundTilingCSS(tp);
+#else
+  substitutions["backgroundBarDetached"] = "-64px";
+  substitutions["backgroundBarAttached"] = "-64px";
+  substitutions["backgroundTiling"] = "no-repeat";
+#endif
   substitutions["colorTextRgba"] = color_utils::SkColorToRgbaString(color_text);
   substitutions["colorTextLight"] =
       color_utils::SkColorToRgbaString(color_text_light);
@@ -577,6 +640,7 @@ void NTPResourceCache::CreateNewTabCSS() {
       color_utils::SkColorToRgbString(color_section_border);
   substitutions["colorText"] = color_utils::SkColorToRgbString(color_text);
 
+#if !defined(OS_ANDROID)
   // For themes that right-align the background, we flip the attribution to the
   // left to avoid conflicts.
   int alignment =
@@ -590,9 +654,18 @@ void NTPResourceCache::CreateNewTabCSS() {
     substitutions["rightAlignAttribution"] = "0";
     substitutions["textAlignAttribution"] = "left";
   }
+#else
+    substitutions["leftAlignAttribution"] = "0";
+    substitutions["rightAlignAttribution"] = "auto";
+    substitutions["textAlignAttribution"] = "right";
+#endif
 
+#if !defined(OS_ANDROID)
   substitutions["displayAttribution"] =
       tp.HasCustomImage(IDR_THEME_NTP_ATTRIBUTION) ? "inline" : "none";
+#else
+  substitutions["displayAttribution"] = "inline";
+#endif
 
   // Get our template.
   static const base::StringPiece new_tab_theme_css(

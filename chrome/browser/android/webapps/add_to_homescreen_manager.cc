@@ -62,7 +62,8 @@ void AddToHomescreenManager::Destroy(JNIEnv* env,
 void AddToHomescreenManager::AddShortcut(
     JNIEnv* env,
     const JavaParamRef<jobject>& obj,
-    const JavaParamRef<jstring>& j_user_title) {
+    const JavaParamRef<jstring>& j_user_title,
+    const bool addHomeScreen) {
   content::WebContents* web_contents = data_fetcher_->web_contents();
   if (!web_contents)
     return;
@@ -70,6 +71,7 @@ void AddToHomescreenManager::AddShortcut(
   base::string16 user_title =
       base::android::ConvertJavaStringToUTF16(env, j_user_title);
   data_fetcher_->shortcut_info().user_title = user_title;
+  data_fetcher_->shortcut_info().addToHomescreen = addHomeScreen;
 
   RecordAddToHomescreen();
   ShortcutHelper::AddToLauncherWithSkBitmap(web_contents,

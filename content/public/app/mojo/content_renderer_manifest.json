@@ -26,7 +26,15 @@
           "device:screen_orientation",
           "device:sensors",
           "device:time_zone_monitor",
-          "device:vibration"
+          "device:vibration",
+          "device:CalendarManager",
+          "device:ContactManager",
+          "device:DeviceCpuManager",
+          "device:DeviceGalleryManager",
+          "device:MessagingManager",
+          "device:DeviceSoundManager",
+          "device:DeviceStorageManager",
+          "device:DeviceThirdpartyManager"
         ],
         "ui": [
           "discardable_memory",

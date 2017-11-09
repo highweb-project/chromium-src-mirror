@@ -28,9 +28,20 @@
 #include "ui/gfx/color_analysis.h"
 #include "url/gurl.h"
 
+#include "base/values.h"
+#include "base/files/file_util.h"
+#include "base/android/path_utils.h"
+#include "chrome/browser/android/pwa_utils/manifest_utils.h"
+#include "ui/base/webui/web_ui_util.h"
+#include "content/public/browser/notification_service.h"
+#include "chrome/browser/chrome_notification_types.h"
+
 using base::android::JavaParamRef;
 using base::android::ScopedJavaLocalRef;
 using content::Manifest;
+using chrome::android::ManifestUtils;
+
+std::map<std::string, std::string>* ShortcutHelper::webapp_map = NULL;
 
 namespace {
 
@@ -76,6 +87,14 @@ void AddWebappWithSkBitmap(const ShortcutInfo& info,
                            const SkBitmap& icon_bitmap,
                            const base::Closure& splash_image_callback) {
   // Send the data to the Java side to create the shortcut.
+
+  ShortcutHelper::saveWebApp(info, webapp_id, icon_bitmap);
+
+  if (!info.addToHomescreen) {
+    splash_image_callback.Run();
+    return;
+  }
+
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jstring> java_webapp_id =
       base::android::ConvertUTF8ToJavaString(env, webapp_id);
@@ -114,6 +133,12 @@ void AddWebappWithSkBitmap(const ShortcutInfo& info,
 void AddShortcutWithSkBitmap(const ShortcutInfo& info,
                              const std::string& id,
                              const SkBitmap& icon_bitmap) {
+
+  ShortcutHelper::saveWebApp(info, id, icon_bitmap);
+  if (!info.addToHomescreen) {
+    return;
+  }
+
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jstring> java_id =
       base::android::ConvertUTF8ToJavaString(env, id);
@@ -224,6 +249,21 @@ void ShortcutHelper::StoreWebappSplashImage(const std::string& webapp_id,
 
   Java_ShortcutHelper_storeWebappSplashImage(env, java_webapp_id,
                                              java_splash_image);
+
+  if (webapp_map) {
+    std::map<std::string, std::string>::iterator it = webapp_map->find(webapp_id);
+    if (it != webapp_map->end()) {
+      std::string extensionKey = it->second;
+      ScopedJavaLocalRef<jstring> java_extension_id =
+        base::android::ConvertUTF8ToJavaString(env, extensionKey);
+      Java_ShortcutHelper_storeWebappSplashImage(env, java_extension_id, java_splash_image);
+      webapp_map->erase(it);
+      if (webapp_map->size() == 0) {
+        delete webapp_map;
+        webapp_map = NULL;
+      }
+    }
+  }
 }
 
 // static
@@ -406,4 +446,66 @@ void OnWebApksRetrieved(JNIEnv* env,
       reinterpret_cast<ShortcutHelper::WebApkInfoCallback*>(jcallback_pointer);
   webapk_list_callback->Run(webapk_list);
   delete webapk_list_callback;
+}
+
+void ShortcutHelper::saveWebApp(const ShortcutInfo& info,
+                         const std::string& webapp_id,
+                         const SkBitmap& icon_bitmap) {
+  GURL scope_url = GetScopeFromURL(info.url);
+
+  std::string extensionId = ManifestUtils::GenerateId(ManifestUtils::GenerateKey(info.url), info.url.spec());
+  base::FilePath extension_list = ManifestUtils::GetExtensionListPath();
+  std::unique_ptr<base::DictionaryValue> extensionList(ManifestUtils::GetDictionaryValue(extension_list));
+  if (!extensionList) {
+    extensionList.reset(new base::DictionaryValue());
+  }
+  if (!extensionList->HasKey(extensionId)) {
+    extensionList->SetBoolean(extensionId, true);
+
+    base::DictionaryValue appValue;
+  
+    appValue.SetString("id", extensionId);
+    appValue.SetString("short_name", info.short_name);
+    appValue.SetString("name", info.name);
+    std::string version = ManifestUtils::ConvertTimeToExtensionVersion(base::Time::Now());
+    appValue.SetString("version", version);
+    appValue.SetString("description", "");
+    appValue.SetString("app.launch.web_url", info.url.spec());
+    appValue.SetString("app.launch.scoped_url", scope_url.spec());
+    
+    std::unique_ptr<base::ListValue> linked_icons1 = base::MakeUnique<base::ListValue>();
+    appValue.SetList("app.linked_icons", std::move(linked_icons1));
+    std::unique_ptr<base::DictionaryValue> linked_icon(new base::DictionaryValue());
+    linked_icon->SetString("best_icon", info.best_primary_icon_url.spec());
+    linked_icons1->Append(std::move(linked_icon));
+    appValue.SetString("app.icon_color", std::to_string(info.theme_color));
+    appValue.SetInteger("app.orientation", (int)info.orientation);
+    appValue.SetInteger("app.display", (int)info.display);
+    appValue.SetInteger("app.source", (int)info.source);
+    appValue.SetString("app.background_color", std::to_string(info.background_color));
+
+    if (!icon_bitmap.empty()) {
+      std::string bitmapDataUrl = webui::GetBitmapDataUrl(icon_bitmap);
+      appValue.SetString("icon_url", bitmapDataUrl);
+    } else {
+      appValue.SetString("icon_url", info.best_primary_icon_url.spec());
+    }
+
+    base::FilePath manifest_path = ManifestUtils::GetExtensionDataFilePath(extensionId);
+    if (!ManifestUtils::serializeDictionaryValue(manifest_path, &appValue)) {
+        LOG(WARNING) << "serialize fail";
+    } else {
+        ManifestUtils::serializeDictionaryValue(extension_list, extensionList.get());
+        if (!webapp_id.empty()) {
+          ManifestUtils::createWebappDataStorage(extensionId);
+          if (!webapp_map) {
+            webapp_map = new std::map<std::string, std::string>;
+          }
+          webapp_map->insert(std::pair<std::string, std::string>(webapp_id, extensionId));
+        }
+    }
+    content::NotificationService::current()->Notify(chrome::NOTIFICATION_APP_INSTALLED_TO_NTP,
+        content::NotificationService::AllSources(), content::Details<base::DictionaryValue>(&appValue));
+  }
+  extensionList.reset();
 }

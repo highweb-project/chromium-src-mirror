@@ -4,6 +4,7 @@
 
 import("//build/config/android/config.gni")
 import("//build/config/android/rules.gni")
+import("//build/config/highweb.gni")
 
 android_aidl("common_aidl") {
   interface_file = "java/src/org/chromium/content/common/common.aidl"
@@ -61,6 +62,15 @@ android_library("content_java") {
     "//ui/accessibility:ui_accessibility_java",
     "//ui/android:ui_java",
     "//ui/gfx/geometry/mojo:mojo_java",
+    "//services/device/public/interfaces:interfaces_java",
+    "//services/device/calendar/android:calendar_manager_java",
+    "//services/device/contact/android:contact_manager_java",
+    "//services/device/cpu/android:devicecpu_manager_java",
+    "//services/device/gallery/android:devicegallery_manager_java",
+    "//services/device/messaging/android:messaging_manager_java",
+    "//services/device/sound/android:devicesound_manager_java",
+    "//services/device/storage/android:devicestorage_manager_java",
+    "//services/device/thirdparty/android:thirdparty_deviceapi_java",
   ]
 
   srcjar_deps = [

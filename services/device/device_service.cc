@@ -32,6 +32,16 @@
 #include "services/device/battery/battery_monitor_impl.h"
 #include "services/device/battery/battery_status_service.h"
 #include "services/device/vibration/vibration_manager_impl.h"
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "services/device/calendar/calendar_manager_impl.h"
+#include "services/device/contact/contact_manager_impl.h"
+#include "services/device/cpu/devicecpu_manager_impl.h"
+#include "services/device/gallery/devicegallery_manager_impl.h"
+#include "services/device/messaging/messaging_manager_impl.h"
+#include "services/device/sound/devicesound_manager_impl.h"
+#include "services/device/storage/devicestorage_manager_impl.h"
+#include "services/device/thirdparty/devicethirdparty_manager_impl.h"
+#endif
 #endif
 
 namespace device {
@@ -109,7 +119,11 @@ void DeviceService::OnStart() {
       &DeviceService::BindTimeZoneMonitorRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::WakeLockProvider>(base::Bind(
       &DeviceService::BindWakeLockProviderRequest, base::Unretained(this)));
-
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  registry_.AddInterface<mojom::ProximitySensor>(
+      base::Bind(&DeviceService::BindProximitySensorRequest,
+      base::Unretained(this)));
+#endif
 #if defined(OS_ANDROID)
   registry_.AddInterface(GetJavaInterfaceProvider()
                              ->CreateInterfaceFactory<mojom::BatteryMonitor>());
@@ -118,6 +132,24 @@ void DeviceService::OnStart() {
   registry_.AddInterface(
       GetJavaInterfaceProvider()
           ->CreateInterfaceFactory<mojom::VibrationManager>());
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::CalendarManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::ContactManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::DeviceCpuManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::DeviceGalleryManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::MessagingManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::DeviceSoundManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::DeviceStorageManager>());
+  registry_.AddInterface(GetJavaInterfaceProvider()
+                          ->CreateInterfaceFactory<mojom::DeviceThirdpartyManager>());
+  #endif
 #else
   registry_.AddInterface<mojom::BatteryMonitor>(base::Bind(
       &DeviceService::BindBatteryMonitorRequest, base::Unretained(this)));
@@ -125,6 +157,24 @@ void DeviceService::OnStart() {
       &DeviceService::BindNFCProviderRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::VibrationManager>(base::Bind(
       &DeviceService::BindVibrationManagerRequest, base::Unretained(this)));
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  registry_.AddInterface<mojom::CalendarManager>(base::Bind(
+    &DeviceService::BindCalendarManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::ContactManager>(base::Bind(
+    &DeviceService::BindContactManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::DeviceCpuManager>(base::Bind(
+    &DeviceService::BindDeviceCpuManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::DeviceGalleryManager>(base::Bind(
+    &DeviceService::BindDeviceGalleryManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::MessagingManager>(base::Bind(
+    &DeviceService::BindMessagingManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::DeviceSoundManager>(base::Bind(
+    &DeviceService::BindDeviceSoundManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::DeviceStorageManager>(base::Bind(
+    &DeviceService::BindDeviceStorageManagerRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::DeviceThirdpartyManager>(base::Bind(
+    &DeviceService::BindDeviceThirdpartyManagerRequest, base::Unretained(this)));
+  #endif
 #endif
 }
 
@@ -206,6 +256,23 @@ void DeviceService::BindOrientationAbsoluteSensorRequest(
 #endif  // defined(OS_ANDROID)
 }
 
+void DeviceService::BindProximitySensorRequest(
+  mojom::ProximitySensorRequest request) {
+    #if defined(OS_ANDROID) && defined(ENABLE_HIGHWEB_DEVICEAPI)
+// On Android the device sensors implementations need to run on the UI thread
+// to communicate to Java.
+  DeviceProximityHost::Create(std::move(request));
+  #endif
+// #else
+// On platforms other than Android the device sensors implementations run on
+// the IO thread.
+// if (io_task_runner_) {
+//   io_task_runner_->PostTask(FROM_HERE,
+//                             base::Bind(&DeviceProximityHost::Create,
+//                                        base::Passed(&request)));
+// }
+}
+
 void DeviceService::BindPowerMonitorRequest(
     mojom::PowerMonitorRequest request) {
   if (!power_monitor_message_broadcaster_) {
@@ -262,6 +329,33 @@ service_manager::InterfaceProvider* DeviceService::GetJavaInterfaceProvider() {
   }
 
   return &java_interface_provider_;
+}
+#endif
+
+#if defined(ENABLE_HIGHWEB_DEVICEAPI) && !defined(OS_ANDROID)
+void DeviceService::BindCalendarManagerRequest(mojom::CalendarManagerRequest request) {
+  CalendarManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindContactManagerRequest(mojom::ContactManagerRequest request) {
+  ContactManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindDeviceCpuManagerRequest(mojom::DeviceCpuManagerRequest request) {
+  DeviceCpuManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindDeviceGalleryManagerRequest(mojom::DeviceGalleryManagerRequest request) {
+  DeviceGalleryManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindMessagingManagerRequest(mojom::MessagingManagerRequest request) {
+  MessagingManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindDeviceSoundManagerRequest(mojom::DeviceSoundManagerRequest request) {
+  DeviceSoundManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindDeviceStorageManagerRequest(mojom::DeviceStorageManagerRequest request) {
+  DeviceStorageManagerImpl::Create(std::move(request));
+}
+void DeviceService::BindDeviceThirdpartyManagerRequest(mojom::DeviceThirdpartyManagerRequest request) {
+  DeviceThirdpartyManagerImpl::Create(std::move(request));
 }
 #endif
 

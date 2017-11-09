@@ -285,6 +285,10 @@
 #include "chrome/browser/metrics/desktop_session_duration/desktop_session_duration_tracker.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "chrome/browser/device_websocket_server/device_websocket_server.h"
+#endif
+
 using content::BrowserThread;
 
 namespace {
@@ -1410,6 +1414,14 @@ void ChromeBrowserMainParts::PostBrowserStart() {
         base::BindOnce(&WebUsbDetector::Initialize,
                        base::Unretained(web_usb_detector_.get())));
   }
+#endif
+
+#if defined(OS_LINUX)
+  device_websocket_server_.reset(new DeviceWebsocketServer(profile()));
+  BrowserThread::PostAfterStartupTask(
+        FROM_HERE, BrowserThread::GetTaskRunnerForThread(BrowserThread::UI),
+        base::Bind(&DeviceWebsocketServer::Start,
+                   base::Unretained(device_websocket_server_.get())));
 #endif
 
   // At this point, StartupBrowserCreator::Start has run creating initial

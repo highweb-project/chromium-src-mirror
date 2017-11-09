@@ -1,0 +1,3 @@
+callback interface ContactErrorCallback {
+	void handleResult(unsigned long error);
+};

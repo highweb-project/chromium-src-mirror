@@ -33,6 +33,11 @@ config("modules_implementation") {
       "BLINK_SBLOG=LOG(INFO)",
     ]
   }
+  if (enable_highweb_deviceapi) {
+    defines += [
+      "ENABLE_HIGHWEB_DEVICEAPI",
+    ]
+  }
 }
 
 make_names("module_names") {
@@ -167,6 +172,20 @@ target("jumbo_" + modules_target_type, "modules") {
     "//gpu",
     "//third_party/WebKit/public:blink_headers",
   ]
+  if (enable_highweb_deviceapi) {
+    deps += [
+      "//third_party/WebKit/Source/modules/applauncher",
+      "//third_party/WebKit/Source/modules/calendar",
+      "//third_party/WebKit/Source/modules/device_api",
+      "//third_party/WebKit/Source/modules/device_contact",
+      "//third_party/WebKit/Source/modules/device_cpu",
+      "//third_party/WebKit/Source/modules/device_gallery",
+      "//third_party/WebKit/Source/modules/device_messaging",
+      "//third_party/WebKit/Source/modules/device_proximity",
+      "//third_party/WebKit/Source/modules/device_sound",
+      "//third_party/WebKit/Source/modules/device_storage",
+    ]
+  }
 
   if (enable_highweb_webcl) {
     deps += [ "//third_party/WebKit/Source/modules/webcl", ]

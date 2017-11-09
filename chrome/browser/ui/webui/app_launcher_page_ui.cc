@@ -12,9 +12,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/app_launcher_login_handler.h"
 #include "chrome/browser/ui/webui/metrics_handler.h"
-#include "chrome/browser/ui/webui/ntp/app_launcher_handler.h"
 #include "chrome/browser/ui/webui/ntp/app_resource_cache_factory.h"
-#include "chrome/browser/ui/webui/ntp/core_app_launcher_handler.h"
 #include "chrome/browser/ui/webui/ntp/ntp_resource_cache.h"
 #include "chrome/browser/ui/webui/theme_handler.h"
 #include "chrome/common/url_constants.h"
@@ -24,11 +22,16 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_ui.h"
-#include "extensions/browser/extension_system.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
-
-class ExtensionService;
+#if !defined(OS_ANDROID)
+#include "chrome/browser/ui/webui/ntp/app_launcher_handler.h"
+#include "chrome/browser/ui/webui/ntp/core_app_launcher_handler.h"
+#include "extensions/browser/extension_system.h"
+#else
+#include "chrome/browser/ui/webui/theme_source.h"
+#include "chrome/browser/ui/webui/ntp/android_app_launcher_handler.h"
+#endif
 
 using content::BrowserThread;
 
@@ -38,6 +41,7 @@ using content::BrowserThread;
 AppLauncherPageUI::AppLauncherPageUI(content::WebUI* web_ui)
     : content::WebUIController(web_ui) {
   web_ui->OverrideTitle(l10n_util::GetStringUTF16(IDS_APP_LAUNCHER_TAB_TITLE));
+#if !defined(OS_ANDROID)
 
   if (!GetProfile()->IsOffTheRecord()) {
     ExtensionService* service =
@@ -54,9 +58,18 @@ AppLauncherPageUI::AppLauncherPageUI(content::WebUI* web_ui)
   // earlier.
   web_ui->AddMessageHandler(base::MakeUnique<ThemeHandler>());
 
+#else
+  web_ui->AddMessageHandler(base::MakeUnique<AppLauncherHandler>());
+  web_ui->AddMessageHandler(base::MakeUnique<MetricsHandler>());
+#endif
+
   std::unique_ptr<HTMLSource> html_source(
       new HTMLSource(GetProfile()->GetOriginalProfile()));
   content::URLDataSource::Add(GetProfile(), html_source.release());
+
+#if defined(OS_ANDROID)
+  content::URLDataSource::Add(GetProfile(), new ThemeSource(GetProfile()));
+#endif
 }
 
 AppLauncherPageUI::~AppLauncherPageUI() {

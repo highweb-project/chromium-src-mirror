@@ -134,7 +134,8 @@ public class AppBannerManager {
         if (languageOption == LanguageOption.INSTALL) {
             return R.string.menu_add_to_homescreen_install;
         }
-        return R.string.menu_add_to_homescreen;
+        // return R.string.menu_add_to_homescreen;
+        return R.string.menu_add_to_webapp;
     }
 
     /** Returns the language option to use for app banners. */
@@ -145,7 +146,8 @@ public class AppBannerManager {
         } else if (languageOption == LanguageOption.INSTALL) {
             return R.string.app_banner_install;
         }
-        return R.string.menu_add_to_homescreen;
+        // return R.string.menu_add_to_homescreen;
+        return R.string.menu_add_to_webapp;
     }
 
     /** Overrides whether the system supports add to home screen. Used in testing. */

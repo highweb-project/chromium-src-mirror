@@ -70,6 +70,7 @@
 #include "extensions/common/extension.h"
 #include "extensions/common/extension_icon_set.h"
 #include "extensions/common/extension_set.h"
+#include "extensions/common/manifest_handlers/icons_handler.h"
 #include "net/base/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/webui/web_ui_util.h"
@@ -83,6 +84,10 @@ using extensions::ExtensionPrefs;
 using extensions::ExtensionRegistry;
 using extensions::ExtensionSet;
 using extensions::ExtensionSystem;
+
+namespace highweb_pwa {
+const char kHighwebPwaAppId[] = "jdccbhhlabdfagkgmocpancoeciocojb";
+}
 
 namespace {
 
@@ -164,11 +169,23 @@ void AppLauncherHandler::CreateAppInfo(
       extension, NULL));
 
   // Instead of setting grayscale here, we do it in apps_page.js.
-  GURL icon = extensions::ExtensionIconSource::GetIconURL(
+  if (extension->manifest() && extension->manifest()->HasKey("icon_url")) {
+    std::string url;
+    extension->manifest()->GetString("icon_url", &url);
+    // value->SetString("icon_big", url);
+    // LOG(INFO) << "manifest->icon_url : " + url;
+    // value->SetBoolean("icon_big_exists", true);
+    // value->SetString("icon_small", "");
+    // value->SetBoolean("icon_small_exists", false);
+    value->SetString("icon", url);
+  } else {
+    GURL icon = extensions::ExtensionIconSource::GetIconURL(
       extension, extension_misc::EXTENSION_ICON_LARGE,
       ExtensionIconSet::MATCH_BIGGER, false);
-  DCHECK_NE(GURL(), icon);
-  value->SetString("icon", icon.spec());
+    DCHECK_NE(GURL(), icon);
+    value->SetString("icon", icon.spec());
+  }
+
   value->SetInteger("launch_container",
                     extensions::AppLaunchInfo::GetLaunchContainer(extension));
   ExtensionPrefs* prefs = ExtensionPrefs::Get(service->profile());
@@ -183,7 +200,8 @@ void AppLauncherHandler::CreateAppInfo(
   if (!page_ordinal.IsValid()) {
     // Make sure every app has a page ordinal (some predate the page ordinal).
     // The webstore app should be on the first page.
-    page_ordinal = extension->id() == extensions::kWebStoreAppId ?
+    page_ordinal = (extension->id() == extensions::kWebStoreAppId) || 
+                   (extension->id() == highweb_pwa::kHighwebPwaAppId) ?
         sorting->CreateFirstAppPageOrdinal() :
         sorting->GetNaturalAppPageOrdinal();
     sorting->SetPageOrdinal(extension->id(), page_ordinal);
@@ -197,7 +215,8 @@ void AppLauncherHandler::CreateAppInfo(
     // Make sure every app has a launch ordinal (some predate the launch
     // ordinal). The webstore's app launch ordinal is always set to the first
     // position.
-    app_launch_ordinal = extension->id() == extensions::kWebStoreAppId ?
+    app_launch_ordinal = (extension->id() == extensions::kWebStoreAppId) || 
+                         (extension->id() == highweb_pwa::kHighwebPwaAppId) ?
         sorting->CreateFirstAppLaunchOrdinal(page_ordinal) :
         sorting->CreateNextAppLaunchOrdinal(page_ordinal);
     sorting->SetAppLaunchOrdinal(extension->id(), app_launch_ordinal);
@@ -370,7 +389,7 @@ void AppLauncherHandler::FillAppDictionary(base::DictionaryValue* dictionary) {
        it != visible_apps_.end(); ++it) {
     const Extension* extension = extension_service_->GetInstalledExtension(*it);
     if (extension && extensions::ui_util::ShouldDisplayInNewTabPage(
-            extension, profile)) {
+            extension, profile) && !NotDisplayHighweb(extension)) {
       installed_extensions->Append(GetAppInfo(extension));
     }
   }
@@ -886,4 +905,18 @@ bool AppLauncherHandler::ShouldShow(const Extension* extension) const {
 
   Profile* profile = Profile::FromWebUI(web_ui());
   return extensions::ui_util::ShouldDisplayInNewTabPage(extension, profile);
+}
+
+bool AppLauncherHandler::NotDisplayHighweb(const extensions::Extension* extension) const {
+  bool isHighweb = web_ui()->GetWebContents()->GetVisibleURL().SchemeIs(content::kHighwebScheme);
+  GURL urls = extensions::AppLaunchInfo::GetFullLaunchURL(extension);
+  if (!isHighweb) {
+    return false;
+  }
+  if (!urls.SchemeIsHTTPOrHTTPS() ||
+      urls == GURL(chrome::kChromeUINewTabURL) ||
+      extension->id() == extensions::kWebStoreAppId) {
+    return true;
+  }
+  return false;
 }

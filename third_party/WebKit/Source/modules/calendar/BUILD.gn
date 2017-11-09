@@ -1,0 +1,34 @@
+# Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+# Copyright 2016 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//third_party/WebKit/Source/modules/modules.gni")
+import("//build/config/highweb.gni")
+
+if (enable_highweb_deviceapi) {
+  blink_modules_sources("calendar") {
+    sources = [
+      "Calendar.cpp",
+      "Calendar.h",
+      "CalendarError.cpp",
+      "CalendarError.h",
+      "CalendarEvent.h",
+      "CalendarEventErrorCallback.h",
+      "CalendarEventSuccessCallback.h",
+      "CalendarEventFilter.h",
+      "CalendarFindOptions.h",
+      "CalendarInfo.h",
+      "CalendarRepeatRule.h",
+      "CalendarStatus.cpp",
+      "CalendarStatus.h",
+      "DOMWindowCalendar.cpp",
+      "DOMWindowCalendar.h",
+    ]
+
+    deps = [
+      "//services/device/public/interfaces:interfaces_blink",
+      "//services/service_manager/public/cpp",
+    ]
+  }
+}

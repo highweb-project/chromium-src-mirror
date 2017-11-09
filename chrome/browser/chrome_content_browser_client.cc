@@ -1163,6 +1163,7 @@ void ChromeContentBrowserClient::GetAdditionalWebUISchemes(
     std::vector<std::string>* additional_schemes) {
   additional_schemes->push_back(chrome::kChromeSearchScheme);
   additional_schemes->push_back(dom_distiller::kDomDistillerScheme);
+  additional_schemes->push_back(content::kHighwebScheme);
 }
 
 void ChromeContentBrowserClient::GetAdditionalViewSourceSchemes(
@@ -3432,6 +3433,7 @@ bool ChromeContentBrowserClient::HandleWebUIReverse(
   // No need to actually reverse-rewrite the URL, but return true to update the
   // displayed URL when rewriting chrome://help to chrome://settings/help.
   return url->SchemeIs(content::kChromeUIScheme) &&
+         url->SchemeIs(content::kHighwebScheme) &&
          url->host() == chrome::kChromeUISettingsHost;
 }
 

@@ -1,0 +1,11 @@
+[
+ 	Constructor
+] interface MessageObject {
+	attribute DOMString id;
+	attribute DOMString type;
+	attribute DOMString to;
+	attribute DOMString from;
+	attribute DOMString? title;
+	attribute DOMString? body;
+	attribute DOMString? date;
+};

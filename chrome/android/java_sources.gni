@@ -1299,6 +1299,8 @@ chrome_java_sources = [
   "java/src/org/chromium/chrome/browser/widget/textbubble/ArrowBubbleDrawable.java",
   "java/src/org/chromium/chrome/browser/widget/textbubble/TextBubble.java",
   "java/src/org/chromium/chrome/browser/widget/textbubble/ViewAnchoredTextBubble.java",
+  "java/src/org/chromium/chrome/browser/webapps/ManifestUtils.java",
+  "java/src/org/chromium/chrome/browser/DeviceWebsocketServer.java",
 ]
 
 chrome_vr_java_sources = [

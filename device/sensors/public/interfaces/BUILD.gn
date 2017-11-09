@@ -8,5 +8,6 @@ mojom("interfaces") {
   sources = [
     "motion.mojom",
     "orientation.mojom",
+    "proximity.mojom",
   ]
 }

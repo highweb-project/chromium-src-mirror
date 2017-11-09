@@ -28,11 +28,11 @@
         <structure name="IDR_HELP_CHANNEL_CHANGE_PAGE_CSS" file="resources\help\channel_change_page.css" flattenhtml="true" type="chrome_html" />
         <structure name="IDR_HELP_CHANNEL_CHANGE_PAGE_HTML" file="resources\help\channel_change_page.html" flattenhtml="true" type="chrome_html" />
       </if>
-      <if expr="not is_android">
+      <!-- <if expr="not is_android"> -->
         <structure name="IDR_INCOGNITO_TAB_HTML" file="resources\ntp4\incognito_tab.html" flattenhtml="true" type="chrome_html" />
         <structure name="IDR_MD_INCOGNITO_TAB_HTML" file="resources\ntp4\md_incognito_tab.html" flattenhtml="true" type="chrome_html" />
         <structure name="IDR_GUEST_TAB_HTML" file="resources\ntp4\guest_tab.html" flattenhtml="true" type="chrome_html" />
-      </if>
+      <!-- </if> -->
       <if expr="chromeos">
         <structure name="IDR_LOCK_HTML" file="resources\chromeos\login\lock.html" flattenhtml="true" type="chrome_html" variables="OOBE=lock" expand_variables="true"/>
         <structure name="IDR_LOCK_JS" file="resources\chromeos\login\lock.js" flattenhtml="true" type="chrome_html" variables="OOBE=lock" expand_variables="true" />
@@ -43,11 +43,11 @@
         <structure name="IDR_MD_LOGIN_HTML" file="resources\chromeos\login\md_login.html" flattenhtml="true" type="chrome_html" variables="OOBE=md_login" expand_variables="true"/>
         <structure name="IDR_MD_LOGIN_JS" file="resources\chromeos\login\md_login.js" flattenhtml="true" type="chrome_html" />
       </if>
-      <if expr="not is_android">
+      <!-- <if expr="not is_android"> -->
         <structure name="IDR_NEW_INCOGNITO_TAB_THEME_CSS" file="resources\ntp4\new_incognito_tab_theme.css" flattenhtml="true" type="chrome_html" />
         <structure name="IDR_NEW_TAB_4_HTML" file="resources\ntp4\new_tab.html" flattenhtml="true" type="chrome_html" />
         <structure name="IDR_NEW_TAB_4_THEME_CSS" file="resources\ntp4\new_tab_theme.css" flattenhtml="true" type="chrome_html" />
-      </if>
+      <!-- </if> -->
       <if expr="chromeos">
         <structure name="IDR_OOBE_HTML" file="resources\chromeos\login\oobe.html" flattenhtml="true" type="chrome_html" variables="OOBE=oobe" expand_variables="true"/>
         <structure name="IDR_OOBE_JS" file="resources\chromeos\login\oobe.js" flattenhtml="true" type="chrome_html" />
@@ -681,6 +681,7 @@
       <include name="IDR_MEDIA_ENGAGEMENT_HTML" file="resources\media\media_engagement.html" flattenhtml="true" type="BINDATA" compress="gzip" allowexternalscript="true" />
       <include name="IDR_MEDIA_ENGAGEMENT_JS" file="resources\media\media_engagement.js" flattenhtml="true" type="BINDATA" compress="gzip" />
       <include name="IDR_MEDIA_ENGAGEMENT_MOJO_JS" file="${root_gen_dir}\chrome\browser\media\media_engagement_score_details.mojom.js" use_base_dir="false" type="BINDATA" compress="gzip" />
+      <include name="IDR_HIGHWEB_PWA_MANIFEST" file="resources\highweb_pwa\manifest.json" type="BINDATA" />
     </includes>
   </release>
 </grit>

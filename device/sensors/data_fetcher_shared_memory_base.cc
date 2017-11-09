@@ -19,6 +19,10 @@
 #include "device/sensors/public/cpp/device_motion_hardware_buffer.h"
 #include "device/sensors/public/cpp/device_orientation_hardware_buffer.h"
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+#include "device/sensors/public/cpp/device_proximity_hardware_buffer.h"
+#endif
+
 namespace device {
 
 namespace {
@@ -30,6 +34,10 @@ size_t GetConsumerSharedMemoryBufferSize(ConsumerType consumer_type) {
     case CONSUMER_TYPE_ORIENTATION:
     case CONSUMER_TYPE_ORIENTATION_ABSOLUTE:
       return sizeof(DeviceOrientationHardwareBuffer);
+  #if defined(ENABLE_HIGHWEB_DEVICEAPI)
+    case CONSUMER_TYPE_PROXIMITY:
+      return sizeof(DeviceProximityHardwareBuffer);
+  #endif
     default:
       NOTREACHED();
   }
@@ -172,7 +180,9 @@ void DataFetcherSharedMemoryBase::Shutdown() {
   StopFetchingDeviceData(CONSUMER_TYPE_MOTION);
   StopFetchingDeviceData(CONSUMER_TYPE_ORIENTATION);
   StopFetchingDeviceData(CONSUMER_TYPE_ORIENTATION_ABSOLUTE);
-
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+  StopFetchingDeviceData(CONSUMER_TYPE_PROXIMITY);
+#endif
   // Ensure that the polling thread stops before entering the destructor of the
   // subclass, as the stopping of the polling thread causes tasks to execute
   // that call virtual methods of this class, which can cause crashes if they

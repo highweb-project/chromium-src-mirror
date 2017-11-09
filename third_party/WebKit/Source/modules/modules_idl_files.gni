@@ -722,7 +722,6 @@ if(enable_highweb_webcl) {
   modules_dictionary_idl_files +=
       get_path_info([
                       "webcl/WebCLGLObjectInfo.idl",
-                      "webcl/WebCLImageDescriptor.idl",
                       "webcl/WebCLKernelArgInfo.idl",
                     ],
                     "abspath")
@@ -752,7 +751,99 @@ if(enable_highweb_webvkc) {
             "webvulkan/WindowWebVKC.idl",
           ],
           "abspath")
+  }
 }
+
+#deviceapi idl files
+if(enable_highweb_deviceapi) {
+  modules_idl_files +=
+      get_path_info(
+        [
+          "applauncher/AppLauncher.idl",
+          "applauncher/AppLauncherScriptCallback.idl",
+          "applauncher/ApplicationInfo.idl",
+          "applauncher/AppStatus.idl",
+          "calendar/Calendar.idl",
+          "calendar/CalendarError.idl",
+          "calendar/CalendarEvent.idl",
+          "calendar/CalendarEventErrorCallback.idl",
+          "calendar/CalendarEventFilter.idl",
+          "calendar/CalendarEventSuccessCallback.idl",
+          "calendar/CalendarFindOptions.idl",
+          "calendar/CalendarInfo.idl",
+          "calendar/CalendarRepeatRule.idl",
+          "calendar/CalendarStatus.idl",
+          "device_contact/Contact.idl",
+          "device_contact/ContactAddress.idl",
+          "device_contact/ContactErrorCallback.idl",
+          "device_contact/ContactName.idl",
+          "device_contact/ContactObject.idl",
+          "device_contact/ContactSuccessCallback.idl",
+          "device_cpu/DeviceCpu.idl",
+          "device_cpu/DeviceCpuScriptCallback.idl",
+          "device_cpu/DeviceCpuStatus.idl",
+          "device_gallery/DeviceGallery.idl",
+          "device_gallery/GalleryErrorCallback.idl",
+          "device_gallery/GalleryMediaObject.idl",
+          "device_gallery/GallerySuccessCallback.idl",
+          "device_gallery/MediaContent.idl",
+          "device_messaging/MessageObject.idl",
+          "device_messaging/Messaging.idl",
+          "device_messaging/MessagingErrorCallback.idl",
+          "device_messaging/MessagingEvent.idl",
+          "device_messaging/MessagingSuccessCallback.idl",
+          "device_proximity/DeviceProximityEvent.idl",
+          "device_sound/DeviceSound.idl",
+          "device_sound/DeviceSoundScriptCallback.idl",
+          "device_sound/DeviceSoundStatus.idl",
+          "device_storage/DeviceStorage.idl",
+          "device_storage/DeviceStorageScriptCallback.idl",
+          "device_storage/DeviceStorageStatus.idl",
+        ],
+        "abspath")
+
+  modules_dictionary_idl_files +=
+      get_path_info(
+        [
+          "device_contact/ContactFindOptions.idl",
+          "device_gallery/GalleryFindOptions.idl",
+          "device_messaging/MessageFindOptions.idl",
+          "device_proximity/DeviceProximityEventInit.idl",
+          "device_sound/DeviceVolume.idl",
+          "device_storage/DeviceStorageInfo.idl",
+        ],
+        "abspath")
+  modules_dependency_idl_files +=
+      get_path_info(
+        [
+          "applauncher/NavigatorAppLauncher.idl",
+          "calendar/WindowCalendar.idl",
+          "device_contact/NavigatorContact.idl",
+          "device_cpu/NavigatorDeviceCpu.idl",
+          "device_gallery/NavigatorDeviceGallery.idl",
+          "device_messaging/NavigatorMessaging.idl",
+          "device_proximity/WindowDeviceProximity.idl",
+          "device_sound/NavigatorDeviceSound.idl",
+          "device_storage/NavigatorDeviceStorage.idl",
+        ],
+        "abspath")
+  if (is_android) {
+    modules_idl_files +=
+        get_path_info(
+          [
+            "device_api/SendAndroidBroadcastCallback.idl",
+            "device_api/ThirdPartyDeviceApi.idl",
+          ],
+          "abspath")
+    modules_dependency_idl_files +=
+        get_path_info(
+          [
+            "device_api/WindowThirdPartyDeviceApi.idl",
+          ],
+          "abspath")
+  }
+}
+
 modules_definition_idl_files = modules_dictionary_idl_files + modules_idl_files
 
 # Static IDL files

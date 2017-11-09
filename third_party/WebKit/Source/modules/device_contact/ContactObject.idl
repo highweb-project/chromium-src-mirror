@@ -1,0 +1,14 @@
+[
+ 	Constructor
+] interface ContactObject {
+	attribute DOMString id;
+	attribute DOMString displayName;
+	attribute DOMString phoneNumber;
+	attribute DOMString emails;
+	attribute DOMString address;
+	attribute DOMString[] categories;
+	attribute DOMString accountName;
+	attribute DOMString accountType;
+	attribute ContactAddress structuredAddress;
+	attribute ContactName structuredName;
+};

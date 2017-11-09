@@ -12,7 +12,9 @@ ShortcutInfo::ShortcutInfo(const GURL& shortcut_url)
       theme_color(content::Manifest::kInvalidOrMissingColor),
       background_color(content::Manifest::kInvalidOrMissingColor),
       ideal_splash_image_size_in_px(0),
-      minimum_splash_image_size_in_px(0) {}
+      minimum_splash_image_size_in_px(0),
+      addToHomescreen(false) {
+}
 
 ShortcutInfo::ShortcutInfo(const ShortcutInfo& other) = default;
 

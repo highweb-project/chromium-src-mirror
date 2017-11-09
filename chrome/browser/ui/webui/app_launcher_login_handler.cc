@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -89,11 +92,12 @@ AppLauncherLoginHandler::AppLauncherLoginHandler() {}
 AppLauncherLoginHandler::~AppLauncherLoginHandler() {}
 
 void AppLauncherLoginHandler::RegisterMessages() {
+#if !defined(OS_ANDROID)
   profile_info_watcher_.reset(new ProfileInfoWatcher(
       Profile::FromWebUI(web_ui()),
       base::Bind(&AppLauncherLoginHandler::UpdateLogin,
                  base::Unretained(this))));
-
+#endif
   web_ui()->RegisterMessageCallback("initializeSyncLogin",
       base::Bind(&AppLauncherLoginHandler::HandleInitializeSyncLogin,
                  base::Unretained(this)));
@@ -115,6 +119,7 @@ void AppLauncherLoginHandler::HandleInitializeSyncLogin(
 
 void AppLauncherLoginHandler::HandleShowSyncLoginUI(
     const base::ListValue* args) {
+#if !defined(OS_ANDROID)
   Profile* profile = Profile::FromWebUI(web_ui());
   if (!signin::ShouldShowPromo(profile))
     return;
@@ -137,6 +142,7 @@ void AppLauncherLoginHandler::HandleShowSyncLoginUI(
           : signin_metrics::AccessPoint::ACCESS_POINT_NTP_LINK;
   chrome::ShowBrowserSignin(browser, access_point);
   RecordInHistogram(NTP_SIGN_IN_PROMO_CLICKED);
+#endif
 }
 
 void AppLauncherLoginHandler::RecordInHistogram(int type) {
@@ -158,6 +164,7 @@ void AppLauncherLoginHandler::HandleLoginMessageSeen(
 
 void AppLauncherLoginHandler::HandleShowAdvancedLoginUI(
     const base::ListValue* args) {
+#if !defined(OS_ANDROID)
   content::WebContents* web_contents = web_ui()->GetWebContents();
   Browser* browser = chrome::FindBrowserWithWebContents(web_contents);
   if (!browser)
@@ -167,9 +174,11 @@ void AppLauncherLoginHandler::HandleShowAdvancedLoginUI(
           ? signin_metrics::AccessPoint::ACCESS_POINT_APPS_PAGE_LINK
           : signin_metrics::AccessPoint::ACCESS_POINT_NTP_LINK;
   chrome::ShowBrowserSignin(browser, access_point);
+#endif
 }
 
 void AppLauncherLoginHandler::UpdateLogin() {
+#if !defined(OS_ANDROID)
   std::string username = profile_info_watcher_->GetAuthenticatedUsername();
   base::string16 header, sub_header;
   std::string icon_url;
@@ -229,6 +238,7 @@ void AppLauncherLoginHandler::UpdateLogin() {
   web_ui()->CallJavascriptFunctionUnsafe("ntp.updateLogin", header_value,
                                          sub_header_value, icon_url_value,
                                          is_user_signed_in);
+#endif
 }
 
 // static
@@ -246,9 +256,13 @@ bool AppLauncherLoginHandler::ShouldShow(Profile* profile) {
 // static
 void AppLauncherLoginHandler::GetLocalizedValues(
     Profile* profile, base::DictionaryValue* values) {
+  
+#if !defined(OS_ANDROID)
   PrefService* prefs = profile->GetPrefs();
   bool hide_sync = !prefs->GetBoolean(prefs::kSignInPromoShowNTPBubble);
-
+#else
+  bool hide_sync = true;
+#endif
   base::string16 message = hide_sync ? base::string16() :
       l10n_util::GetStringFUTF16(IDS_SYNC_PROMO_NTP_BUBBLE_MESSAGE,
           l10n_util::GetStringUTF16(IDS_SHORT_PRODUCT_NAME));

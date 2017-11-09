@@ -1,0 +1,25 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+[
+	NoInterfaceObject
+]
+interface AppLauncher {
+	// Exception code
+	const long SUCCESS = 0;
+	const long FAILURE = -1;
+	const long NOT_INSTALLED_APP = -2;
+	const long INVALID_APP_ID = -3;
+	const long NOT_ENABLED_PERMISSION = -4;
+	const long NOT_SUPPORT_API = 9999;
+
+	void launchApp(DOMString appId, optional AppLauncherScriptCallback callback = null);
+
+	void removeApp(DOMString appId, optional AppLauncherScriptCallback callback = null);
+
+	void getAppList(AppLauncherScriptCallback callback);
+
+	void getApplicationInfo(DOMString appId, AppLauncherScriptCallback callback);
+};

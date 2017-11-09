@@ -43,6 +43,10 @@
 #include "net/base/url_util.h"
 #include "ui/base/window_open_disposition.h"
 
+#include "content/public/browser/web_contents.h"
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
 #if defined(OS_WIN)
 #include "chrome/browser/win/enumerate_modules_model.h"
 #endif
@@ -355,6 +359,37 @@ void ShowAboutChrome(Browser* browser) {
       GetSingletonTabNavigateParams(browser, GURL(kChromeUIHelpURL)));
   params.path_behavior = NavigateParams::IGNORE_AND_NAVIGATE;
   ShowSingletonTabOverwritingNTP(browser, params);
+}
+
+void ShowWebD2D(Browser * browser) {
+  content::WebContents* contents = browser->tab_strip_model()->GetActiveWebContents();
+  if (contents != nullptr) {
+    std::string visible_url = contents->GetVisibleURL().possibly_invalid_spec();
+    LOG(ERROR) << "[ShowWebD2D][" << __FUNCTION__ << "][" << __LINE__ << "] visible_url : " << visible_url;
+
+    const char* IP = "127.0.0.1";
+    int PORT = 8888;
+
+    int sock;
+    struct sockaddr_in server;
+    char server_reply[2000] = { 0, };
+    sock = socket(AF_INET , SOCK_STREAM , 0);
+    if (sock != -1) {
+      server.sin_addr.s_addr = inet_addr(IP);
+      server.sin_family = AF_INET;
+      server.sin_port = htons(PORT);
+
+      if (connect(sock , (struct sockaddr *)&server , sizeof(server)) == 0) {
+        if (send(sock , visible_url.c_str() , strlen(visible_url.c_str()) , 0) > 0) {
+          if (recv(sock , server_reply , 2000 , 0) > 0) {
+            std::string reply(server_reply);
+            LOG(ERROR) << "[ShowWebD2D][" << __FUNCTION__ << "][" << __LINE__ << "] reply : " << reply;
+          }
+        }
+        close(sock);
+      }
+    }
+  }
 }
 
 void ShowSearchEngineSettings(Browser* browser) {

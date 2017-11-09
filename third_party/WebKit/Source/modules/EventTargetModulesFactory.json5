@@ -56,5 +56,6 @@
       ImplementedAs: "DOMWebSocket",
     },
     "modules/webusb/USB",
+    "modules/device_cpu/DeviceCpu",
   ],
 }

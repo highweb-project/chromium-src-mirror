@@ -25,7 +25,9 @@ AppResourceCacheFactory::AppResourceCacheFactory()
     : BrowserContextKeyedServiceFactory(
         "AppResourceCache",
         BrowserContextDependencyManager::GetInstance()) {
+#if !defined(OS_ANDROID)
   DependsOn(ThemeServiceFactory::GetInstance());
+#endif
 }
 
 AppResourceCacheFactory::~AppResourceCacheFactory() {}

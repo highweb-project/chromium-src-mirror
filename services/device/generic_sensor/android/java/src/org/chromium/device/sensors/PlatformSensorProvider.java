@@ -168,6 +168,8 @@ class PlatformSensorProvider {
                 return PlatformSensor.create(Sensor.TYPE_ROTATION_VECTOR, 4, this);
             case SensorType.RELATIVE_ORIENTATION_QUATERNION:
                 return PlatformSensor.create(Sensor.TYPE_GAME_ROTATION_VECTOR, 4, this);
+            case SensorType.PROXIMITY:
+                return PlatformSensor.create(Sensor.TYPE_PROXIMITY, 1, this);        
             default:
                 return null;
         }

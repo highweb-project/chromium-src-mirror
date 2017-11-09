@@ -1,0 +1,21 @@
+[
+	NoInterfaceObject,
+	DependentLifetime,
+	ActiveScriptWrappable
+] interface Messaging : EventTarget {
+	const unsigned long UNKNOWN_ERROR = 0;
+	const unsigned long INVALID_ARGUMNET_ERROR = 1;
+	const unsigned long TIMEOUT_ERROR = 3;
+	const unsigned long PENDING_OPERATION_ERROR = 4;
+	const unsigned long IO_ERROR = 5;
+	const unsigned long NOT_SUPPORTED_ERROR = 6;
+	const unsigned long PERMISSION_DENIED_ERROR = 20;
+	const unsigned long MESSAGE_SIZE_EXCEEDED = 30;
+	const unsigned long SUCCESS = 40;
+  const unsigned long NOT_SUPPORT_API = 9999;
+
+	attribute EventHandler onmessagereceived;
+
+	void sendMessage(MessageObject message);
+	void findMessage(MessageFindOptions findOptions, MessagingSuccessCallback successCB, MessagingErrorCallback errorCB);
+};

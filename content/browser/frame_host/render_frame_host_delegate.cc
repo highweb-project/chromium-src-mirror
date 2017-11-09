@@ -49,6 +49,20 @@ void RenderFrameHostDelegate::RequestMediaAccessPermission(
                std::unique_ptr<MediaStreamUI>());
 }
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void RenderFrameHostDelegate::RequestDeviceApiPermission(const DeviceApiPermissionRequest& request)
+{
+	request.callback_.Run(DeviceApiPermissionRequestResult::RESULT_NOT_IMPLEMENTED);
+}
+
+void RenderFrameHostDelegate::RequestApplauncherRequestFunction(const DeviceApiApplauncherRequest& request) {
+  DeviceApiApplauncherRequestResult result;
+  result.resultCode = applauncher_code_list::APPLAUNCHER_NOT_SUPPORT_API;
+  request.callback_.Run(result);
+  LOG(WARNING) << "RenderFrameHostDelegate::RequestApplauncherRequestFunction() not implemented";
+}
+#endif
+
 bool RenderFrameHostDelegate::CheckMediaAccessPermission(
     const GURL& security_origin,
     MediaStreamType type) {

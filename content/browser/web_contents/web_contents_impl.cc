@@ -2577,6 +2577,20 @@ void WebContentsImpl::RequestMediaAccessPermission(
   }
 }
 
+#if defined(ENABLE_HIGHWEB_DEVICEAPI)
+void WebContentsImpl::RequestDeviceApiPermission(const DeviceApiPermissionRequest& request)
+{
+  if (delegate_)
+    delegate_->RequestDeviceApiPermission(this, request);
+}
+
+void WebContentsImpl::RequestApplauncherRequestFunction(const DeviceApiApplauncherRequest& request) {
+  if (delegate_) {
+    delegate_->RequestApplauncherRequestFunction(this, request);
+  }
+}
+#endif
+
 bool WebContentsImpl::CheckMediaAccessPermission(const GURL& security_origin,
                                                  MediaStreamType type) {
   DCHECK(type == MEDIA_DEVICE_AUDIO_CAPTURE ||

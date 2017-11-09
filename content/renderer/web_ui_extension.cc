@@ -51,7 +51,8 @@ bool ShouldRespondToRequest(blink::WebLocalFrame** frame_ptr,
   bool webui_enabled =
       (render_frame->GetEnabledBindings() & BINDINGS_POLICY_WEB_UI) &&
       (frame_url.SchemeIs(kChromeUIScheme) ||
-       frame_url.SchemeIs(url::kDataScheme));
+       frame_url.SchemeIs(url::kDataScheme) ||
+       frame_url.SchemeIs(kHighwebScheme));
 
   if (!webui_enabled)
     return false;

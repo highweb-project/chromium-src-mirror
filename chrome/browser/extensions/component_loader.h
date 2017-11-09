@@ -170,6 +170,7 @@ class ComponentLoader {
   void AddHotwordAudioVerificationApp();
   void AddKeyboardApp();
   void AddWebStoreApp();
+  void AddHighwebPwaApp();
 
   scoped_refptr<const Extension> CreateExtension(
       const ComponentExtensionInfo& info, std::string* utf8_error);

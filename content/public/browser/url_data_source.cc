@@ -63,7 +63,7 @@ bool URLDataSource::ShouldDenyXFrameOptions() const {
 bool URLDataSource::ShouldServiceRequest(const GURL& url,
                                          ResourceContext* resource_context,
                                          int render_process_id) const {
-  return url.SchemeIs(kChromeDevToolsScheme) || url.SchemeIs(kChromeUIScheme);
+  return url.SchemeIs(kChromeDevToolsScheme) || url.SchemeIs(kChromeUIScheme) || url.SchemeIs(kHighwebScheme);
 }
 
 bool URLDataSource::ShouldServeMimeTypeAsContentTypeHeader() const {

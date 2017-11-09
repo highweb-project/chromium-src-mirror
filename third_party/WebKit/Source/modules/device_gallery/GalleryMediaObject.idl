@@ -1,0 +1,18 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+[
+	Constructor
+]
+interface GalleryMediaObject {
+	attribute DOMString type;
+	attribute DOMString description;
+	attribute DOMString id;
+	attribute DOMString title;
+	attribute DOMString fileName;
+	attribute long fileSize;
+	attribute Date createdDate;
+	attribute MediaContent content;
+};

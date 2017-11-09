@@ -11,6 +11,7 @@ import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
 import("//third_party/WebKit/public/public_features.gni")
 import("//tools/ipc_fuzzer/ipc_fuzzer.gni")
+import("//build/config/highweb.gni")
 
 source_set("browser") {
   # Only the public target should depend on this. All other targets (even
@@ -2168,6 +2169,30 @@ source_set("browser") {
     sources += [
       "hyphenation/hyphenation_impl.cc",
       "hyphenation/hyphenation_impl.h",
+    ]
+  }
+  if (enable_highweb_deviceapi) {
+    defines += [ "ENABLE_HIGHWEB_DEVICEAPI", ]
+    sources += [
+      "device_api/device_api_applauncher_message_filter.cc",
+      "device_api/device_api_applauncher_message_filter.h",
+      "device_api/device_api_permission_check_message_filter.cc",
+      "device_api/device_api_permission_check_message_filter.h",
+      "device_websocket/device_function_manager.cc",
+      "device_websocket/device_function_manager.h",
+      "device_websocket/device_subscribe_cpu_thread.cc",
+      "device_websocket/device_subscribe_cpu_thread.h",
+      "device_websocket/device_subscribe_message_thread.cc",
+      "device_websocket/device_subscribe_message_thread.h",
+      "device_websocket/device_subscribe_proximity_thread.cc",
+      "device_websocket/device_subscribe_proximity_thread.h",
+      "device_websocket/device_subscribe_thread.cc",
+      "device_websocket/device_subscribe_thread.h",
+      "device_websocket/device_websocket_manager.cc",
+      "device_websocket/device_websocket_manager.h",
+      "device_websocket/device_websocket_constants.h",
+      "device_websocket/device_websocket_handler.cc",
+      "device_websocket/device_websocket_handler.h",
     ]
   }
 }

@@ -1,0 +1,30 @@
+// Copyright (C) 2016 INFRAWARE, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device.mojom;
+
+enum calendar_function {
+	FUNC_FIND_EVENT = 1,
+	FUNC_ADD_EVENT = 2,
+	FUNC_UPDATE_EVENT = 3,
+	FUNC_DELETE_EVENT = 4,
+};
+
+struct Calendar_CalendarInfo {
+	string id = "";
+	string description = "";
+	string location = "";
+	string summary = "";
+	string start = "";
+	string end = "";
+	string status = "";
+	string transparency = "";
+	string reminder = "";
+};
+
+struct Calendar_ResultCode {
+	int32 resultCode;
+	int32 functionCode;
+	array<Calendar_CalendarInfo>? calendarlist;
+};
