@@ -923,7 +923,10 @@ int VKCApi::vkcCreateBuffer(const VKCPoint& vkcDevice, const VKCPoint& physicalD
 	{
 		if ((typeBits & 1) == 1)
 		{
-			if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+				&& (memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+				// && (memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
+				)
 			{
 				typeIndex = i;
 				break;

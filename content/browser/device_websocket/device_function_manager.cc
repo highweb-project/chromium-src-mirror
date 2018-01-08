@@ -968,7 +968,7 @@ void DeviceFunctionManager::OnDeviceGalleryMojoCallback(device::mojom::DeviceGal
           }
           valueList.get()->Append(std::move(value));
         }
-        resultValue->Set("storageList", std::move(valueList));
+        resultValue->Set("mediaList", std::move(valueList));
       }
       value_->Set("value", std::move(resultValue));
     } else {

@@ -17,6 +17,7 @@ class DeviceWebsocketConstants {
       SUBSCRIBE,
       UNSUBSCRIBE,
       UNSUBSCRIBEALL,
+      REQUESTMODELNAME,
     };
 
     enum PathCode {

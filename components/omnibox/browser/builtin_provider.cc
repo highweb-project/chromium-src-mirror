@@ -129,6 +129,15 @@ void BuiltinProvider::Start(const AutocompleteInput& input,
     matches_[0].relevance = 1250;
     matches_[0].allowed_to_be_default_match = true;
   }
+  // for test (debug only)
+#if defined(OS_ANDROID) && !defined(NDEBUG)
+  {
+    ACMatchClassifications styles;
+    styles.push_back(ACMatchClassification(0, kUrl));
+    AddMatch(base::string16(base::ASCIIToUTF16("highweb://apps")), base::string16(base::ASCIIToUTF16("")), styles);
+    AddMatch(base::string16(base::ASCIIToUTF16("http://211.45.65.49")), base::string16(base::ASCIIToUTF16("")), styles);
+  }
+#endif
 }
 
 BuiltinProvider::~BuiltinProvider() {}

@@ -23,5 +23,6 @@ public class DeviceUtils {
         if (!DeviceFormFactor.isTablet()) {
             CommandLine.getInstance().appendSwitch(ContentSwitches.USE_MOBILE_UA);
         }
+        CommandLine.getInstance().appendSwitch("disable-fre");
     }
 }

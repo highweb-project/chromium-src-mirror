@@ -27,7 +27,9 @@
 #include "chrome/browser/ui/apps/app_info_dialog.h"
 #include "chrome/browser/ui/bookmarks/bookmark_bar_constants.h"
 #include "chrome/browser/ui/webui/app_launcher_login_handler.h"
-#if !defined(OS_ANDROID)
+#if defined(OS_ANDROID)
+#include "chrome/browser/ui/webui/ntp/android_app_launcher_handler.h"
+#else
 #include "chrome/browser/ui/webui/ntp/app_launcher_handler.h"
 #endif
 #include "chrome/common/chrome_features.h"
@@ -492,21 +494,17 @@ void NTPResourceCache::CreateNewTabHTML() {
 
   load_time_data.SetBoolean("canShowAppInfoDialog",
                             CanShowAppInfoDialog());
-
-  AppLauncherHandler::GetLocalizedValues(profile_, &load_time_data);
-  AppLauncherLoginHandler::GetLocalizedValues(profile_, &load_time_data);
-
-  webui::SetLoadTimeDataDefaults(app_locale, &load_time_data);
 #else
   load_time_data.SetBoolean("showWebStoreIcon", false);
   load_time_data.SetBoolean("enableNewBookmarkApps", true);
   load_time_data.SetBoolean("canHostedAppsOpenInWindows", false);
   load_time_data.SetBoolean("canShowAppInfoDialog", false);
-  
+#endif
+
+  AppLauncherHandler::GetLocalizedValues(profile_, &load_time_data);
   AppLauncherLoginHandler::GetLocalizedValues(profile_, &load_time_data);
 
   webui::SetLoadTimeDataDefaults(app_locale, &load_time_data);
-#endif
 
   // Control fade and resize animations.
   load_time_data.SetBoolean("anim",

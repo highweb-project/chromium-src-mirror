@@ -72,10 +72,21 @@ void InitializeStaticCLBindings(CLApi* apiImpl) {
 #endif
 
 	//load so library
-	DLOG(INFO) << "clSoFile : " << clSoFile;
 	base::FilePath fileName = base::FilePath(clSoFile);
 	base::NativeLibraryLoadError error;
 	base::NativeLibrary opencl_library = base::LoadNativeLibrary(fileName, &error);
+
+	// NVIDIA Driver (384.98) doesnt have libOpenCL.so
+#if defined(OS_POSIX)
+	if (!opencl_library) {
+		clSoFile = "libOpenCL.so.1";
+		fileName = base::FilePath(clSoFile);
+		opencl_library = base::LoadNativeLibrary(fileName, &error);
+	}
+#endif
+
+	DLOG(INFO) << "clSoFile : " << clSoFile;
+
 	if (!opencl_library) {
 		DLOG(INFO) << "load library failed!!";
 		// [ERROR:native_library_posix.cc(41)] dlclose failed: NULL library handle
@@ -217,6 +228,11 @@ bool CLApi::doClTest() {
 
 cl_int CLApi::doclGetPlatformIDs(cl_uint num_entries, cl_platform_id* platforms, cl_uint* num_platforms)
 {
+	if (cl_get_platform_ids_ == nullptr) {
+		*num_platforms = 0;
+		return CL_INVALID_VALUE;
+	}
+
 	CLLOG(INFO) << "WEBCL::CLApi::doclGetPlatformIDs";
 	cl_int err = cl_get_platform_ids_(num_entries, platforms, num_platforms);
 	CLLOG(INFO) << ">>err=" << err;

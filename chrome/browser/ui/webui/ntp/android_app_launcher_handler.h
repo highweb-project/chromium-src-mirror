@@ -50,6 +50,10 @@ class AppLauncherHandler
     base::DictionaryValue* data,
       base::DictionaryValue* value);
 
+  // Registers values (strings etc.) for the page.
+  static void GetLocalizedValues(Profile* profile,
+      base::DictionaryValue* values);
+
   // WebUIMessageHandler:
   void RegisterMessages() override;
 

@@ -153,9 +153,10 @@ void DevToolsServer::Start(bool allow_debug_permission) {
           base::Bind(&content::CanUserConnectToDevTools);
   std::unique_ptr<content::DevToolsSocketFactory> factory(
       new UnixDomainServerSocketFactory(socket_name_, auth_callback));
+  std::string webkitRevision = "@76cc846b87194b6def876c7697854207ab0948c9";
   DevToolsAgentHost::StartRemoteDebuggingServer(
       std::move(factory),
-      base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
+      base::StringPrintf(kFrontEndURL, webkitRevision.c_str()),
       base::FilePath(), base::FilePath(),
       version_info::GetProductNameAndVersionForUserAgent(), ::GetUserAgent());
   is_started_ = true;

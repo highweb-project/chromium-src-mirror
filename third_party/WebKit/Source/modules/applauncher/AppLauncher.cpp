@@ -34,7 +34,6 @@ AppLauncher::AppLauncher(LocalFrame& frame)
 
 AppLauncher::~AppLauncher()
 {
-  mCallbackList.clear();
   d_functionData.clear();
 }
 

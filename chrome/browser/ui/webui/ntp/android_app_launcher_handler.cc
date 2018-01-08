@@ -146,6 +146,15 @@ void AppLauncherHandler::CreateAppInfo(
   value->SetBoolean("mayDisable", disable);
 }
 
+// static
+void AppLauncherHandler::GetLocalizedValues(Profile* profile,
+                                            base::DictionaryValue* values) {
+  // PrefService* prefs = profile->GetPrefs();
+  // int shown_page = prefs->GetInteger(prefs::kNtpShownPage);
+  int shown_page = 1;
+  values->SetInteger("shown_page_index", shown_page & INDEX_MASK);
+}
+
 void AppLauncherHandler::RegisterMessages() {
   registrar_.Add(this, chrome::NOTIFICATION_APP_INSTALLED_TO_NTP,
       content::NotificationService::AllSources());

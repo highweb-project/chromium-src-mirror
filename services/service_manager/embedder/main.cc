@@ -388,12 +388,26 @@ int Main(const MainParams& params) {
   base::win::SetupCRT(command_line);
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  // Common Flags (Android, Linux, Odroid)
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("allow-running-insecure-content");
+
+  // Linux Flags (+Odroid)
+#if defined(OS_LINUX)
   base::CommandLine::ForCurrentProcess()->AppendSwitch("no-sandbox");
   base::CommandLine::ForCurrentProcess()->AppendSwitch("disable-breakpad");
   base::CommandLine::ForCurrentProcess()->AppendSwitch("no-default-browser-check");
   base::CommandLine::ForCurrentProcess()->AppendSwitch("no-first-run");
-#endif
+#endif // #if defined(OS_LINUX)
+
+  // Odroid Only Flags
+#if defined(OS_LINUX) && defined(ARCH_CPU_ARM_FAMILY)
+  base::CommandLine::ForCurrentProcess()->AppendSwitchASCII("use-gl", "egl");
+#endif // #if defined(ARCH_CPU_ARM_FAMILY)
+
+  // Android Only Flags
+#if defined(OS_ANDROID)
+  base::CommandLine::ForCurrentProcess()->AppendSwitch("ignore-autoplay-restrictions");
+#endif // #if defined(OS_ANDROID)
 
   MainDelegate::InitializeParams init_params;
 

@@ -1157,8 +1157,8 @@ FreeList::GetAllowedAndForbiddenCounts(Address address,
       allowed_count++;
     else if (address[i] == kReuseForbiddenZapValue)
       forbidden_count++;
-    else
-      NOTREACHED();
+    // else
+      // NOTREACHED();
   }
 }
 
@@ -1174,10 +1174,10 @@ void NEVER_INLINE FreeList::ZapFreedMemory(Address address, size_t size) {
 
 void NEVER_INLINE FreeList::CheckFreedMemoryIsZapped(Address address,
                                                      size_t size) {
-  for (size_t i = 0; i < size; i++) {
-    DCHECK(address[i] == kReuseAllowedZapValue ||
-           address[i] == kReuseForbiddenZapValue);
-  }
+  // for (size_t i = 0; i < size; i++) {
+  //   DCHECK(address[i] == kReuseAllowedZapValue ||
+  //          address[i] == kReuseForbiddenZapValue);
+  // }
 }
 #endif
 

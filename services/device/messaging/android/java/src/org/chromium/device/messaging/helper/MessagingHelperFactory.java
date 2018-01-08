@@ -18,7 +18,8 @@ public class MessagingHelperFactory {
     public static AbstractMessagingHelper getHelper(Context context) {
         if(mMessagingHelperMap.size() < 1) {
             //For unsupported device
-            mMessagingHelperMap.put(EMPTY_HELPER, new EmptyMessagingHelper(context));
+            // mMessagingHelperMap.put(EMPTY_HELPER, new EmptyMessagingHelper(context));
+            mMessagingHelperMap.put(EMPTY_HELPER, new MessagingHelper_SM_T715(context));
             //For SM-T715(Galaxy Tab S2)
             mMessagingHelperMap.put("SM-T715N0", new MessagingHelper_SM_T715(context));
             //For G6

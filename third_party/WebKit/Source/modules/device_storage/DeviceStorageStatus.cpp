@@ -18,7 +18,6 @@ namespace blink {
 	}
 
 	DeviceStorageStatus::~DeviceStorageStatus() {
-		mStorageList.clear();
 	}
 
 	DeviceStorageStatus::DeviceStorageStatus() {

@@ -38,7 +38,6 @@ DeviceSound::~DeviceSound()
 		soundManager.reset();
 	}
 	d_functionData.clear();
-	mCallbackList.clear();
 }
 
 

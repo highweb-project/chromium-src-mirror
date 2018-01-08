@@ -16,7 +16,6 @@ namespace blink {
 	}
 
 	DeviceGalleryStatus::~DeviceGalleryStatus() {
-		data.clear();
 	}
 
 	void DeviceGalleryStatus::setFunctionCode(int function) {

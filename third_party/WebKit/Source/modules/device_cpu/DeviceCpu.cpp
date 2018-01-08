@@ -39,7 +39,6 @@ DeviceCpu::DeviceCpu(Document& document)
 DeviceCpu::~DeviceCpu()
 {
 	stopOnLoadCallback();
-	callbackList.clear();
 }
 
 void DeviceCpu::load(DeviceCpuScriptCallback* passCallback) {

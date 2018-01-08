@@ -16,7 +16,6 @@ namespace blink {
 
 	AppStatus::~AppStatus() {
 		mAppInfo = nullptr;
-		mAppList.clear();
 	}
 
 	AppStatus::AppStatus() {

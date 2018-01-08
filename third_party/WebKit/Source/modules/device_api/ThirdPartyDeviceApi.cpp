@@ -32,7 +32,6 @@ ThirdPartyDeviceApi::~ThirdPartyDeviceApi()
 		thirdpartyApiManager.reset();
 	}
 	d_functionData.clear();
-	mCallbackList.clear();
 }
 
 void ThirdPartyDeviceApi::sendAndroidBroadcast(String action, SendAndroidBroadcastCallback* callback) {

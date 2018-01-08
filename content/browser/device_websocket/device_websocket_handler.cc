@@ -6,6 +6,7 @@
 #include "content/browser/device_websocket/device_websocket_handler.h"
 #include "content/browser/device_websocket/device_function_manager.h"
 
+#include "base/sys_info.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
@@ -282,6 +283,7 @@ DeviceWebsocketHandler::DeviceWebsocketHandler(
   functionMap["unsubscribe"] = DeviceWebsocketConstants::FunctionCode::UNSUBSCRIBE;
   functionMap["unsubscribeAll"] = DeviceWebsocketConstants::FunctionCode::UNSUBSCRIBEALL;
   functionMap["unsubscribeall"] = DeviceWebsocketConstants::FunctionCode::UNSUBSCRIBEALL;
+  functionMap["requestmodelname"] = DeviceWebsocketConstants::FunctionCode::REQUESTMODELNAME;
 
   pathMap.clear();
   pathMap["highweb"] = DeviceWebsocketConstants::PathCode::HIGHWEB;
@@ -372,6 +374,14 @@ void DeviceWebsocketHandler::handleSocketMessage(int connection_id, const std::s
 
     base::DictionaryValue* extra_value = nullptr;
     switch(functionMap[action]) {
+      case DeviceWebsocketConstants::FunctionCode::REQUESTMODELNAME: {
+        std::string modelName = base::SysInfo::HardwareModelName().data();
+        if (modelName.empty()) {
+          modelName = base::SysInfo::OperatingSystemName();
+        }
+        setValue(response_value.get(), "modelname", &modelName);
+        break;
+      }
       case DeviceWebsocketConstants::FunctionCode::AUTHORIZE: {
         setValue(response_value.get(), "requestId", &requestId);
         handleAuthorize(response_value.get(), connection_id, requestId);
