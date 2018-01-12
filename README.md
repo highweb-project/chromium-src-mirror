@@ -67,7 +67,7 @@ https://www.chromium.org/developers/how-tos/get-the-code
 <pre><code>highweb-browser$ echo "target_os = [\"android\"]" >> .gclient</code></pre>
 
 -	외부 소스 저장소 동기화
-<pre><code>highweb-browser$ gclient sync -n</code></pre>
+<pre><code>highweb-browser$ gclient sync -n --with_branch_heads</code></pre>
 
 -	필요 라이브러리 설치 (최초 1회만 필요)
 <pre><code>src$ ./build/install-build-deps-android.sh
