@@ -21,7 +21,7 @@
 	-	Khronos Vulkan
 		-	https://www.khronos.org/vulkan/
 	-	WebVKc IDL
-		-	https://highweb-project.github.io/webvkc-specification/
+		-	https://highweb-project.github.io/WebVKc-specification/
 	-	WebVKc 샘플 (기존 WebCL 샘플 컨버팅)
 		-	https://highweb-project.github.io/WebVKc-sample/
 
